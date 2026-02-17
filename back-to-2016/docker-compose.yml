@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  back-to-2016:
+    build: .
+    container_name: back-to-2016
+    ports:
+      - "3110:80"
+    restart: unless-stopped
+    labels:
+      - "app.name=back-to-2016"
+      - "app.description=2016 nostalgia time capsule generator"
+      - "app.category=overnight-factory"
