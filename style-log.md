@@ -22,5 +22,10 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Pure white (#FFFFFF) background, acid green (#00CC44) accent, jet black (#000000) borders/text, warm off-white (#F4F4F0) surface
 - Signature: Giant outlined "BUILD SPEC" headline (CSS -webkit-text-stroke, transparent fill), Swiss grid dot background, step-by-step acid-green processing bar that fills as spec is generated, bold black CTA buttons with 4px offset shadow on hover
 
+## ContextCraft — 2026-02-18
+- Style: Precision Engineering Blueprint (architectural cross-section / technical schematic)
+- Palette: Deep navy (#060F1A) background, blueprint blue (#4A9EFF) accent, cross-hatch diagonal pattern for empty space, cream annotations
+- Signature: Animated building cross-section that fills from the bottom as content blocks are added — styled as an architectural blueprint with corner marks, dimension arrows, scale ruler tick marks (0%/25%/50%/75%/100%), and a yellow 80% warning line. Monospace (JetBrains Mono) typography throughout — even for UI labels, not just code.
+
 ---
 *New entries appended automatically after each build.*
