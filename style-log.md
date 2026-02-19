@@ -27,5 +27,10 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Deep navy (#060F1A) background, blueprint blue (#4A9EFF) accent, cross-hatch diagonal pattern for empty space, cream annotations
 - Signature: Animated building cross-section that fills from the bottom as content blocks are added — styled as an architectural blueprint with corner marks, dimension arrows, scale ruler tick marks (0%/25%/50%/75%/100%), and a yellow 80% warning line. Monospace (JetBrains Mono) typography throughout — even for UI labels, not just code.
 
+## CinePrompt — 2026-02-19
+- Style: Golden Age Cinema (Art Deco Hollywood — 1920s/30s cinema meets modern UX)
+- Palette: Warm black (#0D0906) background, aged parchment (#F4E4B4) cards, cinema gold (#C49A2A) accents, velvet red (#9B1919) CTAs, cream (#FFF8E7) projection light
+- Signature: Animated film strip perforations scrolling up/down on both screen edges (CSS animation), director's viewfinder frame with rule-of-thirds grid overlay and corner markers showing live current parameters, five 35mm film-frame previews with sprocket holes above/below showing current shot selections, Playfair Display serif + Courier Prime monospace typography throughout
+
 ---
 *New entries appended automatically after each build.*
