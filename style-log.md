@@ -32,5 +32,10 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Warm black (#0D0906) background, aged parchment (#F4E4B4) cards, cinema gold (#C49A2A) accents, velvet red (#9B1919) CTAs, cream (#FFF8E7) projection light
 - Signature: Animated film strip perforations scrolling up/down on both screen edges (CSS animation), director's viewfinder frame with rule-of-thirds grid overlay and corner markers showing live current parameters, five 35mm film-frame previews with sprocket holes above/below showing current shot selections, Playfair Display serif + Courier Prime monospace typography throughout
 
+## SceneSong — 2026-02-20
+- Style: Analog Warmth / Cassette Punk (recording studio aesthetic)
+- Palette: Deep warm black (#0E0804) background, rich brown surface (#2C1810), amber accent (#E8A050), cream text (#F4E8D0), VU meter green/yellow/red scale
+- Signature: Animated 6-channel VU meter array (Energy, Warmth, Complexity, Tempo Feel, Social Space, Light/Dark) that fills with staggered delays as scene analysis processes — styled as analog recording studio meters. Cassette housing frame with corner reel circles. Space Mono + Oswald typography pairing.
+
 ---
 *New entries appended automatically after each build.*

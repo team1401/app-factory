@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SceneSong — Turn Any Moment Into Music</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #0E0804;
+      --surface:   #1E1008;
+      --surface2:  #2C1810;
+      --surface3:  #3D2416;
+      --amber:     #E8A050;
+      --amber-dim: #C47840;
+      --amber-glow:#FF C870;
+      --cream:     #F4E8D0;
+      --cream-dim: #C8B898;
+      --oxide:     #8B3A2A;
+      --tape:      #5C3820;
+      --vu-green:  #4AE84A;
+      --vu-yellow: #F0E040;
+      --vu-red:    #FF3C28;
+      --suno:      #1DB954;
+      --udio:      #7B5EA7;
+      --lyria:     #4285F4;
+      --border:    rgba(232, 160, 80, 0.25);
+      --glow:      rgba(232, 160, 80, 0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 40% at 50% 0%, rgba(139,58,42,0.12) 0%, transparent 70%),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(232,160,80,0.02) 3px,
+          rgba(232,160,80,0.02) 4px
+        );
+      overflow-x: hidden;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      position: relative;
+      padding: 2rem 1.5rem 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(139,58,42,0.2) 0%, transparent 100%);
+    }
+    .logo-area { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .tape-icon {
+      width: 48px; height: 32px;
+      position: relative; display: inline-block;
+    }
+    .tape-icon svg { width: 100%; height: 100%; }
+    header h1 {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--amber);
+      text-shadow: 0 0 30px rgba(232,160,80,0.5), 0 0 60px rgba(232,160,80,0.2);
+      text-transform: uppercase;
+    }
+    header h1 span { color: var(--cream); }
+    header .tagline {
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      color: var(--cream-dim);
+      text-transform: uppercase;
+      margin-top: 0.25rem;
+    }
+    .badge-lyria {
+      display: inline-block;
+      background: rgba(66,133,244,0.15);
+      border: 1px solid rgba(66,133,244,0.4);
+      color: #74B2FF;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+      margin-top: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    /* ─── MAIN LAYOUT ─── */
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ─── CASSETTE FRAME ─── */
+    .cassette-frame {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      position: relative;
+      box-shadow:
+        inset 0 1px 0 rgba(232,160,80,0.1),
+        0 4px 40px rgba(0,0,0,0.6);
+    }
+    .cassette-frame::before, .cassette-frame::after {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      border: 2px solid var(--amber-dim);
+      border-radius: 50%;
+      top: 14px;
+    }
+    .cassette-frame::before { left: 16px; }
+    .cassette-frame::after { right: 16px; }
+
+    .frame-label {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--amber-dim);
+      text-align: center;
+      margin-bottom: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    /* ─── SCENE INPUT ─── */
+    .scene-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .scene-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    textarea#scene-input {
+      width: 100%;
+      min-height: 120px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--cream);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      padding: 1rem;
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    textarea#scene-input::placeholder { color: rgba(196,184,152,0.35); }
+    textarea#scene-input:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px rgba(232,160,80,0.1), inset 0 0 20px rgba(232,160,80,0.04);
+    }
+
+    .char-count {
+      text-align: right;
+      font-size: 0.65rem;
+      color: var(--cream-dim);
+      margin-top: 0.35rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── EXAMPLE PROMPTS ─── */
+    .examples-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .example-chip {
+      background: var(--surface3);
+      border: 1px solid rgba(232,160,80,0.2);
+      color: var(--cream-dim);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.05em;
+    }
+    .example-chip:hover {
+      background: var(--tape);
+      border-color: var(--amber);
+      color: var(--cream);
+    }
+
+    /* ─── GENERATE BUTTON ─── */
+    .generate-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 1.25rem;
+    }
+    .btn-generate {
+      flex: 1;
+      background: var(--amber);
+      color: #0E0804;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.9rem 2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-generate::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .btn-generate:hover {
+      background: #FFB860;
+      box-shadow: 0 0 20px rgba(232,160,80,0.4), 0 4px 12px rgba(0,0,0,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-generate:active { transform: translateY(0); }
+    .btn-generate:disabled {
+      background: var(--tape);
+      color: var(--cream-dim);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .btn-generate .spinner {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #0E0804;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    .btn-generate.loading .spinner { display: inline-block; }
+    .btn-generate.loading .btn-text { opacity: 0.7; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── VU METER SECTION ─── */
+    .vu-section {
+      display: none;
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .vu-section.visible { display: block; }
+
+    .vu-section-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber-dim);
+      margin-bottom: 1rem;
+    }
+
+    .vu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .vu-meter {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .vu-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cream-dim);
+    }
+    .vu-bar-wrap {
+      width: 100%;
+      height: 10px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(232,160,80,0.15);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    .vu-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+    }
+    .vu-bar.energy {
+      background: linear-gradient(90deg, var(--vu-green) 0%, var(--vu-yellow) 60%, var(--vu-red) 85%);
+      box-shadow: 0 0 8px rgba(74,232,74,0.4);
+    }
+    .vu-bar.warmth {
+      background: linear-gradient(90deg, #4080FF 0%, var(--amber) 60%, var(--oxide) 100%);
+      box-shadow: 0 0 8px rgba(232,160,80,0.4);
+    }
+    .vu-bar.complexity {
+      background: linear-gradient(90deg, #60A060 0%, #B0A040 50%, #C06080 100%);
+    }
+    .vu-bar.tempo {
+      background: linear-gradient(90deg, #5080D0 0%, #80C080 40%, var(--vu-yellow) 80%, var(--vu-red) 100%);
+    }
+    .vu-bar.social {
+      background: linear-gradient(90deg, #804080 0%, #C09040 60%, #80C080 100%);
+    }
+    .vu-bar.dark-light {
+      background: linear-gradient(90deg, #303050 0%, #5070A0 40%, var(--vu-yellow) 100%);
+    }
+    .vu-value {
+      font-size: 0.65rem;
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    /* Musical DNA */
+    .dna-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .dna-item {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(232,160,80,0.12);
+      border-radius: 4px;
+      padding: 0.6rem 0.75rem;
+    }
+    .dna-key {
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cream-dim);
+      margin-bottom: 0.25rem;
+    }
+    .dna-value {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.95rem;
+      color: var(--amber);
+      font-weight: 500;
+    }
+
+    /* ─── PROMPTS SECTION ─── */
+    .prompts-section {
+      display: none;
+      margin-top: 2rem;
+    }
+    .prompts-section.visible { display: block; }
+
+    .prompts-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber-dim);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .prompts-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .prompt-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .prompt-card {
+      background: var(--surface2);
+      border-radius: 6px;
+      padding: 1.25rem;
+      position: relative;
+      border: 1px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .prompt-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+
+    .prompt-card.lyria  { border-color: rgba(66,133,244,0.35); }
+    .prompt-card.suno   { border-color: rgba(29,185,84,0.35); }
+    .prompt-card.udio   { border-color: rgba(123,94,167,0.35); }
+
+    .prompt-card:hover.lyria  { border-color: rgba(66,133,244,0.7); box-shadow: 0 0 20px rgba(66,133,244,0.12); }
+    .prompt-card:hover.suno   { border-color: rgba(29,185,84,0.7); box-shadow: 0 0 20px rgba(29,185,84,0.12); }
+    .prompt-card:hover.udio   { border-color: rgba(123,94,167,0.7); box-shadow: 0 0 20px rgba(123,94,167,0.12); }
+
+    .card-platform {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .platform-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .lyria  .platform-dot { background: var(--lyria); box-shadow: 0 0 6px rgba(66,133,244,0.6); }
+    .suno   .platform-dot { background: var(--suno); box-shadow: 0 0 6px rgba(29,185,84,0.6); }
+    .udio   .platform-dot { background: var(--udio); box-shadow: 0 0 6px rgba(123,94,167,0.6); }
+
+    .platform-name {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .lyria  .platform-name { color: #74B2FF; }
+    .suno   .platform-name { color: #4AE882; }
+    .udio   .platform-name { color: #B08DE0; }
+
+    .platform-link {
+      margin-left: auto;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.15s;
+    }
+    .lyria  .platform-link { color: #74B2FF; }
+    .suno   .platform-link { color: #4AE882; }
+    .udio   .platform-link { color: #B08DE0; }
+    .platform-link:hover { opacity: 1; }
+
+    .prompt-text {
+      font-size: 0.82rem;
+      line-height: 1.75;
+      color: var(--cream);
+      background: rgba(0,0,0,0.35);
+      border-radius: 3px;
+      padding: 0.75rem;
+      min-height: 80px;
+      letter-spacing: 0.02em;
+      border-left: 2px solid rgba(255,255,255,0.08);
+      user-select: text;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.75rem;
+    }
+
+    .format-tip {
+      font-size: 0.58rem;
+      color: var(--cream-dim);
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-copy {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--cream-dim);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      padding: 0.3rem 0.75rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+    }
+    .btn-copy:hover {
+      background: rgba(232,160,80,0.12);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+    .btn-copy.copied {
+      background: rgba(74,232,74,0.12);
+      border-color: var(--vu-green);
+      color: var(--vu-green);
+    }
+
+    /* ─── MOOD PALETTE ─── */
+    .mood-palette {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: none;
+    }
+    .mood-palette.visible { display: block; }
+    .palette-title {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber-dim);
+      margin-bottom: 0.75rem;
+    }
+    .palette-swatches {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .swatch {
+      width: 40px; height: 40px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .swatch:hover { transform: scale(1.15); }
+    .swatch-label {
+      margin-top: 0.25rem;
+      font-size: 0.55rem;
+      color: var(--cream-dim);
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+    .swatch-item { text-align: center; }
+
+    .mood-words {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+    .mood-word {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(232,160,80,0.15);
+      color: var(--cream-dim);
+      font-size: 0.65rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── SAVED SCENES ─── */
+    .saved-section {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .saved-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber-dim);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .saved-count {
+      background: var(--tape);
+      color: var(--cream-dim);
+      font-size: 0.6rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 2px;
+    }
+    .saved-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .saved-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .saved-item:hover {
+      border-color: var(--amber);
+      background: var(--surface3);
+    }
+    .saved-item-text {
+      flex: 1;
+      font-size: 0.78rem;
+      color: var(--cream-dim);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .saved-item-date {
+      font-size: 0.6rem;
+      color: rgba(196,184,152,0.4);
+      flex-shrink: 0;
+      letter-spacing: 0.05em;
+    }
+    .btn-delete-saved {
+      background: transparent;
+      border: none;
+      color: rgba(196,184,152,0.3);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0 0.25rem;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .btn-delete-saved:hover { color: var(--vu-red); }
+
+    .no-saved {
+      font-size: 0.75rem;
+      color: rgba(196,184,152,0.35);
+      text-align: center;
+      padding: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── SHARE BUTTON ─── */
+    .action-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-action {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--cream-dim);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      padding: 0.4rem 0.9rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+    }
+    .btn-action:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: rgba(232,160,80,0.08);
+    }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(1rem);
+      background: var(--surface2);
+      border: 1px solid var(--amber);
+      color: var(--amber);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      padding: 0.6rem 1.5rem;
+      border-radius: 2px;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 1000;
+      text-transform: uppercase;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    footer p {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: rgba(196,184,152,0.3);
+      text-transform: uppercase;
+    }
+
+    /* ─── PROCESSING ANIMATION ─── */
+    .processing-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(14,8,4,0.85);
+      border-radius: 6px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 10;
+    }
+    .cassette-frame { position: relative; }
+    .processing-overlay.active { display: flex; }
+
+    .tape-reel {
+      width: 60px; height: 60px;
+      border: 3px solid var(--amber);
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.8s linear infinite;
+      position: relative;
+    }
+    .tape-reel::after {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border: 2px solid var(--amber-dim);
+      border-radius: 50%;
+      border-left-color: transparent;
+      animation: spin 0.6s linear infinite reverse;
+    }
+    .processing-text {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--amber);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      main { padding: 1.25rem 1rem 3rem; }
+      .cassette-frame { padding: 1.5rem 1rem; }
+      .prompt-cards { grid-template-columns: 1fr; }
+      .vu-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <svg width="48" height="32" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- Cassette body -->
+      <rect x="2" y="4" width="44" height="24" rx="3" fill="#2C1810" stroke="#E8A050" stroke-width="1.5"/>
+      <!-- Tape window -->
+      <rect x="10" y="9" width="28" height="14" rx="2" fill="#0E0804" stroke="#C47840" stroke-width="1"/>
+      <!-- Left reel -->
+      <circle cx="17" cy="16" r="4" fill="none" stroke="#E8A050" stroke-width="1"/>
+      <circle cx="17" cy="16" r="1.5" fill="#E8A050"/>
+      <!-- Right reel -->
+      <circle cx="31" cy="16" r="4" fill="none" stroke="#E8A050" stroke-width="1"/>
+      <circle cx="31" cy="16" r="1.5" fill="#E8A050"/>
+      <!-- Tape line -->
+      <path d="M21 20 Q24 18 27 20" stroke="#C47840" stroke-width="1" fill="none"/>
+      <!-- Side notches -->
+      <rect x="4" y="6" width="4" height="4" rx="1" fill="#1A0F08"/>
+      <rect x="40" y="6" width="4" height="4" rx="1" fill="#1A0F08"/>
+    </svg>
+    <h1>Scene<span>Song</span></h1>
+  </div>
+  <p class="tagline">Describe a moment &bull; Get your soundtrack</p>
+  <div class="badge-lyria">✦ Optimized for Google Lyria 3 · Suno · Udio</div>
+</header>
+
+<main>
+
+  <!-- INPUT CASSETTE FRAME -->
+  <div class="cassette-frame" id="input-frame">
+    <div class="processing-overlay" id="processing">
+      <div class="tape-reel"></div>
+      <p class="processing-text">Analyzing Scene...</p>
+    </div>
+
+    <div class="frame-label">⬡ Side A — Scene Input</div>
+
+    <div class="scene-label">Describe Your Moment</div>
+    <textarea
+      id="scene-input"
+      placeholder="Describe any moment, feeling, or scene... e.g. 'Waiting alone at a train station at 3am, the platform lights casting long shadows, a distant rumble that never arrives.'"
+      maxlength="1000"
+      aria-label="Scene description input"
+    ></textarea>
+    <div class="char-count"><span id="char-count">0</span> / 1000</div>
+
+    <div class="examples-row" role="list" aria-label="Example prompts">
+      <button class="example-chip" role="listitem" data-example="Watching the last fireflies of summer blink out from a porch swing, warm air, the distant sound of a screen door">Last fireflies of summer</button>
+      <button class="example-chip" role="listitem" data-example="First morning in a new city. Empty apartment, boxes everywhere, sunlight cutting through dusty windows. Everything feels possible and terrifying.">New city, first morning</button>
+      <button class="example-chip" role="listitem" data-example="Driving alone at night through the desert, radio barely catching a signal, stars impossibly bright, no destination.">Desert night drive</button>
+      <button class="example-chip" role="listitem" data-example="Two old friends reuniting after ten years, awkward laughs, coffee going cold, realizing how much has changed.">Reunion after 10 years</button>
+      <button class="example-chip" role="listitem" data-example="A city street in the rain, everyone rushing, one person standing still in the middle watching everyone else hurry past.">Still point in the storm</button>
+      <button class="example-chip" role="listitem" data-example="The quiet hour after everyone leaves a party. Confetti on the floor. The feeling of the evening slipping away.">After the party ends</button>
+    </div>
+
+    <div class="generate-row">
+      <button class="btn-generate" id="btn-generate" aria-label="Generate music prompts">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="btn-text">▶ RECORD THIS SCENE</span>
+      </button>
+    </div>
+
+    <div class="action-row" id="action-row" style="display:none;">
+      <button class="btn-action" id="btn-save" aria-label="Save this scene">✦ Save Scene</button>
+      <button class="btn-action" id="btn-share" aria-label="Share this scene">⇪ Copy Share Link</button>
+      <button class="btn-action" id="btn-clear" aria-label="Clear and start over">✕ Clear</button>
+    </div>
+  </div>
+
+  <!-- VU METERS -->
+  <div class="vu-section" id="vu-section" aria-live="polite" aria-label="Scene analysis">
+    <div class="vu-section-title">⬡ SCENE ANALYSIS — AUDIO DNA</div>
+    <div class="vu-grid">
+      <div class="vu-meter">
+        <div class="vu-label">Energy</div>
+        <div class="vu-bar-wrap"><div class="vu-bar energy" id="vu-energy"></div></div>
+        <div class="vu-value" id="vu-energy-val">—</div>
+      </div>
+      <div class="vu-meter">
+        <div class="vu-label">Warmth</div>
+        <div class="vu-bar-wrap"><div class="vu-bar warmth" id="vu-warmth"></div></div>
+        <div class="vu-value" id="vu-warmth-val">—</div>
+      </div>
+      <div class="vu-meter">
+        <div class="vu-label">Complexity</div>
+        <div class="vu-bar-wrap"><div class="vu-bar complexity" id="vu-complexity"></div></div>
+        <div class="vu-value" id="vu-complexity-val">—</div>
+      </div>
+      <div class="vu-meter">
+        <div class="vu-label">Tempo Feel</div>
+        <div class="vu-bar-wrap"><div class="vu-bar tempo" id="vu-tempo"></div></div>
+        <div class="vu-value" id="vu-tempo-val">—</div>
+      </div>
+      <div class="vu-meter">
+        <div class="vu-label">Social Space</div>
+        <div class="vu-bar-wrap"><div class="vu-bar social" id="vu-social"></div></div>
+        <div class="vu-value" id="vu-social-val">—</div>
+      </div>
+      <div class="vu-meter">
+        <div class="vu-label">Light / Dark</div>
+        <div class="vu-bar-wrap"><div class="vu-bar dark-light" id="vu-light"></div></div>
+        <div class="vu-value" id="vu-light-val">—</div>
+      </div>
+    </div>
+
+    <div class="dna-grid" id="dna-grid"></div>
+  </div>
+
+  <!-- MOOD PALETTE -->
+  <div class="mood-palette" id="mood-palette">
+    <div class="palette-title">⬡ EMOTIONAL COLOR PALETTE</div>
+    <div class="palette-swatches" id="palette-swatches"></div>
+    <div class="mood-words" id="mood-words"></div>
+  </div>
+
+  <!-- PROMPT CARDS -->
+  <div class="prompts-section" id="prompts-section">
+    <div class="prompts-title">Generated Prompts</div>
+    <div class="prompt-cards">
+      <div class="prompt-card lyria">
+        <div class="card-platform">
+          <div class="platform-dot"></div>
+          <span class="platform-name">Lyria 3</span>
+          <a href="https://gemini.google.com" target="_blank" rel="noopener" class="platform-link">↗ Open</a>
+        </div>
+        <div class="prompt-text" id="prompt-lyria" aria-live="polite">—</div>
+        <div class="card-footer">
+          <span class="format-tip">Natural language prompt</span>
+          <button class="btn-copy" data-target="prompt-lyria" aria-label="Copy Lyria prompt">Copy</button>
+        </div>
+      </div>
+
+      <div class="prompt-card suno">
+        <div class="card-platform">
+          <div class="platform-dot"></div>
+          <span class="platform-name">Suno</span>
+          <a href="https://suno.com" target="_blank" rel="noopener" class="platform-link">↗ Open</a>
+        </div>
+        <div class="prompt-text" id="prompt-suno" aria-live="polite">—</div>
+        <div class="card-footer">
+          <span class="format-tip">Style + lyrics tags</span>
+          <button class="btn-copy" data-target="prompt-suno" aria-label="Copy Suno prompt">Copy</button>
+        </div>
+      </div>
+
+      <div class="prompt-card udio">
+        <div class="card-platform">
+          <div class="platform-dot"></div>
+          <span class="platform-name">Udio</span>
+          <a href="https://www.udio.com" target="_blank" rel="noopener" class="platform-link">↗ Open</a>
+        </div>
+        <div class="prompt-text" id="prompt-udio" aria-live="polite">—</div>
+        <div class="card-footer">
+          <span class="format-tip">Genre + mood descriptor</span>
+          <button class="btn-copy" data-target="prompt-udio" aria-label="Copy Udio prompt">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAVED SCENES -->
+  <div class="saved-section" id="saved-section">
+    <div class="saved-title">
+      Tape Library
+      <span class="saved-count" id="saved-count">0 scenes</span>
+    </div>
+    <div class="saved-list" id="saved-list">
+      <div class="no-saved">No saved scenes yet — record one above.</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>SceneSong &mdash; Analog Warmth Edition &mdash; &copy; 2026 App Factory</p>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+
+// ─── ANALYSIS ENGINE ───────────────────────────────────────────────
+const LEXICON = {
+  energy: {
+    high: ['racing','rushing','running','chaos','frantic','loud','roar','crash','electric','burst','wild','fierce','turbulent','storm','explosive','intense','fast','sprint','thunder','booming','urgent','frenetic','pounding','driving','relentless','pulsing','vibrant','kinetic'],
+    low:  ['still','quiet','calm','slow','gentle','soft','whisper','hush','drift','linger','wait','pause','rest','silence','peaceful','serene','murmur','float','idle','lazy','fade','melt','settle','drowsy','languid','hollow','empty','alone','lonely']
+  },
+  warmth: {
+    warm: ['warm','golden','summer','sun','firefly','fire','candle','amber','honey','glow','hearth','comfort','cozy','safe','tender','love','embrace','laugh','joy','sweet','fond','nostalgia','home','familiar','soft light','afternoon','yellow','orange'],
+    cold: ['winter','cold','ice','snow','grey','gray','steel','clinical','distance','hollow','empty','dark','night','frost','pale','blank','neon','fluorescent','rain','storm','black','blue','isolated','alone','stranger','forgotten','concrete']
+  },
+  complexity: {
+    high: ['chaos','layered','complex','intricate','maze','web','tangled','many','crowd','noise','competing','overlapping','busy','dense','rich','symphony','orchestra','ensemble'],
+    low:  ['simple','bare','alone','minimal','sparse','single','one','pure','clear','open','empty','stripped','naked','raw','direct','plain']
+  },
+  tempo: {
+    fast: ['racing','running','rushing','urgent','quick','fast','speed','hurry','sprint','pulse','driving','relentless','frantic','chase','rhythm','heart pounding','electric','frenetic'],
+    slow: ['drift','linger','pause','wait','slow','lazy','languid','wander','meander','float','hollow','quiet','still','fade','distant','long','drawn','stretch']
+  },
+  social: {
+    crowded: ['crowd','people','everyone','city','street','noise','buzz','together','group','party','gathering','voices','strangers','traffic','public','busy','urban','festival','community'],
+    solitary: ['alone','lonely','single','one','isolated','empty','silent','private','interior','myself','solitude','just me','no one','abandoned','forgotten','distant']
+  },
+  valence: {
+    light: ['joy','happy','celebrate','laugh','bright','hope','wonder','magic','dream','beautiful','free','love','reunion','morning','sunrise','spring','bloom','new'],
+    dark:  ['sad','grief','loss','mourn','dark','night','forgotten','abandoned','hollow','regret','ache','longing','tired','heavy','end','last','fade','shadow','gone']
+  }
+};
+
+const INSTRUMENTS = {
+  energyHigh:    ['driving drums','distorted guitar','bass','synth leads','brass hits'],
+  energyLow:     ['piano','strings','ambient pads','solo cello','fingerpicked guitar','Rhodes'],
+  warmHigh:      ['acoustic guitar','pedal steel','upright piano','warm strings','vibraphone'],
+  warmLow:       ['cold synth pads','prepared piano','distant brass','detuned organ'],
+  complexHigh:   ['full orchestra','chamber ensemble','layered synths','poly-rhythmic percussion'],
+  complexLow:    ['solo piano','solo acoustic guitar','single voice','minimal synth','sparse electronics'],
+  tempoFast:     ['percussion-forward','fast 16th notes','driving kick','propulsive bass'],
+  tempoSlow:     ['long reverb tails','slow bowing','sustaining pads','sparse notes'],
+  socialCrowded: ['layered voices','crowd ambience','ensemble playing','call and response'],
+  socialAlone:   ['solo instrument','intimate room','introspective melody','single voice']
+};
+
+const KEYS_SCALES = {
+  warmLight:  ['C major','G major','D major','A major','F major','Bb major'],
+  warmDark:   ['D minor','A minor','F minor','G minor','Eb minor'],
+  coldLight:  ['E major','B major','F# major','Db major'],
+  coldDark:   ['B minor','C# minor','F# minor','Eb minor','C minor']
+};
+
+const TEMPO_RANGES = {
+  veryFast: { label: 'Urgent', bpm: '140–180 BPM', feel: 'driving, relentless' },
+  fast:     { label: 'Energetic', bpm: '110–140 BPM', feel: 'propulsive, forward' },
+  medium:   { label: 'Steady', bpm: '80–110 BPM', feel: 'grounded, purposeful' },
+  slow:     { label: 'Unhurried', bpm: '55–80 BPM', feel: 'drifting, contemplative' },
+  verySlow: { label: 'Glacial', bpm: '30–55 BPM', feel: 'suspended, timeless' }
+};
+
+const MOOD_PALETTES = {
+  warmLight:  { colors: ['#F4C94A','#F48038','#F4E8C0','#C8A060','#806020'], labels: ['Golden','Ember','Parchment','Honey','Oak'] },
+  warmDark:   { colors: ['#8B3A2A','#C47840','#2C1810','#E8A050','#4A2818'], labels: ['Oxide','Copper','Midnight Wood','Amber','Dark Resin'] },
+  coldLight:  { colors: ['#8AB0D0','#B0C8E8','#D0E8F4','#608098','#E8F0F8'], labels: ['Steel Blue','Ice','Pale Sky','Slate','Frost'] },
+  coldDark:   { colors: ['#101828','#203848','#304860','#405878','#506890'], labels: ['Abyss','Deep Navy','Midnight','Ocean Dark','Twilight'] },
+  neutral:    { colors: ['#8C8070','#B0A090','#D0C8B8','#605850','#404038'], labels: ['Dust','Pebble','Linen','Charcoal','Shadow'] }
+};
+
+function scoreText(text) {
+  const lower = text.toLowerCase();
+  const score = {};
+  const maxWords = 8;
+
+  for (const [dim, sides] of Object.entries(LEXICON)) {
+    let pos = 0, neg = 0;
+    for (const [side, words] of Object.entries(sides)) {
+      const bucket = Object.keys(sides)[0] === side ? 'pos' : 'neg';
+      for (const w of words) {
+        if (lower.includes(w)) {
+          if (bucket === 'pos') pos++; else neg++;
+        }
+      }
+    }
+    const total = pos + neg;
+    // 0-100 score: 50 = neutral
+    score[dim] = total === 0 ? 50 : Math.round(50 + ((pos - neg) / Math.max(total, 1)) * 50);
+  }
+
+  // Raw word count feeds complexity slightly
+  const words = text.split(/\s+/).length;
+  score.complexity = Math.min(100, Math.round(score.complexity * 0.7 + (words / 120) * 30 * 10));
+  score.complexity = Math.min(100, Math.max(0, score.complexity));
+
+  return score;
+}
+
+function pickTempo(score) {
+  const t = score.tempo; // 0=slow, 100=fast
+  const e = score.energy;
+  const combined = (t * 0.6 + e * 0.4);
+  if (combined > 80) return TEMPO_RANGES.veryFast;
+  if (combined > 62) return TEMPO_RANGES.fast;
+  if (combined > 42) return TEMPO_RANGES.medium;
+  if (combined > 25) return TEMPO_RANGES.slow;
+  return TEMPO_RANGES.verySlow;
+}
+
+function pickKey(score) {
+  const warm = score.warmth > 55;
+  const light = score.valence > 52;
+  const dict = warm && light ? KEYS_SCALES.warmLight
+             : warm && !light ? KEYS_SCALES.warmDark
+             : !warm && light ? KEYS_SCALES.coldLight
+             : KEYS_SCALES.coldDark;
+  return dict[Math.floor(Math.random() * dict.length)];
+}
+
+function pickPalette(score) {
+  const warm = score.warmth > 52;
+  const light = score.valence > 52;
+  const neutral = Math.abs(score.warmth - 50) < 10;
+  if (neutral) return MOOD_PALETTES.neutral;
+  if (warm && light) return MOOD_PALETTES.warmLight;
+  if (warm && !light) return MOOD_PALETTES.warmDark;
+  if (!warm && light) return MOOD_PALETTES.coldLight;
+  return MOOD_PALETTES.coldDark;
+}
+
+function pickInstruments(score) {
+  const picks = [];
+  if (score.energy > 60) picks.push(...INSTRUMENTS.energyHigh.slice(0,2));
+  else picks.push(...INSTRUMENTS.energyLow.slice(0,2));
+  if (score.warmth > 55) picks.push(INSTRUMENTS.warmHigh[Math.floor(Math.random()*INSTRUMENTS.warmHigh.length)]);
+  else picks.push(INSTRUMENTS.warmLow[Math.floor(Math.random()*INSTRUMENTS.warmLow.length)]);
+  if (score.complexity > 60) picks.push(INSTRUMENTS.complexHigh[Math.floor(Math.random()*INSTRUMENTS.complexHigh.length)]);
+  else picks.push(INSTRUMENTS.complexLow[Math.floor(Math.random()*INSTRUMENTS.complexLow.length)]);
+  return [...new Set(picks)].slice(0, 5);
+}
+
+function pickMoodWords(score) {
+  const words = [];
+  if (score.energy > 65) words.push('intense', 'driving', 'electric');
+  else if (score.energy < 40) words.push('drifting', 'contemplative', 'sparse');
+  else words.push('steady', 'measured', 'grounded');
+
+  if (score.warmth > 62) words.push('warm', 'golden', 'intimate');
+  else if (score.warmth < 40) words.push('cold', 'distant', 'crystalline');
+  else words.push('neutral', 'atmospheric');
+
+  if (score.valence > 60) words.push('hopeful', 'open', 'luminous');
+  else if (score.valence < 42) words.push('melancholic', 'shadowed', 'heavy');
+  else words.push('bittersweet', 'ambiguous');
+
+  if (score.social > 62) words.push('communal', 'layered');
+  else if (score.social < 40) words.push('solitary', 'introspective');
+
+  return words;
+}
+
+// ─── PROMPT GENERATORS ─────────────────────────────────────────────
+
+function buildLyriaPrompt(scene, score, tempo, key, instruments, moodWords) {
+  const energy = score.energy;
+  const warmth = score.warmth;
+  const valence = score.valence;
+  const social = score.social;
+
+  const emotionalCore = valence > 60 ? 'evoking a sense of quiet hope and possibility'
+    : valence < 40 ? 'carrying an undercurrent of melancholy and longing'
+    : 'balanced between hope and sorrow, neither resolving';
+
+  const texture = energy > 65 ? 'with a propulsive, forward-pushing energy'
+    : energy < 40 ? 'with a still, suspended quality — as if time has paused'
+    : 'unhurried but present, like a slow exhale';
+
+  const setting = warmth > 60 ? 'with warmth and intimacy at its core'
+    : warmth < 40 ? 'with a cool, spacious feeling — lots of reverb and air'
+    : 'with a neutral, observational tone';
+
+  const socialFeel = social > 60 ? 'layered textures evoking the presence of others'
+    : social < 40 ? 'stripped back — solo instrument or sparse duo — deeply personal'
+    : 'intimate but aware of the world outside';
+
+  const moodStr = moodWords.slice(0, 4).join(', ');
+
+  return `Create a ${tempo.bpm} piece in ${key}, ${texture}. ${emotionalCore}. ${setting}. Use ${instruments.slice(0,3).join(', ')} with ${socialFeel}. The overall mood should feel ${moodStr} — like the soundtrack to "${scene.slice(0, 80).trim()}${scene.length > 80 ? '…' : ''}". No lyrics needed.`;
+}
+
+function buildSunoPrompt(scene, score, tempo, key, instruments, moodWords) {
+  const energy = score.energy;
+  const warmth = score.warmth;
+  const valence = score.valence;
+
+  const genreBase = energy > 65 && warmth > 55 ? 'indie folk rock'
+    : energy > 65 && warmth < 45 ? 'post-rock instrumental'
+    : energy < 40 && warmth > 55 ? 'ambient folk, fingerstyle'
+    : energy < 40 && warmth < 45 ? 'dark ambient, drone'
+    : 'cinematic indie, lo-fi';
+
+  const moodTag = valence > 60 ? 'hopeful, wistful'
+    : valence < 40 ? 'melancholic, bittersweet'
+    : 'introspective, searching';
+
+  const instStr = instruments.slice(0,3).join(', ');
+  const tempoTag = `${tempo.label.toLowerCase()}, ${tempo.feel}`;
+
+  return `[genre: ${genreBase}]\n[mood: ${moodTag}]\n[tempo: ${tempoTag}]\n[key: ${key}]\n[instrumentation: ${instStr}]\n[lyrics: no vocals, instrumental only]\n[feel: ${moodWords.slice(0,3).join(', ')}]\n[theme: ${scene.slice(0,60).trim()}]`;
+}
+
+function buildUdioPrompt(scene, score, tempo, key, instruments, moodWords) {
+  const energy = score.energy;
+  const warmth = score.warmth;
+  const valence = score.valence;
+
+  const style = energy > 65 ? (warmth > 55 ? 'Driving indie folk with rock edge' : 'Cinematic post-rock build')
+    : energy < 40 ? (warmth > 55 ? 'Delicate ambient folk' : 'Minimal dark ambient')
+    : 'Atmospheric indie, cinematic score';
+
+  const emotion = valence > 60 ? 'nostalgic optimism, wonder, openness'
+    : valence < 40 ? 'quiet grief, longing, unresolved ache'
+    : 'bittersweet introspection, searching quality';
+
+  const instrStr = instruments.join(', ');
+  const textureStr = moodWords.slice(0,4).join(', ');
+
+  return `${style}. ${emotion}. ${tempo.bpm}, ${key}. Instrumentation: ${instrStr}. Texture: ${textureStr}. Instrumental, no vocals. Scene inspiration: "${scene.slice(0,70).trim()}${scene.length>70?'…':''}"`;
+}
+
+// ─── UI STATE ──────────────────────────────────────────────────────
+let currentScene = '';
+let currentResult = null;
+
+function showToast(msg, ms = 2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function animateVU(id, pct, delay = 0) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.style.width = pct + '%';
+  }, delay);
+}
+
+function renderResult(result) {
+  const { score, tempo, key, instruments, moodWords, palette,
+          lyria, suno, udio } = result;
+
+  // Show VU section
+  const vuSection = document.getElementById('vu-section');
+  vuSection.classList.add('visible');
+
+  // Animate bars (staggered)
+  animateVU('vu-energy', score.energy, 100);
+  animateVU('vu-warmth', score.warmth, 200);
+  animateVU('vu-complexity', score.complexity, 300);
+  animateVU('vu-tempo', score.tempo, 400);
+  animateVU('vu-social', score.social, 500);
+  animateVU('vu-light', score.valence, 600);
+
+  // Value labels
+  const label = (v) => v > 70 ? 'HIGH' : v < 35 ? 'LOW' : 'MID';
+  setTimeout(() => {
+    document.getElementById('vu-energy-val').textContent = label(score.energy);
+    document.getElementById('vu-warmth-val').textContent = score.warmth > 55 ? 'WARM' : score.warmth < 45 ? 'COOL' : 'NEUTRAL';
+    document.getElementById('vu-complexity-val').textContent = label(score.complexity);
+    document.getElementById('vu-tempo-val').textContent = tempo.label.toUpperCase();
+    document.getElementById('vu-social-val').textContent = score.social > 58 ? 'SOCIAL' : score.social < 42 ? 'SOLO' : 'MIXED';
+    document.getElementById('vu-light-val').textContent = score.valence > 58 ? 'BRIGHT' : score.valence < 42 ? 'DARK' : 'MIXED';
+  }, 800);
+
+  // DNA grid
+  const dna = document.getElementById('dna-grid');
+  dna.innerHTML = [
+    { k: 'Key / Mode', v: key },
+    { k: 'Tempo', v: tempo.bpm },
+    { k: 'Feel', v: tempo.feel },
+    { k: 'Lead Instruments', v: instruments.slice(0,3).join(', ') },
+    { k: 'Supporting', v: instruments.slice(3).join(', ') || '—' },
+    { k: 'Mood Tags', v: moodWords.slice(0,4).join(', ') }
+  ].map(d => `
+    <div class="dna-item">
+      <div class="dna-key">${d.k}</div>
+      <div class="dna-value">${d.v}</div>
+    </div>
+  `).join('');
+
+  // Palette
+  const palSection = document.getElementById('mood-palette');
+  palSection.classList.add('visible');
+  const swatches = document.getElementById('palette-swatches');
+  swatches.innerHTML = palette.colors.map((c, i) => `
+    <div class="swatch-item">
+      <div class="swatch" style="background:${c}" title="${palette.labels[i]}" aria-label="${palette.labels[i]}"></div>
+      <div class="swatch-label">${palette.labels[i]}</div>
+    </div>
+  `).join('');
+
+  const mw = document.getElementById('mood-words');
+  mw.innerHTML = moodWords.map(w => `<span class="mood-word">${w}</span>`).join('');
+
+  // Prompts
+  const promptsSection = document.getElementById('prompts-section');
+  promptsSection.classList.add('visible');
+  document.getElementById('prompt-lyria').textContent = lyria;
+  document.getElementById('prompt-suno').textContent = suno;
+  document.getElementById('prompt-udio').textContent = udio;
+
+  // Show actions
+  document.getElementById('action-row').style.display = 'flex';
+
+  // Scroll to results
+  setTimeout(() => {
+    vuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 900);
+}
+
+function analyzeScene(text) {
+  const score = scoreText(text);
+  const tempo = pickTempo(score);
+  const key = pickKey(score);
+  const instruments = pickInstruments(score);
+  const moodWords = pickMoodWords(score);
+  const palette = pickPalette(score);
+  const lyria = buildLyriaPrompt(text, score, tempo, key, instruments, moodWords);
+  const suno = buildSunoPrompt(text, score, tempo, key, instruments, moodWords);
+  const udio = buildUdioPrompt(text, score, tempo, key, instruments, moodWords);
+  return { score, tempo, key, instruments, moodWords, palette, lyria, suno, udio };
+}
+
+// ─── EVENT HANDLERS ────────────────────────────────────────────────
+
+document.getElementById('scene-input').addEventListener('input', function() {
+  document.getElementById('char-count').textContent = this.value.length;
+});
+
+document.querySelectorAll('.example-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const ta = document.getElementById('scene-input');
+    ta.value = btn.dataset.example;
+    ta.dispatchEvent(new Event('input'));
+    ta.focus();
+  });
+});
+
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  const text = document.getElementById('scene-input').value.trim();
+  if (!text || text.length < 15) {
+    showToast('Please describe your scene in a bit more detail.');
+    return;
+  }
+
+  currentScene = text;
+  const btn = document.getElementById('btn-generate');
+  const overlay = document.getElementById('processing');
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.querySelector('.btn-text').textContent = 'ANALYZING…';
+  overlay.classList.add('active');
+
+  // Simulate brief processing feel
+  await new Promise(r => setTimeout(r, 1200));
+
+  overlay.classList.remove('active');
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  btn.querySelector('.btn-text').textContent = '▶ RECORD THIS SCENE';
+
+  const result = analyzeScene(text);
+  currentResult = result;
+  renderResult(result);
+});
+
+// Copy buttons
+document.querySelectorAll('.btn-copy').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetId = btn.dataset.target;
+    const text = document.getElementById(targetId).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  });
+});
+
+// Save scene
+document.getElementById('btn-save').addEventListener('click', () => {
+  if (!currentScene || !currentResult) return;
+  const saved = getSaved();
+  const id = Date.now();
+  saved.unshift({ id, scene: currentScene, date: new Date().toLocaleDateString() });
+  localStorage.setItem('scenesong-saved', JSON.stringify(saved.slice(0, 20)));
+  renderSaved();
+  showToast('Scene saved to tape library!');
+});
+
+// Share link
+document.getElementById('btn-share').addEventListener('click', () => {
+  const encoded = btoa(encodeURIComponent(currentScene));
+  const url = `${location.origin}${location.pathname}?s=${encoded}`;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('Share link copied!');
+  });
+});
+
+// Clear
+document.getElementById('btn-clear').addEventListener('click', () => {
+  document.getElementById('scene-input').value = '';
+  document.getElementById('char-count').textContent = '0';
+  document.getElementById('vu-section').classList.remove('visible');
+  document.getElementById('mood-palette').classList.remove('visible');
+  document.getElementById('prompts-section').classList.remove('visible');
+  document.getElementById('action-row').style.display = 'none';
+  // Reset VU bars
+  document.querySelectorAll('.vu-bar').forEach(b => b.style.width = '0%');
+  currentScene = '';
+  currentResult = null;
+});
+
+// ─── SAVED SCENES ──────────────────────────────────────────────────
+function getSaved() {
+  try { return JSON.parse(localStorage.getItem('scenesong-saved') || '[]'); }
+  catch { return []; }
+}
+
+function renderSaved() {
+  const saved = getSaved();
+  const list = document.getElementById('saved-list');
+  const count = document.getElementById('saved-count');
+  count.textContent = saved.length + ' scene' + (saved.length !== 1 ? 's' : '');
+
+  if (!saved.length) {
+    list.innerHTML = '<div class="no-saved">No saved scenes yet — record one above.</div>';
+    return;
+  }
+
+  list.innerHTML = saved.map(item => `
+    <div class="saved-item" data-id="${item.id}" role="button" tabindex="0"
+         aria-label="Load scene: ${item.scene.slice(0,50)}">
+      <span class="saved-item-text">${item.scene}</span>
+      <span class="saved-item-date">${item.date}</span>
+      <button class="btn-delete-saved" data-delete="${item.id}" aria-label="Delete saved scene">✕</button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.saved-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-delete-saved')) return;
+      const id = parseInt(el.dataset.id);
+      const item = getSaved().find(s => s.id === id);
+      if (item) {
+        const ta = document.getElementById('scene-input');
+        ta.value = item.scene;
+        ta.dispatchEvent(new Event('input'));
+        ta.scrollIntoView({ behavior: 'smooth' });
+        showToast('Scene loaded — hit Record!');
+      }
+    });
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
+  });
+
+  list.querySelectorAll('.btn-delete-saved').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.delete);
+      const saved = getSaved().filter(s => s.id !== id);
+      localStorage.setItem('scenesong-saved', JSON.stringify(saved));
+      renderSaved();
+    });
+  });
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────
+function init() {
+  renderSaved();
+
+  // Check for shared scene in URL
+  const params = new URLSearchParams(location.search);
+  const sharedScene = params.get('s');
+  if (sharedScene) {
+    try {
+      const decoded = decodeURIComponent(atob(sharedScene));
+      const ta = document.getElementById('scene-input');
+      ta.value = decoded;
+      ta.dispatchEvent(new Event('input'));
+      showToast('Shared scene loaded!');
+    } catch (e) { /* invalid share link, ignore */ }
+  }
+}
+
+init();
+</script>
+</body>
+</html>
