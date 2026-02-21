@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: viewfinder-api
+    restart: unless-stopped
+    environment:
+      - PORT=3102
+      - NODE_ENV=production
+    networks:
+      - viewfinder
+    expose:
+      - "3102"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=/api
+    container_name: viewfinder-web
+    restart: unless-stopped
+    ports:
+      - "3102:80"
+    depends_on:
+      - backend
+    networks:
+      - viewfinder
+
+networks:
+  viewfinder:
+    driver: bridge

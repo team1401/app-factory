@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: viralcheck-backend
+    environment:
+      - NODE_ENV=production
+      - PORT=3109
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    restart: unless-stopped
+    networks:
+      - viralcheck-network
+
+  frontend:
+    build: ./frontend
+    container_name: viralcheck-frontend
+    ports:
+      - "3109:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - viralcheck-network
+
+networks:
+  viralcheck-network:
+    driver: bridge

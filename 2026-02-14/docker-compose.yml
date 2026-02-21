@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: paperplain-backend
+    ports:
+      - "3108:3108"
+    environment:
+      - PORT=3108
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: paperplain-frontend
+    ports:
+      - "3107:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
