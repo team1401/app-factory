@@ -37,5 +37,10 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Deep warm black (#0E0804) background, rich brown surface (#2C1810), amber accent (#E8A050), cream text (#F4E8D0), VU meter green/yellow/red scale
 - Signature: Animated 6-channel VU meter array (Energy, Warmth, Complexity, Tempo Feel, Social Space, Light/Dark) that fills with staggered delays as scene analysis processes — styled as analog recording studio meters. Cassette housing frame with corner reel circles. Space Mono + Oswald typography pairing.
 
+## PromptReel — 2026-02-21
+- Style: Memphis Design Revival (1980s Italian design movement — Ettore Sottsass-era aesthetic)
+- Palette: Warm cream (#F5EDD8) background, coral red (#FF3355), electric blue (#0066FF), vivid yellow (#FFD500), mint green (#00C97A), orange (#FF7A00), purple (#7B2FF7), near-black (#1A1A1A) borders
+- Signature: "Prompt DNA Strand" — a horizontal sequence of 7 color-coded pill-shaped blocks that light up (opacity transition) as each component is filled, with a quality score that grades from "NO SEQUENCE" through "BEGINNER → DEVELOPING → INTERMEDIATE → CINEMATIC → ★ MASTERSHOT". Zero gradients, thick black borders everywhere, flat opaque color blocks. Memphis geometric decorative shapes float at edges.
+
 ---
 *New entries appended automatically after each build.*
