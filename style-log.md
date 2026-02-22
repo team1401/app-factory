@@ -42,5 +42,10 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Warm cream (#F5EDD8) background, coral red (#FF3355), electric blue (#0066FF), vivid yellow (#FFD500), mint green (#00C97A), orange (#FF7A00), purple (#7B2FF7), near-black (#1A1A1A) borders
 - Signature: "Prompt DNA Strand" — a horizontal sequence of 7 color-coded pill-shaped blocks that light up (opacity transition) as each component is filled, with a quality score that grades from "NO SEQUENCE" through "BEGINNER → DEVELOPING → INTERMEDIATE → CINEMATIC → ★ MASTERSHOT". Zero gradients, thick black borders everywhere, flat opaque color blocks. Memphis geometric decorative shapes float at edges.
 
+## Five Year Plan — 2026-02-22
+- Style: Soviet Constructivist Propaganda Poster (Rodchenko × El Lissitzky × Popova)
+- Palette: Propaganda Red (#CC1A1A), Revolutionary Black (#111111), Parchment (#F4ECD8), Gold Star (#E8B84B)
+- Signature: Diagonal angular red geometry cuts (Constructivist clip-path shapes), gold feasibility ring in poster corner, bureaucratic form styling with Cyrillic "П" form number, striped diagonal hatch textures, full propaganda poster output with quarterly production quotas, obstacle severity badges, and a "Comrade's Verdict" assessment section. Bebas Neue + Special Elite + Courier Prime typography trio.
+
 ---
 *New entries appended automatically after each build.*
