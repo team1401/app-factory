@@ -1,0 +1,7 @@
+services:
+  slop-gazette:
+    build: .
+    container_name: slop-gazette
+    ports:
+      - "3125:80"
+    restart: unless-stopped

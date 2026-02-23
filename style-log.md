@@ -47,5 +47,10 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Propaganda Red (#CC1A1A), Revolutionary Black (#111111), Parchment (#F4ECD8), Gold Star (#E8B84B)
 - Signature: Diagonal angular red geometry cuts (Constructivist clip-path shapes), gold feasibility ring in poster corner, bureaucratic form styling with Cyrillic "П" form number, striped diagonal hatch textures, full propaganda poster output with quarterly production quotas, obstacle severity badges, and a "Comrade's Verdict" assessment section. Bebas Neue + Special Elite + Courier Prime typography trio.
 
+## The AI Slop Gazette — 2026-02-23
+- Style: Retro Tabloid Sensationalism (1970s–80s supermarket tabloid / Weekly World News aesthetic)
+- Palette: Newsprint cream (#F2ECD9), ink black (#1A1A14), scandal red (#B8160A), dateline gold (#A07820), column gray (#6B6055)
+- Signature: Analysis results rendered as a full tabloid FRONT PAGE — multiple investigative "column articles" exposing each AI-slop metric, rubber-stamp overlays (EXPOSED/CLEARED/SUSPICIOUS/AUTHENTIC), circular SLOP SCORE seal, evidence boxes listing specific offending phrases, and a pull quote from the most suspicious sentence. Dense justified column layout with double-rule borders. Playfair Display + IM Fell English + Special Elite typography trio.
+
 ---
 *New entries appended automatically after each build.*

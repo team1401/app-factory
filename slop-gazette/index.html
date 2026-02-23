@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The AI Slop Gazette — Exposing Machine Prose Since 2024</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IM+Fell+English:ital@0;1&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --newsprint: #F2ECD9;
+      --ink: #1A1A14;
+      --red: #B8160A;
+      --gold: #A07820;
+      --gray: #6B6055;
+      --light-gray: #D8CFB8;
+      --column-rule: #8B7B6A;
+      --paper-dark: #E8DFC6;
+      --stamp-red: #CC2020;
+      --stamp-blue: #1A3A6B;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #3D3530;
+      font-family: 'IM Fell English', Georgia, serif;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ─── NEWSPAPER WRAPPER ─── */
+    .newspaper {
+      background: var(--newsprint);
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 4px 4px 20px rgba(0,0,0,0.6), 8px 8px 40px rgba(0,0,0,0.4);
+      position: relative;
+    }
+
+    /* Aged paper texture via repeating gradient */
+    .newspaper::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 22px,
+        rgba(0,0,0,0.03) 23px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .newspaper-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── PRICE BAR ─── */
+    .price-bar {
+      background: var(--ink);
+      color: var(--newsprint);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 16px;
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── MASTHEAD ─── */
+    .masthead {
+      border-bottom: 4px double var(--ink);
+      border-top: 2px solid var(--ink);
+      padding: 12px 20px 8px;
+      text-align: center;
+      position: relative;
+    }
+
+    .edition-line {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Special Elite', monospace;
+      font-size: 10px;
+      color: var(--gray);
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .paper-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -2px;
+      color: var(--ink);
+      text-transform: uppercase;
+    }
+
+    .paper-name span {
+      color: var(--red);
+    }
+
+    .tagline {
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--gray);
+      text-transform: uppercase;
+      margin-top: 4px;
+      border-top: 1px solid var(--column-rule);
+      border-bottom: 1px solid var(--column-rule);
+      padding: 3px 0;
+    }
+
+    /* ─── INPUT SECTION ─── */
+    .input-section {
+      padding: 16px 20px;
+      border-bottom: 3px solid var(--ink);
+      background: var(--paper-dark);
+    }
+
+    .input-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .input-frame {
+      border: 2px solid var(--ink);
+      position: relative;
+    }
+
+    .input-frame::before {
+      content: '⬛ SUBMIT YOUR TEXT FOR ANALYSIS ⬛';
+      display: block;
+      background: var(--ink);
+      color: var(--newsprint);
+      font-family: 'Special Elite', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 4px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      padding: 12px;
+      border: none;
+      background: #FEFAF0;
+      font-family: 'IM Fell English', Georgia, serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ink);
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea::placeholder {
+      color: var(--gray);
+      font-style: italic;
+    }
+
+    .submit-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .analyze-btn {
+      background: var(--red);
+      color: #FEFAF0;
+      border: 3px solid var(--ink);
+      padding: 10px 28px;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .analyze-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0 var(--ink);
+    }
+
+    .analyze-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .char-count {
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+      color: var(--gray);
+    }
+
+    .example-btn {
+      background: none;
+      border: 2px solid var(--column-rule);
+      color: var(--gray);
+      padding: 8px 14px;
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .example-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    /* ─── FRONT PAGE (results) ─── */
+    .front-page {
+      display: none;
+      padding: 0;
+    }
+
+    .front-page.visible { display: block; }
+
+    /* ─── BANNER HEADLINE ─── */
+    .banner-section {
+      padding: 16px 20px 12px;
+      border-bottom: 4px double var(--ink);
+      text-align: center;
+      position: relative;
+    }
+
+    .breaking-flag {
+      display: inline-block;
+      background: var(--red);
+      color: white;
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      padding: 3px 16px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .main-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 900;
+      line-height: 1.05;
+      color: var(--ink);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .main-headline.high { color: var(--red); }
+    .main-headline.low { color: #2A6E2A; }
+
+    .deck {
+      font-family: 'IM Fell English', serif;
+      font-size: 16px;
+      font-style: italic;
+      color: var(--gray);
+      line-height: 1.4;
+      max-width: 600px;
+      margin: 0 auto 8px;
+    }
+
+    .byline-row {
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+      color: var(--gray);
+      letter-spacing: 1px;
+    }
+
+    /* ─── SLOP SCORE SEAL ─── */
+    .score-seal {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      width: 100px;
+      height: 100px;
+    }
+
+    .score-seal svg { width: 100%; height: 100%; }
+
+    /* ─── COLUMNS ─── */
+    .columns-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      border-bottom: 3px solid var(--ink);
+    }
+
+    .col {
+      padding: 16px 16px;
+      border-right: 1px solid var(--column-rule);
+    }
+
+    .col:last-child { border-right: none; }
+
+    .col-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.2;
+      color: var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+
+    .col-byline {
+      font-family: 'Special Elite', monospace;
+      font-size: 9px;
+      color: var(--gray);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .col-body {
+      font-family: 'IM Fell English', serif;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink);
+      text-align: justify;
+    }
+
+    .col-body p { margin-bottom: 8px; }
+
+    .metric-badge {
+      display: inline-block;
+      font-family: 'Special Elite', monospace;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--red);
+      border: 3px solid var(--red);
+      padding: 4px 8px;
+      margin: 6px 0;
+      letter-spacing: 1px;
+    }
+
+    .metric-badge.safe { color: #2A6E2A; border-color: #2A6E2A; }
+    .metric-badge.warn { color: var(--gold); border-color: var(--gold); }
+
+    /* ─── PULL QUOTE ─── */
+    .pull-quote {
+      border-left: 4px solid var(--red);
+      border-right: 4px solid var(--red);
+      padding: 10px 14px;
+      margin: 12px 0;
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    /* ─── RUBBER STAMP ─── */
+    .stamp {
+      display: inline-block;
+      border: 4px solid;
+      padding: 4px 10px;
+      font-family: 'Special Elite', monospace;
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      transform: rotate(-8deg);
+      opacity: 0.85;
+      margin: 8px 0;
+    }
+
+    .stamp.exposed { color: var(--stamp-red); border-color: var(--stamp-red); }
+    .stamp.cleared { color: var(--stamp-blue); border-color: var(--stamp-blue); }
+    .stamp.warning { color: var(--gold); border-color: var(--gold); }
+
+    /* ─── EVIDENCE BOX ─── */
+    .evidence-box {
+      background: var(--paper-dark);
+      border: 2px solid var(--ink);
+      padding: 10px 12px;
+      margin-top: 12px;
+    }
+
+    .evidence-box-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gray);
+      border-bottom: 1px solid var(--column-rule);
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+
+    .evidence-item {
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+      color: var(--ink);
+      padding: 2px 0;
+      border-bottom: 1px dotted var(--column-rule);
+    }
+
+    .evidence-item:last-child { border-bottom: none; }
+
+    .evidence-count {
+      float: right;
+      color: var(--red);
+      font-weight: bold;
+    }
+
+    /* ─── TWO-COLUMN SECTION ─── */
+    .two-col-section {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 0;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .two-col-main {
+      padding: 16px 16px;
+      border-right: 1px solid var(--column-rule);
+    }
+
+    .two-col-sidebar {
+      padding: 16px 14px;
+    }
+
+    /* ─── SCORE BREAKDOWN BOX ─── */
+    .score-breakdown {
+      border: 3px double var(--ink);
+      padding: 12px;
+    }
+
+    .score-breakdown-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 900;
+      text-align: center;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px dotted var(--column-rule);
+      font-family: 'Special Elite', monospace;
+      font-size: 11px;
+    }
+
+    .score-row:last-child { border-bottom: none; }
+
+    .score-bar-wrap {
+      width: 60px;
+      height: 8px;
+      background: var(--light-gray);
+      border: 1px solid var(--column-rule);
+      position: relative;
+    }
+
+    .score-bar-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: var(--red);
+      transition: width 0.8s ease;
+    }
+
+    .score-bar-fill.safe { background: #2A6E2A; }
+    .score-bar-fill.warn { background: var(--gold); }
+
+    /* ─── FOOTER ─── */
+    .paper-footer {
+      background: var(--ink);
+      color: var(--newsprint);
+      padding: 8px 20px;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Special Elite', monospace;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── AD BOX ─── */
+    .ad-box {
+      border: 3px solid var(--ink);
+      padding: 10px;
+      text-align: center;
+      margin-top: 12px;
+      background: var(--paper-dark);
+    }
+
+    .ad-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 900;
+      font-style: italic;
+      line-height: 1.3;
+    }
+
+    .ad-body {
+      font-family: 'Special Elite', monospace;
+      font-size: 10px;
+      color: var(--gray);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* ─── TOTAL SCORE HERO ─── */
+    .total-score-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 16px 20px;
+      border-bottom: 3px solid var(--ink);
+      background: var(--paper-dark);
+    }
+
+    .total-score-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 80px;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--red);
+    }
+
+    .total-score-number.low { color: #2A6E2A; }
+    .total-score-number.mid { color: var(--gold); }
+
+    .total-score-label {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .total-score-label .verdict {
+      font-size: 28px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .total-score-label .sublabel {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--gray);
+    }
+
+    /* ─── LOADING ─── */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(29, 22, 18, 0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-overlay.active { display: flex; }
+
+    .loading-box {
+      background: var(--newsprint);
+      border: 6px double var(--ink);
+      padding: 40px 60px;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .loading-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .loading-dots {
+      font-family: 'Special Elite', monospace;
+      font-size: 32px;
+      color: var(--ink);
+      letter-spacing: 8px;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .loading-sub {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      color: var(--gray);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 700px) {
+      body { padding: 8px; }
+      .paper-name { font-size: 36px; }
+      .columns-area { grid-template-columns: 1fr; }
+      .col { border-right: none; border-bottom: 1px solid var(--column-rule); }
+      .two-col-section { grid-template-columns: 1fr; }
+      .two-col-main { border-right: none; border-bottom: 1px solid var(--column-rule); }
+      .main-headline { font-size: 30px; }
+      .score-seal { position: static; display: block; margin: 10px auto 0; }
+      .banner-section { padding-top: 12px; }
+      .total-score-number { font-size: 56px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="newspaper" id="newspaper">
+  <div class="newspaper-inner">
+
+    <!-- PRICE BAR -->
+    <div class="price-bar">
+      <span>VOL. XLVII, No. 312</span>
+      <span>★ MONDAY MORNING SPECIAL ★</span>
+      <span>PRICE: FREE (Worth Every Penny)</span>
+    </div>
+
+    <!-- MASTHEAD -->
+    <div class="masthead">
+      <div class="edition-line">
+        <span>ESTABLISHED 2024 — WHEN THE ROBOTS STARTED WRITING EVERYTHING</span>
+        <span id="masthead-date"></span>
+      </div>
+      <div class="paper-name">The AI <span>Slop</span> Gazette</div>
+      <div class="tagline">★ Exposing Machine Prose For The Discerning Human Reader ★</div>
+    </div>
+
+    <!-- INPUT SECTION -->
+    <div class="input-section" id="inputSection">
+      <label class="input-label" for="textInput">📰 Submit Text for Investigative Analysis</label>
+      <div class="input-frame">
+        <textarea id="textInput" placeholder="Paste any text here — email, blog post, essay, product description, press release, or that suspiciously polished email from your colleague. Our crack team of Slop Investigators will expose the truth..."></textarea>
+      </div>
+      <div class="submit-row">
+        <button class="analyze-btn" onclick="analyzeText()">PRINT THE STORY</button>
+        <button class="example-btn" onclick="loadExample('ai')">Load AI Example</button>
+        <button class="example-btn" onclick="loadExample('human')">Load Human Example</button>
+        <span class="char-count" id="charCount">0 characters</span>
+      </div>
+    </div>
+
+    <!-- FRONT PAGE (results) -->
+    <div class="front-page" id="frontPage">
+
+      <!-- RESET ROW -->
+      <div style="background: var(--paper-dark); border-bottom: 2px solid var(--ink); padding: 8px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: 'Special Elite', monospace; font-size: 11px; color: var(--gray); letter-spacing: 1px;">◀ SUBMIT NEW SUBMISSION</span>
+        <button onclick="resetForm()" style="background: none; border: 2px solid var(--column-rule); color: var(--gray); font-family: 'Special Elite', monospace; font-size: 11px; letter-spacing: 1px; padding: 4px 12px; cursor: pointer; text-transform: uppercase;">New Investigation</button>
+      </div>
+
+      <!-- BANNER HEADLINE -->
+      <div class="banner-section" id="bannerSection">
+        <div class="breaking-flag" id="breakingFlag">BREAKING NEWS</div>
+        <h1 class="main-headline" id="mainHeadline">INVESTIGATING YOUR TEXT</h1>
+        <p class="deck" id="mainDeck">Our crack team of slop investigators has examined the submitted text and prepared this exclusive front-page exposé.</p>
+        <div class="byline-row">BY STAFF REPORTER ALGERNON FITZGERALD-WATTS III &nbsp;|&nbsp; THE AI SLOP GAZETTE &nbsp;|&nbsp; <span id="printDate"></span></div>
+        <div class="score-seal" id="scoreSeal">
+          <!-- SVG generated by JS -->
+        </div>
+      </div>
+
+      <!-- TOTAL SCORE ROW -->
+      <div class="total-score-row">
+        <div class="total-score-number" id="totalScoreNum">0</div>
+        <div class="total-score-label">
+          <div class="verdict" id="verdictText">ANALYZING</div>
+          <div class="sublabel" id="verdictSub">Computing slop coefficient...</div>
+        </div>
+      </div>
+
+      <!-- MAIN COLUMNS -->
+      <div class="columns-area" id="columnsArea">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- TWO-COL BOTTOM -->
+      <div class="two-col-section" id="bottomSection">
+        <div class="two-col-main" id="analysisMain">
+          <!-- populated by JS -->
+        </div>
+        <div class="two-col-sidebar" id="analysisSidebar">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+    </div><!-- /front-page -->
+
+    <!-- FOOTER -->
+    <div class="paper-footer">
+      <span>© 2024–2026 THE AI SLOP GAZETTE. ALL RIGHTS RESERVED. PROBABLY.</span>
+      <span>PRINTED ON GENUINE RECYCLED ELECTRONS</span>
+      <span>EDITOR: HELIX T. NEWSBOT, Esq.</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="loading-title">PRESS STOP!</div>
+    <div class="loading-dots">• • •</div>
+    <div class="loading-sub">Our investigators are reading every word<br>and shaking their heads disapprovingly...</div>
+  </div>
+</div>
+
+<script>
+// ─── DATE SETUP ───────────────────────────────────────────────
+const now = new Date();
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+document.getElementById('masthead-date').textContent = dateStr;
+document.getElementById('printDate').textContent = dateStr.toUpperCase();
+
+// ─── CHARACTER COUNT ───────────────────────────────────────────
+document.getElementById('textInput').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length + ' characters';
+});
+
+// ─── EXAMPLE TEXTS ────────────────────────────────────────────
+const examples = {
+  ai: `Certainly! I'd be happy to help you understand the importance of effective communication in the modern workplace. It's important to note that in today's fast-paced business environment, clear and concise communication is absolutely essential for success.
+
+Furthermore, it's worth mentioning that there are several key strategies that can help improve your communication skills. First and foremost, active listening is crucial. Additionally, it's important to be mindful of your body language and non-verbal cues. Moreover, utilizing clear and straightforward language can greatly enhance the effectiveness of your message.
+
+In conclusion, it's worth noting that by implementing these strategies, you can significantly improve your professional relationships and overall workplace effectiveness. I hope this information has been helpful! Please let me know if you need any further clarification or assistance with any other aspect of this important topic.`,
+
+  human: `Last Tuesday, the coffee machine in the break room finally died. Three years of loyal service, and it just... stopped. No warning. No sputtering. Just silence where there used to be that comforting gurgle.
+
+We've been surviving on instant since then, which has created a sort of collective mourning. Tom from accounting suggested a crowdfund for a new one. Sarah said she'd match up to fifty bucks. I made a sign that said "In Memoriam: Mr. Brews" and taped it where the machine used to sit.
+
+Management emailed yesterday asking if anyone had "disposed of company property." Nobody has responded yet. We're all pretending we didn't get it.`
+};
+
+function loadExample(type) {
+  document.getElementById('textInput').value = examples[type];
+  document.getElementById('charCount').textContent = examples[type].length + ' characters';
+}
+
+// ─── SLOP ANALYSIS ENGINE ─────────────────────────────────────
+
+const AI_PHRASES = [
+  "certainly", "absolutely", "of course", "i'd be happy to", "i am happy to",
+  "i hope this", "please let me know", "feel free to", "great question",
+  "it's important to note", "it is important to note", "it's worth noting",
+  "it's worth mentioning", "it is worth noting", "first and foremost",
+  "in conclusion", "in summary", "to summarize", "as mentioned",
+  "as previously mentioned", "as previously stated", "it goes without saying",
+  "needless to say", "rest assured", "at the end of the day",
+  "moving forward", "going forward", "leverage", "synergy", "utilize",
+  "endeavor", "holistic", "seamless", "robust", "innovative", "cutting-edge",
+  "state-of-the-art", "best-in-class", "world-class", "game-changing",
+  "disruptive", "paradigm shift", "thought leader", "value-add",
+  "actionable insights", "deep dive", "touch base", "circle back",
+  "take this offline", "bandwidth", "pain points", "low-hanging fruit",
+  "boil the ocean", "move the needle", "think outside the box",
+  "on the same page", "at the end of the day"
+];
+
+const HEDGE_PHRASES = [
+  "it's important to", "it is important to", "it's worth", "it is worth",
+  "it should be noted", "it's crucial to", "it is crucial to",
+  "it's essential to", "it is essential to", "it's vital to",
+  "it is vital to", "one might argue", "one could argue",
+  "it's necessary to", "it is necessary to", "generally speaking",
+  "in many cases", "in most cases", "in some cases", "it depends on",
+  "it's possible that", "it is possible that", "this may vary"
+];
+
+const TRANSITION_OVERUSE = [
+  "furthermore", "moreover", "additionally", "in addition",
+  "nevertheless", "nonetheless", "consequently", "subsequently",
+  "accordingly", "therefore", "thus", "hence", "as a result",
+  "on the other hand", "on the contrary", "in contrast",
+  "conversely", "similarly", "likewise", "in the same vein",
+  "first and foremost", "last but not least"
+];
+
+const OPENER_PHRASES = [
+  /^certainly[!,]?/i, /^absolutely[!,]?/i, /^great[!,]?/i,
+  /^of course[!,]?/i, /^sure[!,]?/i, /^indeed[!,]?/i,
+  /^wonderful[!,]?/i, /^excellent[!,]?/i, /^definitely[!,]?/i,
+  /^thanks for (asking|the question|sharing)/i,
+  /^thank you for (asking|the question|sharing)/i
+];
+
+function countOccurrences(text, phrases) {
+  const lower = text.toLowerCase();
+  let count = 0;
+  const found = [];
+  for (const phrase of phrases) {
+    let idx = 0;
+    while ((idx = lower.indexOf(phrase, idx)) !== -1) {
+      count++;
+      if (!found.includes(phrase)) found.push(phrase);
+      idx += phrase.length;
+    }
+  }
+  return { count, found };
+}
+
+function getSentences(text) {
+  return text.match(/[^.!?]+[.!?]+/g) || [text];
+}
+
+function getParagraphs(text) {
+  return text.split(/\n\s*\n/).filter(p => p.trim().length > 20);
+}
+
+function countPassiveVoice(text) {
+  // Heuristic: "is/are/was/were/been/being + past participle"
+  const passivePattern = /\b(is|are|was|were|been|being|be)\s+\w+ed\b/gi;
+  const matches = text.match(passivePattern) || [];
+  return matches.length;
+}
+
+function countEmDashes(text) {
+  return (text.match(/—/g) || []).length + (text.match(/--/g) || []).length;
+}
+
+function getSentenceLengthVariance(sentences) {
+  if (sentences.length < 3) return 0;
+  const lengths = sentences.map(s => s.trim().split(/\s+/).length);
+  const mean = lengths.reduce((a, b) => a + b, 0) / lengths.length;
+  const variance = lengths.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / lengths.length;
+  return Math.sqrt(variance); // std dev
+}
+
+function countOpeners(text) {
+  const sentences = getSentences(text);
+  return sentences.filter(s => OPENER_PHRASES.some(p => p.test(s.trim()))).length;
+}
+
+function extractWorstOffenders(text, phrases) {
+  const lower = text.toLowerCase();
+  const hits = {};
+  for (const phrase of phrases) {
+    let idx = 0, count = 0;
+    while ((idx = lower.indexOf(phrase, idx)) !== -1) {
+      count++;
+      idx += phrase.length;
+    }
+    if (count > 0) hits[phrase] = count;
+  }
+  return Object.entries(hits).sort((a,b) => b[1] - a[1]).slice(0, 6);
+}
+
+function getPullQuote(text) {
+  const sentences = getSentences(text);
+  // Find sentence with most AI phrases
+  let best = { s: '', score: -1 };
+  for (const s of sentences) {
+    const lower = s.toLowerCase();
+    let score = AI_PHRASES.filter(p => lower.includes(p)).length;
+    score += HEDGE_PHRASES.filter(p => lower.includes(p)).length * 2;
+    if (score > best.score && s.trim().length > 30 && s.trim().length < 200) {
+      best = { s: s.trim(), score };
+    }
+  }
+  return best.s || sentences[0]?.trim() || '';
+}
+
+// ─── SCORE CALCULATION ────────────────────────────────────────
+
+function calcScore(text) {
+  const words = text.trim().split(/\s+/).length;
+  const sentences = getSentences(text);
+  const paragraphs = getParagraphs(text);
+
+  // 1. AI Phrase Score (0-25)
+  const aiResult = countOccurrences(text.toLowerCase(), AI_PHRASES);
+  const aiDensity = aiResult.count / Math.max(words, 1) * 1000; // per 1000 words
+  const aiScore = Math.min(25, Math.round(aiDensity * 2));
+
+  // 2. Hedge Phrase Score (0-15)
+  const hedgeResult = countOccurrences(text.toLowerCase(), HEDGE_PHRASES);
+  const hedgeDensity = hedgeResult.count / Math.max(words, 1) * 1000;
+  const hedgeScore = Math.min(15, Math.round(hedgeDensity * 3));
+
+  // 3. Transition Overuse (0-15)
+  const transResult = countOccurrences(text.toLowerCase(), TRANSITION_OVERUSE);
+  const transDensity = transResult.count / Math.max(words, 1) * 1000;
+  const transScore = Math.min(15, Math.round(transDensity * 2.5));
+
+  // 4. Passive Voice (0-10)
+  const passiveCount = countPassiveVoice(text);
+  const passiveDensity = passiveCount / Math.max(sentences.length, 1);
+  const passiveScore = Math.min(10, Math.round(passiveDensity * 15));
+
+  // 5. Sentence Length Variance (0-15) — low variance = robotic
+  const stdDev = getSentenceLengthVariance(sentences);
+  // Low variance (< 3) = max slop, high variance = human
+  const varianceScore = stdDev < 1 ? 15 : Math.max(0, 15 - Math.round(stdDev * 2.5));
+
+  // 6. Opener Score (0-10)
+  const openerCount = countOpeners(text);
+  const openerScore = Math.min(10, openerCount * 5);
+
+  // 7. Em Dash Score (0-10) — AI loves em dashes
+  const emDashCount = countEmDashes(text);
+  const emDashDensity = emDashCount / Math.max(sentences.length, 1);
+  const emDashScore = Math.min(10, Math.round(emDashDensity * 20));
+
+  const total = aiScore + hedgeScore + transScore + passiveScore + varianceScore + openerScore + emDashScore;
+  const totalClamped = Math.min(100, total);
+
+  return {
+    total: totalClamped,
+    words,
+    sentences: sentences.length,
+    paragraphs: paragraphs.length,
+    metrics: {
+      ai: { score: aiScore, max: 25, count: aiResult.count, label: 'AI Buzzword Density' },
+      hedge: { score: hedgeScore, max: 15, count: hedgeResult.count, label: 'Hedge Phrase Infestation' },
+      trans: { score: transScore, max: 15, count: transResult.count, label: 'Transition Word Abuse' },
+      passive: { score: passiveScore, max: 10, count: passiveCount, label: 'Passive Voice Evasion' },
+      variance: { score: varianceScore, max: 15, count: Math.round(stdDev * 10) / 10, label: 'Sentence Length Robotics' },
+      opener: { score: openerScore, max: 10, count: openerCount, label: 'Sycophantic Openers' },
+      emdash: { score: emDashScore, max: 10, count: emDashCount, label: 'Suspicious Em Dash Usage' }
+    },
+    aiPhrases: extractWorstOffenders(text, AI_PHRASES),
+    hedgePhrases: extractWorstOffenders(text, HEDGE_PHRASES),
+    transPhrases: extractWorstOffenders(text, TRANSITION_OVERUSE),
+    pullQuote: getPullQuote(text)
+  };
+}
+
+// ─── VERDICT COPY ─────────────────────────────────────────────
+
+function getVerdict(score) {
+  if (score >= 80) return {
+    flag: '🚨 SLOP ALERT',
+    headline: 'PURE MACHINE SLOP DETECTED IN SUBMITTED TEXT',
+    deck: 'Our investigators have confirmed what many suspected: the submitted text exhibits catastrophic levels of artificial prose, with evidence of robotic phrase construction so severe it may constitute a public hazard.',
+    verdict: 'MAXIMUM SLOP',
+    sub: 'This text was almost certainly written by a machine.',
+    scoreClass: 'high',
+    numClass: '',
+    stampClass: 'exposed',
+    stampText: 'ROBOT CONFIRMED'
+  };
+  if (score >= 60) return {
+    flag: '⚠️ BREAKING: SLOP DETECTED',
+    headline: 'INVESTIGATORS FIND SUBSTANTIAL AI FINGERPRINTS IN SUBMITTED PROSE',
+    deck: 'Sources close to the investigation confirm alarming levels of machine-generated indicators, including hedge phrases, robotic sentence cadence, and buzzword concentration exceeding safe human limits.',
+    verdict: 'HIGH SLOP',
+    sub: 'Strong evidence of AI involvement.',
+    scoreClass: 'high',
+    numClass: '',
+    stampClass: 'exposed',
+    stampText: 'EXPOSED'
+  };
+  if (score >= 40) return {
+    flag: '📋 DEVELOPING STORY',
+    headline: 'MIXED SIGNALS DETECTED: HUMAN OR MACHINE? JURY STILL OUT',
+    deck: 'Our investigative bureau has reached an inconclusive finding. The submitted text contains both human characteristics and suspicious machine-like patterns, suggesting possible AI assistance or a writer who has read too many LinkedIn posts.',
+    verdict: 'SUSPICIOUS',
+    sub: 'Possibly AI-assisted or heavily corporate-speak.',
+    scoreClass: '',
+    numClass: 'mid',
+    stampClass: 'warning',
+    stampText: 'SUSPICIOUS'
+  };
+  if (score >= 20) return {
+    flag: '✅ EXCLUSIVE REPORT',
+    headline: 'TEXT CLEARED OF MAJOR SLOP CHARGES; MINOR VIOLATIONS NOTED',
+    deck: 'Despite a thorough investigation spanning several seconds of intense JavaScript computation, our bureau finds the submitted text to be substantially human in character, though not without minor stylistic infractions.',
+    verdict: 'MOSTLY HUMAN',
+    sub: 'Minor stylistic concerns, but largely authentic.',
+    scoreClass: 'low',
+    numClass: 'low',
+    stampClass: 'cleared',
+    stampText: 'CLEARED'
+  };
+  return {
+    flag: '🏆 SPECIAL REPORT',
+    headline: 'REMARKABLY HUMAN PROSE DISCOVERED; GAZETTE INVESTIGATORS ASTONISHED',
+    deck: 'In a shocking development that has stunned our newsroom, the submitted text displays the hallmarks of genuine human writing: irregular sentence lengths, absence of corporate hedging, and a refreshing lack of robotic phrase repetition.',
+    verdict: 'GENUINE HUMAN',
+    sub: 'Congratulations. You write like a person.',
+    scoreClass: 'low',
+    numClass: 'low',
+    stampClass: 'cleared',
+    stampText: 'AUTHENTIC'
+  };
+}
+
+function makeScoreSVG(score, scoreClass) {
+  const fill = scoreClass === 'low' ? '#2A6E2A' : scoreClass === 'mid' ? '#A07820' : '#B8160A';
+  return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="56" fill="none" stroke="${fill}" stroke-width="4"/>
+    <circle cx="60" cy="60" r="50" fill="none" stroke="${fill}" stroke-width="1.5"/>
+    <text x="60" y="30" text-anchor="middle" font-family="'Special Elite',monospace" font-size="9" fill="${fill}" letter-spacing="1">SLOP</text>
+    <text x="60" y="72" text-anchor="middle" font-family="'Playfair Display',serif" font-size="38" font-weight="900" fill="${fill}">${score}</text>
+    <text x="60" y="88" text-anchor="middle" font-family="'Special Elite',monospace" font-size="9" fill="${fill}">OUT OF 100</text>
+    <text x="60" y="105" text-anchor="middle" font-family="'Special Elite',monospace" font-size="8" fill="${fill}" letter-spacing="1">GAZETTE SCORE</text>
+  </svg>`;
+}
+
+function classForScore(s, max) {
+  const pct = s / max;
+  if (pct < 0.33) return 'safe';
+  if (pct < 0.66) return 'warn';
+  return '';
+}
+
+function badgeLabelForMetric(key, count) {
+  if (key === 'variance') return `${count} word std dev`;
+  return `${count} found`;
+}
+
+// ─── MAIN ANALYSIS RENDERER ───────────────────────────────────
+
+function analyzeText() {
+  const text = document.getElementById('textInput').value.trim();
+  if (text.length < 20) {
+    alert('Please enter at least 20 characters for our investigators to work with.');
+    return;
+  }
+
+  // Show loading
+  document.getElementById('loadingOverlay').classList.add('active');
+
+  setTimeout(() => {
+    const result = calcScore(text);
+    const verdict = getVerdict(result.total);
+
+    // Hide loading
+    document.getElementById('loadingOverlay').classList.remove('active');
+
+    // Populate headline section
+    document.getElementById('breakingFlag').textContent = verdict.flag;
+    const hl = document.getElementById('mainHeadline');
+    hl.textContent = verdict.headline;
+    hl.className = 'main-headline ' + verdict.scoreClass;
+    document.getElementById('mainDeck').textContent = verdict.deck;
+    document.getElementById('scoreSeal').innerHTML = makeScoreSVG(result.total, verdict.numClass);
+
+    // Score row
+    const numEl = document.getElementById('totalScoreNum');
+    numEl.textContent = result.total;
+    numEl.className = 'total-score-number ' + verdict.numClass;
+    document.getElementById('verdictText').textContent = verdict.verdict;
+    document.getElementById('verdictSub').textContent = verdict.sub;
+
+    // BUILD COLUMNS
+    const m = result.metrics;
+    const cols = [
+      {
+        headline: 'BUZZWORD INFESTATION REPORT',
+        byline: 'BY PERCIVAL HORNSBY, Language Crimes Reporter',
+        metric: 'ai',
+        body: `Our forensic linguists have catalogued the AI phrase density within the submitted text. Operating at <strong>${m.ai.count}</strong> detections, this specimen ${m.ai.score >= 15 ? 'far exceeds' : m.ai.score >= 8 ? 'approaches' : 'falls below'} the Gazette's threshold for machine-generated prose.
+          <br><br>The presence of phrases such as "certainly," "it's important to note," and their ilk indicates a suspicious comfort with robotic rhetorical patterns that no self-respecting human should possess.`,
+        evidence: result.aiPhrases,
+        evidenceLabel: 'TOP OFFENDERS'
+      },
+      {
+        headline: 'HEDGE FUND: LANGUAGE EVASION TACTICS UNCOVERED',
+        byline: 'BY OCTAVIA PENDLEWORTH, Rhetoric Correspondent',
+        metric: 'hedge',
+        body: `In what investigators are calling "a textbook display of epistemic cowardice," the submitted text contains <strong>${m.hedge.count}</strong> hedge phrases — linguistic escape hatches that allow the author to avoid committing to any concrete statement.
+          <br><br>This technique, perfected by corporate AI assistants trained to never be wrong, allows prose to gesture vaguely at meaning without actually achieving it.`,
+        evidence: result.hedgePhrases,
+        evidenceLabel: 'HEDGE PHRASES DETECTED'
+      },
+      {
+        headline: 'TRANSITION WORDS: A CRIME AGAINST FLOW',
+        byline: 'BY BARNABAS CRUMPLEWICK, Prose Quality Desk',
+        metric: 'trans',
+        body: `Sources confirm that <strong>${m.trans.count}</strong> transition words were deployed in the submitted text. "Furthermore," "Moreover," and their accomplices have been apprehended at the scene.
+          <br><br>Transition word overuse is a signature tell of AI text generators, which stitch paragraphs together using connector phrases rather than genuine narrative momentum.`,
+        evidence: result.transPhrases,
+        evidenceLabel: 'TRANSITION CRIMES'
+      }
+    ];
+
+    document.getElementById('columnsArea').innerHTML = cols.map(c => {
+      const mdata = m[c.metric];
+      const cls = classForScore(mdata.score, mdata.max);
+      const badgeCls = cls === 'safe' ? 'safe' : cls === 'warn' ? 'warn' : '';
+
+      let evidenceHtml = '';
+      if (c.evidence && c.evidence.length > 0) {
+        evidenceHtml = `<div class="evidence-box">
+          <div class="evidence-box-title">${c.evidenceLabel}</div>
+          ${c.evidence.map(([phrase, count]) => `
+            <div class="evidence-item">
+              "${phrase}" <span class="evidence-count">×${count}</span>
+            </div>
+          `).join('')}
+        </div>`;
+      } else {
+        evidenceHtml = `<div class="stamp ${badgeCls === 'safe' ? 'cleared' : 'exposed'}">${badgeCls === 'safe' ? 'CLEAN' : 'NONE FOUND'}</div>`;
+      }
+
+      return `<div class="col">
+        <div class="col-headline">${c.headline}</div>
+        <div class="col-byline">${c.byline}</div>
+        <div class="col-body">
+          <div class="metric-badge ${badgeCls}">${badgeLabelForMetric(c.metric, mdata.count)}</div>
+          <p>${c.body}</p>
+          ${evidenceHtml}
+        </div>
+      </div>`;
+    }).join('');
+
+    // BUILD BOTTOM SECTION — main analysis + sidebar
+    const pullQ = result.pullQuote;
+
+    const mainHtml = `
+      <div class="col-headline">FULL FORENSIC BREAKDOWN: THE VERDICT FROM OUR LAB</div>
+      <div class="col-byline">BY THE GAZETTE INVESTIGATIVE BUREAU — FILED ${dateStr.toUpperCase()}</div>
+      <div class="col-body">
+        <p>After exhaustive analysis of the <strong>${result.words.toLocaleString()} words</strong> and <strong>${result.sentences} sentences</strong> comprising the submitted text, our bureau has reached its conclusions.</p>
+        <p>Passive voice constructions — a favourite of AI systems attempting to maintain plausible deniability — were detected <strong>${m.passive.count} times</strong>. Meanwhile, sentence length variance returned a standard deviation of <strong>${m.variance.count}</strong> words ${m.variance.count < 3 ? '— dangerously uniform for human writing' : ' — showing healthy human irregularity'}.</p>
+        <p>Perhaps most damning: <strong>${m.opener.count} sycophantic opener${m.opener.count !== 1 ? 's' : ''}</strong> ${m.opener.count > 0 ? 'were identified — the linguistic equivalent of a machine bowing before answering your question.' : 'were detected. A clean start.'}</p>
+        <p>Em dash deployment, that most peculiar of AI stylistic tics, registered at <strong>${m.emdash.count} instance${m.emdash.count !== 1 ? 's' : ''}</strong>. ${m.emdash.count > 3 ? 'This is the hallmark of a language model that learned to write from literary essays and never stopped.' : m.emdash.count > 1 ? 'A mild but noted tendency.' : 'Within acceptable human limits.'}</p>
+        ${pullQ.length > 20 ? `
+        <div class="pull-quote">"${pullQ}"<br><em style="font-size:11px;color:var(--gray)">— A sentence from the submitted text that caught our eye</em></div>
+        ` : ''}
+        <p>The Gazette stands by its findings. Our algorithm is not perfect, but it has seen things, dear reader. It has seen things.</p>
+      </div>
+    `;
+
+    const sidebarHtml = `
+      <div class="score-breakdown">
+        <div class="score-breakdown-title">OFFICIAL SLOP SCORECARD</div>
+        ${Object.entries(m).map(([key, data]) => {
+          const pct = (data.score / data.max) * 100;
+          const barCls = pct < 33 ? 'safe' : pct < 66 ? 'warn' : '';
+          return `<div class="score-row">
+            <span>${data.label.replace(' ', '<br>').split(' ').slice(0,2).join(' ')}</span>
+            <div class="score-bar-wrap">
+              <div class="score-bar-fill ${barCls}" style="width:${pct}%"></div>
+            </div>
+            <span>${data.score}/${data.max}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="ad-box" style="margin-top:16px">
+        <div class="ad-title">Tired of AI Slop Cluttering Your Inbox?</div>
+        <div class="ad-body">So are we. The Gazette: Fighting Mechanical Prose Since 2024. Tell a friend. Or a robot. Preferably a friend.</div>
+      </div>
+      <div style="margin-top:16px; text-align:center">
+        <div class="stamp ${verdict.stampClass}">${verdict.stampText}</div>
+      </div>
+    `;
+
+    document.getElementById('analysisMain').innerHTML = mainHtml;
+    document.getElementById('analysisSidebar').innerHTML = sidebarHtml;
+
+    // Show front page
+    document.getElementById('inputSection').style.display = 'none';
+    document.getElementById('frontPage').classList.add('visible');
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 1200);
+}
+
+function resetForm() {
+  document.getElementById('inputSection').style.display = '';
+  document.getElementById('frontPage').classList.remove('visible');
+  document.getElementById('textInput').value = '';
+  document.getElementById('charCount').textContent = '0 characters';
+}
+</script>
+</body>
+</html>
