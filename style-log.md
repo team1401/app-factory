@@ -54,3 +54,13 @@ Track visual identity of every shipped app to enforce anti-sameness.
 
 ---
 *New entries appended automatically after each build.*
+
+## NutaMigrate — 2026-02-23
+- Style: "Prism Ops" — enterprise data-dense dashboard inspired by Nutanix Prism
+- Palette: #070b14 base, #00d4f0 primary teal, #16a34a green, #ca8a04 yellow, #dc2626 red
+- Signature: Wave-coded migration timeline with 7-phase progress bars, color-coded risk tiers (green/yellow/red), IBM Plex Mono throughout scripts/IPs/stats
+
+## Boondock Budget — 2026-02-24
+- Style: "Desert Expedition Journal" — weathered field notebook / expedition logbook aesthetic
+- Palette: #F4E6C0 warm sand background, #EDD9A3 aged parchment cards, #C0532A rust terracotta (expenses), #5A7A50 sage green (income), #3D2B1F dark brown text
+- Signature: Daily Burn Rate Compass — a circular canvas gauge styled as an expedition compass/navigation instrument, with tick marks, needle pointer, arc fill, and color-coded status badge (green/amber/red). Graph paper grid texture on the add-transaction form area. Arvo slab-serif + IBM Plex Mono typography pairing. Rubber stamp decorations on card headers.
