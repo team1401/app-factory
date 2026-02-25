@@ -55,6 +55,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## Drift — 2026-02-25
+- Style: "Risograph Zine" — lo-fi indie riso print aesthetic, two-color printing on warm newsprint
+- Palette: Newsprint cream (#F2EDD0) background, deep teal (#1A4D5C) sidebar, coral red (#F04A1E) accents, riso yellow (#FFDC00) stats
+- Signature: Riso color misregistration effect on logo (coral offset shadow behind teal text), halftone dot pattern overlay, bold Bebas Neue + IBM Plex Mono + Barlow Condensed type trio, Leaflet map with teal-styled popups and coral box-shadows
+
 ## NutaMigrate — 2026-02-23
 - Style: "Prism Ops" — enterprise data-dense dashboard inspired by Nutanix Prism
 - Palette: #070b14 base, #00d4f0 primary teal, #16a34a green, #ca8a04 yellow, #dc2626 red
