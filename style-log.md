@@ -69,3 +69,8 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Style: "Desert Expedition Journal" — weathered field notebook / expedition logbook aesthetic
 - Palette: #F4E6C0 warm sand background, #EDD9A3 aged parchment cards, #C0532A rust terracotta (expenses), #5A7A50 sage green (income), #3D2B1F dark brown text
 - Signature: Daily Burn Rate Compass — a circular canvas gauge styled as an expedition compass/navigation instrument, with tick marks, needle pointer, arc fill, and color-coded status badge (green/amber/red). Graph paper grid texture on the add-transaction form area. Arvo slab-serif + IBM Plex Mono typography pairing. Rubber stamp decorations on card headers.
+
+## StarChart — 2026-02-26
+- Style: "Celestial Vellum" — 17th century celestial atlas on aged parchment
+- Palette: Aged vellum (#F6EDD4) background, Prussian blue (#1A3055) primary, antique gold (#C9A84C) accent, dark sepia (#2C1A0E) text
+- Signature: Interactive SVG sky dome styled as a historical celestial globe projection — altitude rings, cardinal direction labels, color-coded DSO dots by type (galaxy=copper, nebula=blue, cluster=gold, planetary=green), all rendered against deep space gradient. Playfair Display serif + EB Garamond body + Space Mono data typography trio. Aged paper texture via CSS SVG filter. Double-border atlas frame inset around entire page.
