@@ -74,3 +74,8 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Style: "Celestial Vellum" — 17th century celestial atlas on aged parchment
 - Palette: Aged vellum (#F6EDD4) background, Prussian blue (#1A3055) primary, antique gold (#C9A84C) accent, dark sepia (#2C1A0E) text
 - Signature: Interactive SVG sky dome styled as a historical celestial globe projection — altitude rings, cardinal direction labels, color-coded DSO dots by type (galaxy=copper, nebula=blue, cluster=gold, planetary=green), all rendered against deep space gradient. Playfair Display serif + EB Garamond body + Space Mono data typography trio. Aged paper texture via CSS SVG filter. Double-border atlas frame inset around entire page.
+
+## Mile Marker — 2026-02-27
+- Style: "WPA Federal Art Project" — New Deal poster aesthetic, flat bold colors, silhouetted mountain/forest/desert/coast landscape art
+- Palette: Forest green (#2D5016), sky blue (#1B6CA8), sunset orange (#E8631A), antique gold (#C9A840), warm cream (#F5F0E0), dark brown (#2C1A0E)
+- Signature: Each campsite card has a unique landscape silhouette header (6 types: mountains, forest, desert, plains, coast, canyon) rendered as flat WPA poster art — layered clip-path SVG silhouettes with no gradients. Page header is a full WPA poster composition with scrolling pine tree foreground, mountain range, sky gradient, gold sun disk, and eagle. Oswald all-caps + Lato typography pairing.
