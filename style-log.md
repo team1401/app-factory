@@ -55,6 +55,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## Post Mortem — 2026-02-28
+- Style: "County Medical Examiner Report" — clinical government document aesthetic
+- Palette: Clinical white (#FAFAFA) background, institutional teal (#2A6A6A) headers, crimson red (#B31217) cause-of-death accents, near-black (#1A1A1A) text, pale form gray (#EFEFED) field boxes
+- Signature: Rubber-stamp animation — "DECEASED" stamp slams down with scale+rotation easing on report generation; Courier Prime monospace throughout for medical records feel; numbered report sections styled as actual ME form; toxicology displayed in clinical evidence table
+
 ## Drift — 2026-02-25
 - Style: "Risograph Zine" — lo-fi indie riso print aesthetic, two-color printing on warm newsprint
 - Palette: Newsprint cream (#F2EDD0) background, deep teal (#1A4D5C) sidebar, coral red (#F04A1E) accents, riso yellow (#FFDC00) stats
