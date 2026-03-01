@@ -55,6 +55,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## BuzzKill — 2026-03-01
+- Style: "Pop Art / Comic Book" — Roy Lichtenstein × corporate satire
+- Palette: Primary Yellow (#FFD700), Kapow Red (#E8001A), Panel Blue (#1755C2), Outline Black (#0D0D0D), Panel White (#FFFDF5)
+- Signature: Ben-Day halftone dot CSS background pattern on yellow; Bangers + Comic Neue typography duo; KAPOW! starburst SVG explosion that animates in for high BS scores; thick black outlines on all UI elements; comic panel layout with numbered panel headers
+
 ## Post Mortem — 2026-02-28
 - Style: "County Medical Examiner Report" — clinical government document aesthetic
 - Palette: Clinical white (#FAFAFA) background, institutional teal (#2A6A6A) headers, crimson red (#B31217) cause-of-death accents, near-black (#1A1A1A) text, pale form gray (#EFEFED) field boxes
