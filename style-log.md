@@ -55,6 +55,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## Dead Letters — 2026-03-02
+- Style: "Wartime Airmail Romance" — 1940s U.S. postal correspondence / Dead Letter Office aesthetic
+- Palette: Cream parchment (#FAF6EE), airmail blue (#1B4B8A), vermillion red (#C8221C), stamp gold (#C49A2A), aged ink (#2C1A0E)
+- Signature: RETURN TO SENDER circular rubber stamp (red, 200px) that animates in with a slam+rotation keyframe when viewing a sealed letter. Diagonal red/blue airmail border stripes on all letter papers. Lined letter paper with red margin line. Special Elite monospace typewriter font for all letter body text.
+
 ## BuzzKill — 2026-03-01
 - Style: "Pop Art / Comic Book" — Roy Lichtenstein × corporate satire
 - Palette: Primary Yellow (#FFD700), Kapow Red (#E8001A), Panel Blue (#1755C2), Outline Black (#0D0D0D), Panel White (#FFFDF5)
