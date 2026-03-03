@@ -55,6 +55,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## Skill Issue? — 2026-03-03
+- Style: "Bauhaus Functional" — primary Bauhaus color theory (Kandinsky's shape-color triad), geometric compositions, zero gradients, structural grid discipline
+- Palette: Bauhaus Red (#BE1621), Bauhaus Blue (#1B4FA0), Bauhaus Yellow (#F5C400), Black (#111111), White (#FFFFFF)
+- Signature: Hero Bauhaus geometric composition (large blue circle outline, red triangle, yellow square, black dot + horizontal rule with corner crop marks) styled after Kandinsky's "Point and Line to Plane" compositions. Each judge has a unique geometric avatar SVG — crosshair (operator), bullseye (data), triangle-within-triangle (nonna), four squares (founder), dashed compass rose (marcus). Thick 4px black borders throughout, Archivo Black display font, JetBrains Mono for data labels. Anti-sameness: first fully white-background, Bauhaus-primary-color build in the log.
+
 ## Dead Letters — 2026-03-02
 - Style: "Wartime Airmail Romance" — 1940s U.S. postal correspondence / Dead Letter Office aesthetic
 - Palette: Cream parchment (#FAF6EE), airmail blue (#1B4B8A), vermillion red (#C8221C), stamp gold (#C49A2A), aged ink (#2C1A0E)
