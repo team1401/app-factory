@@ -1,0 +1,12 @@
+{
+  "name": "daily-drama-network",
+  "version": "1.0.0",
+  "description": "Turn your personal chaos into a cable-news style breaking broadcast",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

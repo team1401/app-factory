@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrowdPulse Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="panel intake">
+        <p class="eyebrow">Audience Simulator</p>
+        <h1>CrowdPulse Lab</h1>
+        <p class="lede">
+          Rehearse any speech, toast, or stand-up set and preview where laughs,
+          applause, and awkward silence will hit.
+        </p>
+
+        <form id="scriptForm" novalidate>
+          <label for="scriptInput">Your script</label>
+          <textarea
+            id="scriptInput"
+            name="script"
+            rows="10"
+            minlength="40"
+            maxlength="6000"
+            placeholder="Paste your speech, bit, or keynote here..."
+            required
+          ></textarea>
+
+          <div class="controls">
+            <div>
+              <label for="venue">Venue profile</label>
+              <select id="venue" name="venue">
+                <option value="club">Comedy club (tight room)</option>
+                <option value="conference">Conference hall</option>
+                <option value="wedding">Wedding reception</option>
+                <option value="classroom">Classroom / workshop</option>
+              </select>
+            </div>
+            <div>
+              <label for="tempo">Delivery pace</label>
+              <select id="tempo" name="tempo">
+                <option value="150">Steady (150 wpm)</option>
+                <option value="120">Slow and deliberate (120 wpm)</option>
+                <option value="180">Fast and punchy (180 wpm)</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="analyzeBtn" type="submit">Simulate Crowd Reaction</button>
+          <p id="formError" class="form-error" role="alert" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="panel results" aria-live="polite">
+        <div class="status-row">
+          <h2>Reaction Timeline</h2>
+          <p id="statusPill" class="status neutral">Waiting for script</p>
+        </div>
+
+        <div id="loadingState" class="state loading" hidden>
+          <div class="scanner"></div>
+          <p>Scanning cadence, rhythm, and punchline density…</p>
+        </div>
+
+        <div id="emptyState" class="state">
+          <p>
+            Tip: include at least 3–4 paragraphs so the simulator can detect
+            pacing shifts.
+          </p>
+        </div>
+
+        <div id="resultsState" class="state" hidden>
+          <canvas
+            id="waveCanvas"
+            width="900"
+            height="260"
+            role="img"
+            aria-label="Audience reaction waveform over time"
+          ></canvas>
+
+          <div class="grid">
+            <article>
+              <h3>Big Moments</h3>
+              <ul id="momentsList"></ul>
+            </article>
+            <article>
+              <h3>Dead-Air Risks</h3>
+              <ul id="riskList"></ul>
+            </article>
+            <article>
+              <h3>Rescue Lines</h3>
+              <ul id="rescueList"></ul>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

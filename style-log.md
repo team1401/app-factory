@@ -52,6 +52,16 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Newsprint cream (#F2ECD9), ink black (#1A1A14), scandal red (#B8160A), dateline gold (#A07820), column gray (#6B6055)
 - Signature: Analysis results rendered as a full tabloid FRONT PAGE — multiple investigative "column articles" exposing each AI-slop metric, rubber-stamp overlays (EXPOSED/CLEARED/SUSPICIOUS/AUTHENTIC), circular SLOP SCORE seal, evidence boxes listing specific offending phrases, and a pull quote from the most suspicious sentence. Dense justified column layout with double-rule borders. Playfair Display + IM Fell English + Special Elite typography trio.
 
+## Daily Drama Network — 2026-03-04
+- Style: "24-Hour Cable News Hyperreality" — satirical TV newsroom broadcast aesthetic
+- Palette: News Navy (#07142B), Breaking Red (#CF1F2E), Alert Gold (#F2BE42), Ticker Blue (#0F2A57), Studio Slate (#1D2431), Broadcast White (#F6F8FC)
+- Signature: Infinite scrolling DDN ticker ribbon that duplicates and loops generated headlines, plus LIVE bug pulse and a color-graded National Importance meter (1–10) styled like a prime-time urgency gauge
+
+## CrowdPulse Lab — 2026-03-05
+- Style: "Mission Control Plotter Paper" — retro aerospace rehearsal lab aesthetic on warm engineering graph stock
+- Palette: Ivory paper (#FFFDF6), signal blue (#18428F), alert orange (#F28F16), alarm red (#D7263D), oscilloscope green (#138A5A), graphite ink (#1F222D)
+- Signature: Live "Audience Energy" waveform drawn on a ruled plotter-grid canvas with big-laugh spikes marked as red square hit-points, paired with a scanning cadence bar in loading state
+
 ---
 *New entries appended automatically after each build.*
 

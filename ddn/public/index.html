@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Drama Network</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Source+Sans+3:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="network-header">
+      <div class="ddn-logo">DDN</div>
+      <div class="network-title">
+        <h1>DAILY DRAMA NETWORK</h1>
+        <p>All your chaos, all the time.</p>
+      </div>
+      <div class="live-bug" aria-live="polite">LIVE</div>
+    </header>
+
+    <main class="studio-grid">
+      <section class="newsroom-panel">
+        <h2>Submit a developing situation</h2>
+        <p class="panel-help">Drop in your personal drama. We’ll package it as a prime-time emergency briefing.</p>
+
+        <form id="drama-form" novalidate>
+          <label for="drama">What happened?</label>
+          <textarea id="drama" name="drama" maxlength="1200" required placeholder="My roommate replaced my expensive coffee beans with decaf and denies everything..."></textarea>
+
+          <div class="form-row">
+            <label for="vibe">Current vibe index</label>
+            <select id="vibe" name="vibe">
+              <option>Messy</option>
+              <option>Unhinged</option>
+              <option>Mildly Catastrophic</option>
+              <option>Office Soap Opera</option>
+              <option>Group Chat Emergency</option>
+            </select>
+          </div>
+
+          <button id="broadcast-btn" type="submit">Broadcast My Drama</button>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="broadcast" aria-live="polite">
+        <div class="breaking-row">
+          <span id="urgency" class="urgency">BREAKING</span>
+          <h2 id="headline">PERSONAL DRAMA AWAITS CLASSIFICATION</h2>
+        </div>
+        <p id="subheadline" class="subheadline">Submit a situation to start the broadcast.</p>
+
+        <div class="broadcast-layout">
+          <article class="anchor-desk card">
+            <h3>Anchor Desk</h3>
+            <p id="anchor-intro">Our newsroom is standing by for your first report.</p>
+          </article>
+
+          <aside class="importance card">
+            <h3>National Importance</h3>
+            <div class="meter-wrap">
+              <div class="meter-bg">
+                <div id="meter-fill" class="meter-fill" style="width:10%"></div>
+              </div>
+              <div class="meter-scale"><span>1</span><span>10</span></div>
+            </div>
+            <p id="importance-text">1 / 10 — low urgency</p>
+          </aside>
+
+          <article class="field-report card">
+            <h3>Field Report</h3>
+            <p id="field-report">No correspondent on scene yet.</p>
+          </article>
+        </div>
+
+        <section class="panel-grid" id="panel-grid">
+          <article class="panel-card bias-chaos">
+            <h4>Rita Spinwell</h4><span>Senior Chaos Correspondent</span>
+            <p>Awaiting panel commentary.</p>
+          </article>
+          <article class="panel-card bias-logic">
+            <h4>Cal Norton</h4><span>Reality Analyst</span>
+            <p>Awaiting panel commentary.</p>
+          </article>
+          <article class="panel-card bias-petty">
+            <h4>Lexi Blaze</h4><span>Petty Affairs Contributor</span>
+            <p>Awaiting panel commentary.</p>
+          </article>
+        </section>
+
+        <article class="advisory card">
+          <h3>Public Advisory</h3>
+          <p id="advisory">Remain calm. Avoid dramatic texting while emotionally compromised.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="ticker-wrap" aria-label="Breaking ticker">
+      <div id="ticker-track" class="ticker-track">
+        <span>DDN TICKER: waiting for incoming drama feed...</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+services:
+  crowdpulse-lab:
+    build: .
+    container_name: crowdpulse-lab
+    ports:
+      - "3223:80"
+    network_mode: bridge
+    restart: unless-stopped

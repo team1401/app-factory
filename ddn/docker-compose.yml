@@ -1,0 +1,11 @@
+services:
+  daily-drama-network:
+    build: .
+    container_name: daily-drama-network
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PORT=3222
+      - NODE_ENV=production
+      - LLM_URL=http://100.87.41.76:8000/v1
+      - LLM_MODEL=qwen3-32b
