@@ -65,6 +65,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## VillainArc — 2026-03-06
+- Style: "Art Nouveau Villainy" — Alphonse Mucha fin-de-siècle botanical ornament meets gothic literary satire. The irony of rendering villain origin stories in the most delicate, ornate style imaginable is the entire joke.
+- Palette: Cream vellum (#F8F2E0) background, deep jewel plum (#3D1A5C) primary, art nouveau gold (#B8860B) accents, Byzantine crimson (#8B0A1E) danger, forest emerald (#1A5C3A) botanicals
+- Signature: Hand-crafted SVG Art Nouveau corner flourishes and botanical vine dividers; animated pulsing botanical element in loading state (three growing leaf paths with animated flower circles in gold and crimson); staggered story section reveals; villain speech rendered as full blockquote in Cormorant Garamond italic on deep plum background with 3.5rem oversized gold quotation mark; threat level displayed as 10 pip-circles (active=gold, critical 8+=crimson)
+
 ## Skill Issue? — 2026-03-03
 - Style: "Bauhaus Functional" — primary Bauhaus color theory (Kandinsky's shape-color triad), geometric compositions, zero gradients, structural grid discipline
 - Palette: Bauhaus Red (#BE1621), Bauhaus Blue (#1B4FA0), Bauhaus Yellow (#F5C400), Black (#111111), White (#FFFFFF)
