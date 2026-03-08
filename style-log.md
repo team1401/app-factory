@@ -65,6 +65,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## Dry Run — 2026-03-07
+- Style: "Vintage American Recipe Card" — 1950s/60s index card aesthetic with ruled lines, red margin line, coffee ring stain watermark, warm parchment-cream palette. The handwritten Caveat labels mixed with Playfair Display headers and Lora body text evoke a well-worn recipe box.
+- Palette: Aged parchment (#F5EDD8) background, card cream (#FBF7EE) surfaces, recipe red (#A8372B) primary, amber ale (#C68B17) accent, dark ink (#2C1A0E) text, border tan (#C4B49A) lines
+- Signature: Pint glass SVG with dynamic SRM fill color — the glass fills with the actual beer color calculated from the grain bill (pale straw through black) with animated foam head and bubble details. Every grain addition changes the glass color in real time.
+
 ## VillainArc — 2026-03-06
 - Style: "Art Nouveau Villainy" — Alphonse Mucha fin-de-siècle botanical ornament meets gothic literary satire. The irony of rendering villain origin stories in the most delicate, ornate style imaginable is the entire joke.
 - Palette: Cream vellum (#F8F2E0) background, deep jewel plum (#3D1A5C) primary, art nouveau gold (#B8860B) accents, Byzantine crimson (#8B0A1E) danger, forest emerald (#1A5C3A) botanicals
