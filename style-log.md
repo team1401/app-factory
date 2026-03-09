@@ -2,6 +2,11 @@
 
 Track visual identity of every shipped app to enforce anti-sameness.
 
+## BidStack — 2026-03-08
+- Style: "Swiss Transport Wayfinding" — inspired by Unimark International signage systems, Swiss Federal Railways timetables, and the Helvetica-era transit design movement. Purely functional, information-dense, zero decoration.
+- Palette: Signal Blue (#003087), Swiss Red (#CC0000), Railway Green (#00843D), Platform Yellow (#F5C800), Pure White (#FFFFFF), Ink Black (#111111)
+- Signature: Comparison table styled as a transit timetable — sticky contractor headers with colored line-bar accents (5 unique transit line colors), category separator rows in deep navy with white uppercase typography, lowest-bid cells highlighted in Railway Green with a "LOW" badge, contractor rank badges (1ST/2ND/3RD) in the header. Recommendation panel with departure-board slide-in animation. Inter typography throughout at heavy weights for a true Helvetica/transit feel.
+
 ## ViralCheck — 2026-02-15
 - Style: Dark glassmorphism dashboard (the old default — don't repeat this)
 - Palette: Dark gray, blue accent, white text
