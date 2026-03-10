@@ -67,6 +67,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Ivory paper (#FFFDF6), signal blue (#18428F), alert orange (#F28F16), alarm red (#D7263D), oscilloscope green (#138A5A), graphite ink (#1F222D)
 - Signature: Live "Audience Energy" waveform drawn on a ruled plotter-grid canvas with big-laugh spikes marked as red square hit-points, paired with a scanning cadence bar in loading state
 
+## HaulCalc — 2026-03-09
+- Style: "Diesel Dashboard" — American long-haul truck instrument cluster aesthetic. Gunmetal dark surfaces, amber LED glow for primary accents, chrome-gray trim. Inspired by commercial vehicle cab instrument panels.
+- Palette: Near-black #0F1114 (bg), Gunmetal #1E2228 (surface), Amber #F5A623 (primary/glow), Chrome #B0BAC4 (trim), Red #E84040, Green #36D17A, Yellow #F5C842
+- Signature: 180° semicircle tachometer gauge SVG with three color-coded zones (red=PASS, yellow=CONSIDER, green=HAUL IT), needle animates with spring-easing on each keystroke. Orbitron monospace font for all numbers creates a digital instrument readout feel. Live calculation updates on every input — no Calculate button.
+
 ---
 *New entries appended automatically after each build.*
 
