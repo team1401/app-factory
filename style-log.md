@@ -72,6 +72,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Near-black #0F1114 (bg), Gunmetal #1E2228 (surface), Amber #F5A623 (primary/glow), Chrome #B0BAC4 (trim), Red #E84040, Green #36D17A, Yellow #F5C842
 - Signature: 180° semicircle tachometer gauge SVG with three color-coded zones (red=PASS, yellow=CONSIDER, green=HAUL IT), needle animates with spring-easing on each keystroke. Orbitron monospace font for all numbers creates a digital instrument readout feel. Live calculation updates on every input — no Calculate button.
 
+## BakerMath — 2026-03-10
+- Style: "Japanese Craft Precision" — Muji-inspired minimalism meets artisan ceramic / Japanese craft philosophy. Extreme white space, single terracotta accent color, stone-white background, thin 1px separator lines, zero shadows or gradients.
+- Palette: Stone white (#F9F7F4) background, Terracotta (#C4603C) primary, Warm gray (#E4DBD0) dividers, Flour gold (#E8D5A0) base input, Sage green (#4A7C59) starter, Pure white (#FFFFFF) surfaces
+- Signature: Ensō-style hydration ring — a circular donut SVG that fills proportionally with the dough's hydration percentage (0–120% mapped to full circle). Ring color shifts from ochre (#9B8E84) for stiff doughs through terracotta for medium hydration to sage green for very high hydration, with cubic-bezier spring animation on every keystroke. Paired with a text descriptor ("Stiff Dough → Low → Medium → High → Very High → Extremely High") and example bread types.
+
 ---
 *New entries appended automatically after each build.*
 
