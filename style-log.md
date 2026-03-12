@@ -77,6 +77,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Stone white (#F9F7F4) background, Terracotta (#C4603C) primary, Warm gray (#E4DBD0) dividers, Flour gold (#E8D5A0) base input, Sage green (#4A7C59) starter, Pure white (#FFFFFF) surfaces
 - Signature: Ensō-style hydration ring — a circular donut SVG that fills proportionally with the dough's hydration percentage (0–120% mapped to full circle). Ring color shifts from ochre (#9B8E84) for stiff doughs through terracotta for medium hydration to sage green for very high hydration, with cubic-bezier spring animation on every keystroke. Paired with a text descriptor ("Stiff Dough → Low → Medium → High → Very High → Extremely High") and example bread types.
 
+## MeetCost — 2026-03-11
+- Style: "Institutional Utility Invoice" — authentic municipal utility bill aesthetic. The kind you get from the city for electricity or gas, applied with deadpan sincerity to the cost of team meetings. Zero decorative elements — pure information architecture in the tradition of American utility billing departments.
+- Palette: Aged linen (#DDD9D0) page background, Pure white (#FFFFFF) invoice surface, Institutional blue (#1A3C6E) headers/sidebar, Invoice red (#CC1A1A) AMOUNT DUE accents, Border gray (#C0BCB4) table lines, Stub cream (#F5F3EE) remittance section
+- Signature: Perforated tear-off remittance stub at the bottom — dashed border with a ✂ scissors character that slides across the full width on hover (CSS keyframe animation). The stub contains account number, meeting details, and AMOUNT DUE in invoice-red, exactly like a real utility bill payment slip. IBM Plex Mono for all dollar amounts; IBM Plex Sans for institutional labels.
+
 ---
 *New entries appended automatically after each build.*
 
