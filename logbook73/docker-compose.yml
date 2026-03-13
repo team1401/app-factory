@@ -1,0 +1,16 @@
+services:
+  logbook73:
+    build: .
+    container_name: logbook73
+    restart: unless-stopped
+    ports:
+      - "3159:80"
+    networks:
+      - lb73net
+
+networks:
+  lb73net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.74.0.0/24

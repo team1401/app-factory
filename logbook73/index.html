@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LogBook73 — Amateur Radio Station Log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:         #030802;
+      --surface:    #090F05;
+      --surface2:   #101808;
+      --surface3:   #182212;
+      --phosphor:   #39FF14;
+      --p-dim:      #1A9408;
+      --p-dark:     #0A4A02;
+      --amber:      #FF9900;
+      --a-dim:      #CC7700;
+      --a-dark:     #5A3300;
+      --olive:      #4A5A30;
+      --gray:       #4E6040;
+      --white:      #C0D8A0;
+      --red:        #FF3A30;
+      --grid:       #0E1808;
+      --border:     #1A2A10;
+      --glow-p: 0 0 8px rgba(57,255,20,0.7), 0 0 20px rgba(57,255,20,0.35);
+      --glow-a: 0 0 8px rgba(255,153,0,0.7), 0 0 20px rgba(255,153,0,0.35);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* CRT Scanlines */
+    body::before {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.12) 2px,
+        rgba(0,0,0,0.12) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* CRT Vignette */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.7) 100%);
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 16px 20px 32px;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+
+    .logo-block { display: flex; align-items: baseline; gap: 14px; }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--phosphor);
+      text-shadow: var(--glow-p);
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    .logo .amber-73 {
+      color: var(--amber);
+      text-shadow: var(--glow-a);
+    }
+
+    .logo-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--gray);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+
+    .station-block { display: flex; align-items: center; gap: 8px; }
+    .station-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--gray);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    #station-callsign {
+      background: var(--surface2);
+      border: 1px solid var(--p-dark);
+      color: var(--phosphor);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 7px 12px;
+      width: 130px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #station-callsign:focus { border-color: var(--phosphor); box-shadow: var(--glow-p); }
+    #station-callsign::placeholder { color: var(--p-dark); }
+
+    .utc-block { text-align: right; }
+    .utc-time {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--amber);
+      text-shadow: var(--glow-a);
+      letter-spacing: 0.08em;
+      line-height: 1;
+    }
+    .utc-date {
+      font-size: 0.62rem;
+      color: var(--gray);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ===== STATUS BAR ===== */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      padding: 6px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--phosphor);
+      box-shadow: var(--glow-p);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .status-bar span { color: var(--phosphor); }
+
+    /* ===== MAIN GRID ===== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    /* ===== PANEL SHARED ===== */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 14px;
+    }
+    .panel-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--gray);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ===== BAND ACTIVITY ===== */
+    .band-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 9px;
+    }
+    .band-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem;
+      color: var(--amber);
+      width: 35px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .band-track {
+      flex: 1;
+      height: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+    .band-fill {
+      height: 100%;
+      background: var(--phosphor);
+      transition: width 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+      min-width: 0;
+      position: relative;
+    }
+    .band-fill::after {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 2px; height: 100%;
+      background: #fff;
+      box-shadow: 0 0 5px var(--phosphor);
+      opacity: 0.9;
+    }
+    .band-count {
+      font-size: 0.6rem;
+      color: var(--p-dim);
+      width: 16px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ===== QSO ENTRY ===== */
+    .freq-readout {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--a-dark);
+      padding: 10px 16px;
+      margin-bottom: 14px;
+    }
+    .freq-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--gray);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    #freq-display {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--amber);
+      text-shadow: var(--glow-a);
+      letter-spacing: 0.1em;
+      flex: 1;
+    }
+    .freq-unit {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--a-dim);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr 0.8fr 0.8fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 2fr 0.8fr 0.8fr 0.9fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--gray);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      outline: none;
+      width: 100%;
+      -webkit-appearance: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--p-dim);
+      box-shadow: 0 0 6px rgba(57,255,20,0.25);
+    }
+    input::placeholder { color: var(--p-dark); }
+    select option { background: var(--surface2); color: var(--white); }
+
+    .callsign-input {
+      text-transform: uppercase;
+      font-family: 'Orbitron', sans-serif !important;
+      font-weight: 700 !important;
+      font-size: 1.05rem !important;
+      color: var(--phosphor) !important;
+      letter-spacing: 0.06em;
+    }
+    .callsign-input:focus {
+      border-color: var(--phosphor) !important;
+      box-shadow: var(--glow-p) !important;
+    }
+
+    .form-actions { display: flex; align-items: center; gap: 12px; }
+
+    .btn-log {
+      background: var(--phosphor);
+      color: var(--bg);
+      border: none;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 10px 22px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    .btn-log:hover { background: #5AFF3A; box-shadow: var(--glow-p); }
+    .btn-log:active { background: var(--p-dim); }
+
+    #form-status {
+      font-size: 0.65rem;
+      color: var(--gray);
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== STATS ===== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .stat-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--gray);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--phosphor);
+      text-shadow: var(--glow-p);
+      line-height: 1;
+    }
+    .stat-sub {
+      font-size: 0.62rem;
+      color: var(--p-dim);
+    }
+
+    /* ===== LOG TABLE ===== */
+    .log-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .log-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .log-header .panel-title { margin: 0; border: 0; padding: 0; flex: 1; }
+    .log-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+    .log-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--gray);
+      letter-spacing: 0.12em;
+      white-space: nowrap;
+    }
+
+    .search-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      width: 150px;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--p-dim); }
+    .search-input::placeholder { color: var(--p-dark); }
+
+    .btn-sm {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--gray);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      padding: 5px 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+    .btn-sm:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
+
+    .log-table-wrapper { max-height: 420px; overflow-y: auto; }
+    .log-table-wrapper::-webkit-scrollbar { width: 5px; }
+    .log-table-wrapper::-webkit-scrollbar-track { background: var(--surface); }
+    .log-table-wrapper::-webkit-scrollbar-thumb { background: var(--border); }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead th {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--gray);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      position: sticky;
+      top: 0;
+      white-space: nowrap;
+    }
+
+    tbody tr { border-bottom: 1px solid var(--grid); transition: background 0.1s; }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td { padding: 8px 12px; }
+
+    .td-seq { color: var(--olive); font-size: 0.62rem; font-family: 'IBM Plex Mono', monospace; }
+    .td-utc { color: var(--amber); font-family: 'Orbitron', sans-serif; font-size: 0.68rem; white-space: nowrap; }
+    .td-call {
+      color: var(--phosphor);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(57,255,20,0.4);
+    }
+    .td-band { color: var(--amber); font-size: 0.78rem; white-space: nowrap; }
+    .td-mode { }
+    .td-rst { color: var(--p-dim); font-size: 0.75rem; white-space: nowrap; font-family: 'Share Tech Mono', monospace; }
+    .td-freq { color: var(--a-dim); font-size: 0.75rem; font-family: 'Share Tech Mono', monospace; white-space: nowrap; }
+    .td-info { color: var(--gray); font-size: 0.72rem; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .td-del { text-align: center; }
+
+    .mode-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid;
+      font-size: 0.62rem;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.08em;
+    }
+    .mode-SSB  { border-color: #3A7FCC; color: #3A7FCC; }
+    .mode-CW   { border-color: var(--amber); color: var(--amber); }
+    .mode-FT8  { border-color: #CC44CC; color: #CC44CC; }
+    .mode-RTTY { border-color: #44CC88; color: #44CC88; }
+    .mode-AM   { border-color: #CC7A44; color: #CC7A44; }
+    .mode-FM   { border-color: #44CCCC; color: #44CCCC; }
+    .mode-DMR  { border-color: #CCCC44; color: #CCCC44; }
+    .mode-PSK31 { border-color: #CC4444; color: #CC4444; }
+
+    .btn-del {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--red);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      padding: 2px 7px;
+      cursor: pointer;
+      opacity: 0.35;
+      transition: opacity 0.2s, border-color 0.2s;
+    }
+    .btn-del:hover { opacity: 1; border-color: var(--red); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state { padding: 60px 24px; text-align: center; display: none; }
+    .empty-icon { font-size: 2.8rem; margin-bottom: 12px; opacity: 0.25; }
+    .empty-text { color: var(--gray); font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .empty-hint { color: var(--p-dark); font-size: 0.68rem; margin-top: 6px; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--phosphor);
+      color: var(--bg);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      letter-spacing: 0.1em;
+      z-index: 10000;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      box-shadow: var(--glow-p);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem;
+      color: var(--border);
+      letter-spacing: 0.15em;
+    }
+    footer a { color: var(--border); text-decoration: none; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 960px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .form-grid, .form-row { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 580px) {
+      .logo { font-size: 1.7rem; }
+      .utc-time { font-size: 1.4rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stat-value { font-size: 1.8rem; }
+      .form-grid, .form-row { grid-template-columns: 1fr; }
+      .log-actions { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="logo">LOGBOOK<span class="amber-73">73</span></div>
+      <div class="logo-sub">Amateur Radio Station Log</div>
+    </div>
+    <div class="header-right">
+      <div class="station-block">
+        <span class="station-label">My Call:</span>
+        <input type="text" id="station-callsign" placeholder="W1AW" maxlength="10" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="utc-block">
+        <div class="utc-time" id="utc-time">--:--:--</div>
+        <div class="utc-date" id="utc-date">UTC</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    STATION ACTIVE &nbsp;·&nbsp;
+    STORAGE: LOCAL &nbsp;·&nbsp;
+    FORMAT: ADIF COMPATIBLE &nbsp;·&nbsp;
+    <span id="sbar-total">0 QSOs</span> LOGGED THIS SESSION
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- Band Activity Panel -->
+    <div class="panel">
+      <div class="panel-title">Band Activity</div>
+      <div id="band-activity"></div>
+    </div>
+
+    <!-- QSO Entry Panel -->
+    <div class="panel">
+      <div class="panel-title">Log New Contact</div>
+
+      <!-- Frequency Readout -->
+      <div class="freq-readout">
+        <span class="freq-label">FREQ</span>
+        <span id="freq-display">---.---</span>
+        <span class="freq-unit">MHz</span>
+      </div>
+
+      <!-- Row 1 -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="f-call">Callsign *</label>
+          <input type="text" id="f-call" class="callsign-input" placeholder="KD0XXX" maxlength="12" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-band">Band</label>
+          <select id="f-band">
+            <option value="160m">160m</option>
+            <option value="80m">80m</option>
+            <option value="40m">40m</option>
+            <option value="30m">30m</option>
+            <option value="20m" selected>20m</option>
+            <option value="17m">17m</option>
+            <option value="15m">15m</option>
+            <option value="12m">12m</option>
+            <option value="10m">10m</option>
+            <option value="6m">6m</option>
+            <option value="2m">2m</option>
+            <option value="70cm">70cm</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-mode">Mode</label>
+          <select id="f-mode">
+            <option value="SSB">SSB</option>
+            <option value="CW">CW</option>
+            <option value="FT8">FT8</option>
+            <option value="RTTY">RTTY</option>
+            <option value="AM">AM</option>
+            <option value="FM">FM</option>
+            <option value="DMR">DMR</option>
+            <option value="PSK31">PSK31</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-freq">Freq (MHz)</label>
+          <input type="number" id="f-freq" placeholder="14.225" step="0.001" min="0" max="450" autocomplete="off" />
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="f-notes">Notes / QTH</label>
+          <input type="text" id="f-notes" placeholder="Optional notes, grid square, or QTH..." autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-rst-s">RST Sent</label>
+          <input type="text" id="f-rst-s" placeholder="59" maxlength="6" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-rst-r">RST Rcvd</label>
+          <input type="text" id="f-rst-r" placeholder="57" maxlength="6" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-name">Op Name</label>
+          <input type="text" id="f-name" placeholder="Optional" maxlength="30" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-log" id="btn-log">▶ LOG QSO</button>
+        <span id="form-status">Enter callsign and press Enter or click LOG QSO</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <span class="stat-label">Total QSOs</span>
+      <span class="stat-value" id="stat-total">0</span>
+      <span class="stat-sub">contacts logged</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Unique Calls</span>
+      <span class="stat-value" id="stat-unique">0</span>
+      <span class="stat-sub">distinct stations</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Top Band</span>
+      <span class="stat-value" id="stat-band" style="font-size:1.6rem;">—</span>
+      <span class="stat-sub">most active band</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Top Mode</span>
+      <span class="stat-value" id="stat-mode" style="font-size:1.6rem;">—</span>
+      <span class="stat-sub">most used mode</span>
+    </div>
+  </div>
+
+  <!-- LOG TABLE -->
+  <div class="log-section">
+    <div class="log-header">
+      <div class="panel-title">QSO LOG</div>
+      <div class="log-actions">
+        <input type="text" class="search-input" id="search-input" placeholder="Search callsign..." />
+        <button class="btn-sm" id="btn-export">Export ADIF</button>
+        <button class="btn-sm danger" id="btn-clear">Clear All</button>
+      </div>
+      <span class="log-count" id="log-count">0 QSOs</span>
+    </div>
+
+    <div class="log-table-wrapper">
+      <table id="log-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>UTC Date / Time</th>
+            <th>Callsign</th>
+            <th>Band</th>
+            <th>Mode</th>
+            <th>RST S/R</th>
+            <th>Freq MHz</th>
+            <th>Name · Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="log-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">📡</div>
+        <div class="empty-text">No Contacts Logged</div>
+        <div class="empty-hint">Enter a callsign above and press Enter or click LOG QSO</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>LOGBOOK73 · AMATEUR RADIO STATION LOG · ADIF COMPATIBLE · ALL DATA STORED LOCALLY</span>
+    <span>73 DE <span id="footer-call">YL/OM</span></span>
+  </footer>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ======================================================
+// DATA & STORAGE
+// ======================================================
+const STORE_QSOS    = 'lb73_qsos_v2';
+const STORE_STATION = 'lb73_station';
+
+let qsos = [];
+let searchTerm = '';
+
+function load() {
+  try { qsos = JSON.parse(localStorage.getItem(STORE_QSOS) || '[]'); } catch { qsos = []; }
+}
+function save() {
+  localStorage.setItem(STORE_QSOS, JSON.stringify(qsos));
+}
+load();
+
+// ======================================================
+// UTC CLOCK
+// ======================================================
+function updateClock() {
+  const n = new Date();
+  const pad = x => String(x).padStart(2,'0');
+  document.getElementById('utc-time').textContent =
+    `${pad(n.getUTCHours())}:${pad(n.getUTCMinutes())}:${pad(n.getUTCSeconds())}`;
+  const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('utc-date').textContent =
+    `${pad(n.getUTCDate())} ${MONTHS[n.getUTCMonth()]} ${n.getUTCFullYear()} UTC`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ======================================================
+// STATION CALLSIGN
+// ======================================================
+const stEl = document.getElementById('station-callsign');
+stEl.value = localStorage.getItem(STORE_STATION) || '';
+function updateFooterCall() {
+  document.getElementById('footer-call').textContent = stEl.value || 'YL/OM';
+}
+updateFooterCall();
+stEl.addEventListener('input', () => {
+  stEl.value = stEl.value.toUpperCase();
+  localStorage.setItem(STORE_STATION, stEl.value);
+  updateFooterCall();
+});
+
+// ======================================================
+// FREQUENCY READOUT
+// ======================================================
+const freqInput   = document.getElementById('f-freq');
+const freqDisplay = document.getElementById('freq-display');
+
+const BAND_DEFAULTS = {
+  '160m':1.900,'80m':3.750,'40m':7.200,'30m':10.140,
+  '20m':14.225,'17m':18.128,'15m':21.300,'12m':24.940,
+  '10m':28.400,'6m':50.125,'2m':144.200,'70cm':446.000
+};
+
+freqInput.addEventListener('input', updateFreqDisplay);
+function updateFreqDisplay() {
+  const v = parseFloat(freqInput.value);
+  freqDisplay.textContent = freqInput.value === '' || isNaN(v) ? '---.---' : v.toFixed(3);
+}
+
+document.getElementById('f-band').addEventListener('change', e => {
+  const def = BAND_DEFAULTS[e.target.value];
+  if (def && !freqInput.value) {
+    freqInput.value = def;
+    updateFreqDisplay();
+  }
+});
+
+// ======================================================
+// BAND ACTIVITY PANEL
+// ======================================================
+const BANDS = ['160m','80m','40m','20m','15m','10m','6m','2m'];
+
+function renderBands() {
+  const counts = {};
+  BANDS.forEach(b => { counts[b] = 0; });
+  qsos.forEach(q => { if (counts[q.band] !== undefined) counts[q.band]++; });
+  const max = Math.max(...Object.values(counts), 1);
+
+  document.getElementById('band-activity').innerHTML = BANDS.map(b => {
+    const c = counts[b] || 0;
+    const pct = (c / max) * 100;
+    return `
+      <div class="band-row">
+        <span class="band-name">${b}</span>
+        <div class="band-track">
+          <div class="band-fill" style="width:${pct}%"></div>
+        </div>
+        <span class="band-count">${c}</span>
+      </div>`;
+  }).join('');
+}
+
+// ======================================================
+// STATS
+// ======================================================
+function updateStats() {
+  const total  = qsos.length;
+  const unique = new Set(qsos.map(q => q.callsign)).size;
+
+  const bandCnt = {}, modeCnt = {};
+  qsos.forEach(q => {
+    bandCnt[q.band] = (bandCnt[q.band]||0) + 1;
+    modeCnt[q.mode] = (modeCnt[q.mode]||0) + 1;
+  });
+  const topBand = Object.entries(bandCnt).sort((a,b)=>b[1]-a[1])[0];
+  const topMode = Object.entries(modeCnt).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('stat-total').textContent  = total;
+  document.getElementById('stat-unique').textContent = unique;
+  document.getElementById('stat-band').textContent   = topBand ? topBand[0] : '—';
+  document.getElementById('stat-mode').textContent   = topMode ? topMode[0] : '—';
+  document.getElementById('log-count').textContent   = `${total} QSO${total!==1?'s':''}`;
+  document.getElementById('sbar-total').textContent  = `${total} QSO${total!==1?'s':''}`;
+}
+
+// ======================================================
+// RENDER TABLE
+// ======================================================
+function renderTable() {
+  const tbody = document.getElementById('log-tbody');
+  const empty = document.getElementById('empty-state');
+
+  const term    = searchTerm.toUpperCase();
+  const filtered = term ? qsos.filter(q => q.callsign.includes(term)) : qsos;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  // newest first
+  const sorted = [...filtered].reverse();
+
+  tbody.innerHTML = sorted.map(q => {
+    const idx = qsos.indexOf(q) + 1;
+    const nameInfo = [q.name, q.notes].filter(Boolean).join(' · ');
+    return `
+      <tr>
+        <td class="td-seq">${String(idx).padStart(3,'0')}</td>
+        <td class="td-utc">${q.utc}</td>
+        <td class="td-call">${q.callsign}</td>
+        <td class="td-band">${q.band}</td>
+        <td class="td-mode"><span class="mode-badge mode-${q.mode}">${q.mode}</span></td>
+        <td class="td-rst">${q.rstS||'—'}/${q.rstR||'—'}</td>
+        <td class="td-freq">${q.freq ? parseFloat(q.freq).toFixed(3) : '—'}</td>
+        <td class="td-info" title="${nameInfo}">${nameInfo||'—'}</td>
+        <td class="td-del"><button class="btn-del" onclick="deleteQSO('${q.id}')">DEL</button></td>
+      </tr>`;
+  }).join('');
+}
+
+// ======================================================
+// LOG QSO
+// ======================================================
+document.getElementById('btn-log').addEventListener('click', logQSO);
+document.getElementById('f-call').addEventListener('keydown', e => { if (e.key==='Enter') logQSO(); });
+
+function formatUTC(date) {
+  const pad = x => String(x).padStart(2,'0');
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${pad(date.getUTCDate())} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}Z`;
+}
+
+function logQSO() {
+  const callEl = document.getElementById('f-call');
+  const callsign = callEl.value.trim().toUpperCase();
+
+  if (!callsign) {
+    setStatus('↑ Enter a callsign first', true);
+    callEl.focus();
+    return;
+  }
+  if (!/^[A-Z0-9/]{2,12}$/.test(callsign)) {
+    setStatus('Invalid callsign (letters, numbers, / only)', true);
+    return;
+  }
+
+  const now = new Date();
+  const qso = {
+    id:        Date.now().toString() + Math.random().toString(36).slice(2),
+    callsign,
+    band:      document.getElementById('f-band').value,
+    mode:      document.getElementById('f-mode').value,
+    freq:      document.getElementById('f-freq').value || '',
+    rstS:      document.getElementById('f-rst-s').value.trim() || '59',
+    rstR:      document.getElementById('f-rst-r').value.trim() || '59',
+    name:      document.getElementById('f-name').value.trim(),
+    notes:     document.getElementById('f-notes').value.trim(),
+    utc:       formatUTC(now),
+    timestamp: now.toISOString()
+  };
+
+  qsos.push(qso);
+  save();
+
+  // Clear volatile fields, keep band/mode/freq for fast sequential logging
+  document.getElementById('f-call').value  = '';
+  document.getElementById('f-rst-s').value = '';
+  document.getElementById('f-rst-r').value = '';
+  document.getElementById('f-name').value  = '';
+  document.getElementById('f-notes').value = '';
+  freqDisplay.textContent = '---.---';
+
+  callEl.focus();
+  renderAll();
+  showToast(`✓ ${callsign} logged`);
+  setStatus(`Last logged: ${callsign} on ${qso.band} ${qso.mode} at ${qso.utc}`);
+}
+
+function setStatus(msg, isErr=false) {
+  const el = document.getElementById('form-status');
+  el.textContent = msg;
+  el.style.color = isErr ? 'var(--red)' : 'var(--gray)';
+}
+
+// ======================================================
+// DELETE QSO
+// ======================================================
+function deleteQSO(id) {
+  if (!confirm('Delete this QSO from the log?')) return;
+  qsos = qsos.filter(q => q.id !== id);
+  save();
+  renderAll();
+}
+
+// ======================================================
+// SEARCH
+// ======================================================
+document.getElementById('search-input').addEventListener('input', e => {
+  searchTerm = e.target.value.trim();
+  renderTable();
+});
+
+// ======================================================
+// EXPORT ADIF
+// ======================================================
+document.getElementById('btn-export').addEventListener('click', () => {
+  if (!qsos.length) { showToast('No QSOs to export'); return; }
+  const station = stEl.value || 'UNKNOWN';
+  let adif = `ADIF Export from LogBook73\n`;
+  adif += `<PROGRAMID:9>LOGBOOK73\n`;
+  adif += `<OPERATOR:${station.length}>${station}\n`;
+  adif += `<CREATED_TIMESTAMP:15>${new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')}\n`;
+  adif += `<EOH>\n\n`;
+
+  qsos.forEach(q => {
+    const dt = new Date(q.timestamp);
+    const pad2 = x => String(x).padStart(2,'0');
+    const date = `${dt.getUTCFullYear()}${pad2(dt.getUTCMonth()+1)}${pad2(dt.getUTCDate())}`;
+    const time = `${pad2(dt.getUTCHours())}${pad2(dt.getUTCMinutes())}`;
+    const f = (tag, val) => val ? `<${tag}:${val.length}>${val} ` : '';
+    adif += f('CALL', q.callsign);
+    adif += f('QSO_DATE', date);
+    adif += f('TIME_ON', time);
+    adif += f('BAND', q.band);
+    adif += f('MODE', q.mode);
+    if (q.freq) adif += f('FREQ', parseFloat(q.freq).toFixed(4));
+    if (q.rstS) adif += f('RST_SENT', q.rstS);
+    if (q.rstR) adif += f('RST_RCVD', q.rstR);
+    if (q.name) adif += f('NAME', q.name);
+    if (q.notes) adif += f('COMMENT', q.notes);
+    adif += `<EOR>\n`;
+  });
+
+  const blob = new Blob([adif], {type:'text/plain'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `logbook73_${station}_${new Date().toISOString().slice(0,10)}.adif`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${qsos.length} QSOs (ADIF)`);
+});
+
+// ======================================================
+// CLEAR ALL
+// ======================================================
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (!qsos.length) return;
+  if (!confirm(`Permanently delete all ${qsos.length} QSOs from this log?\n\nConsider exporting ADIF first.`)) return;
+  qsos = [];
+  save();
+  renderAll();
+  showToast('Log cleared');
+  setStatus('Log cleared — ready for new contacts');
+});
+
+// ======================================================
+// TOAST
+// ======================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ======================================================
+// RENDER ALL
+// ======================================================
+function renderAll() {
+  renderBands();
+  updateStats();
+  renderTable();
+}
+
+// ======================================================
+// INIT
+// ======================================================
+renderAll();
+</script>
+</body>
+</html>

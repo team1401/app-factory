@@ -82,6 +82,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Aged linen (#DDD9D0) page background, Pure white (#FFFFFF) invoice surface, Institutional blue (#1A3C6E) headers/sidebar, Invoice red (#CC1A1A) AMOUNT DUE accents, Border gray (#C0BCB4) table lines, Stub cream (#F5F3EE) remittance section
 - Signature: Perforated tear-off remittance stub at the bottom — dashed border with a ✂ scissors character that slides across the full width on hover (CSS keyframe animation). The stub contains account number, meeting details, and AMOUNT DUE in invoice-red, exactly like a real utility bill payment slip. IBM Plex Mono for all dollar amounts; IBM Plex Sans for institutional labels.
 
+## LogBook73 — 2026-03-12
+- Style: "Cold War SIGINT Terminal" — phosphor green CRT display aesthetic inspired by Cold War-era signals intelligence monitoring stations. Dual-color scheme (phosphor green primary data, amber frequency readouts) mimics vintage oscilloscope and spectrum analyzer equipment used in ham radio shacks and SIGINT listening posts.
+- Palette: Near-black (#030802) background, Phosphor green (#39FF14) primary/data, Amber (#FF9900) frequency readouts, Olive (#4A5A30) secondary labels, Off-white (#C0D8A0) body text, Red (#FF3A30) alerts
+- Signature: CRT scanline CSS overlay (repeating-linear-gradient every 4px, 12% opacity), phosphor green glow text-shadow on callsigns and stats, amber frequency readout display styled as an analog radio instrument panel, pulsing green dot status indicator, mode color-coded badges (SSB blue, CW amber, FT8 magenta, RTTY teal, etc.), band activity visualization as glowing horizontal bar meters
+
 ---
 *New entries appended automatically after each build.*
 
