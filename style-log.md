@@ -87,6 +87,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Near-black (#030802) background, Phosphor green (#39FF14) primary/data, Amber (#FF9900) frequency readouts, Olive (#4A5A30) secondary labels, Off-white (#C0D8A0) body text, Red (#FF3A30) alerts
 - Signature: CRT scanline CSS overlay (repeating-linear-gradient every 4px, 12% opacity), phosphor green glow text-shadow on callsigns and stats, amber frequency readout display styled as an analog radio instrument panel, pulsing green dot status indicator, mode color-coded badges (SSB blue, CW amber, FT8 magenta, RTTY teal, etc.), band activity visualization as glowing horizontal bar meters
 
+## SlateBoard — 2026-03-13
+- Style: "American Hardware Catalog" — warm aged paper stock (#F5EFDF), bold Oswald industrial condensed type, IBM Plex Mono for all measurements and dimensions, hardware orange-red (#C94A0B) accent. Inspired by 1960s–70s American hardware store catalog illustrations — technical, precise, warm but utilitarian.
+- Palette: Aged paper (#F5EFDF) background, Pure white (#FFFFFF) surfaces, Hardware orange (#C94A0B) primary, Steel blue (#3D5A8A) dimension lines, Near-black (#1C1916) text, Plywood (#C8A86A) sheet color
+- Signature: SVG cut diagrams where each placed piece "stamps" onto the sheet with a staggered scale/opacity animation (120ms delay between pieces). Each piece shows a circled orange sequence number in the corner (like a technical drawing), dimension annotations in steel-blue outside the sheet frame (with tick marks), diagonal hatch pattern for unused waste areas. Eight distinct dark-desaturated colors for different parts. Best-Fit Decreasing Height bin-packing algorithm with 90° rotation support.
+
 ---
 *New entries appended automatically after each build.*
 
