@@ -92,6 +92,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Aged paper (#F5EFDF) background, Pure white (#FFFFFF) surfaces, Hardware orange (#C94A0B) primary, Steel blue (#3D5A8A) dimension lines, Near-black (#1C1916) text, Plywood (#C8A86A) sheet color
 - Signature: SVG cut diagrams where each placed piece "stamps" onto the sheet with a staggered scale/opacity animation (120ms delay between pieces). Each piece shows a circled orange sequence number in the corner (like a technical drawing), dimension annotations in steel-blue outside the sheet frame (with tick marks), diagonal hatch pattern for unused waste areas. Eight distinct dark-desaturated colors for different parts. Best-Fit Decreasing Height bin-packing algorithm with 90° rotation support.
 
+## CloseRate — 2026-03-14
+- Style: "Mid-Century Sales Motivational Manual" — inspired by 1960s IBM sales training binders, Dale Carnegie workbooks, Zig Ziglar coaching materials. Warm cream/ivory paper stock feel with a dot-grid CSS background pattern. Anton bold condensed headlines command attention. The palette and language are earnestly optimistic — this app coaches you while it tracks.
+- Palette: Warm cream (#F3EBD8) background, Navy (#1C2E4A) header, Burnt sienna (#C84B1A) primary/CTAs, Gold (#C9941A) wins/highlights, Forest green (#2D7D46) won proposals, Deep red (#BE2020) lost/overdue
+- Signature: "Closer's Batting Average" — win rate displayed as a 56px Anton baseball batting average (.500 = HALL OF FAMER) in the persistent left-panel widget, with W/L/Ghost/Active tally counters and a rank label that progresses from "STEP UP TO THE PLATE" through "ROOKIE → SOLID REP → RELIABLE CLOSER → TOP PERFORMER → HALL OF FAMER." Pairs with a "Win Wall" of stone-gray deal tombstones (investment banking tombstone concept) that appear in the right panel showing all won proposals by client name, amount, and close date.
+
 ---
 *New entries appended automatically after each build.*
 
