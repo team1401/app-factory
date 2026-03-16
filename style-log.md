@@ -97,6 +97,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Warm cream (#F3EBD8) background, Navy (#1C2E4A) header, Burnt sienna (#C84B1A) primary/CTAs, Gold (#C9941A) wins/highlights, Forest green (#2D7D46) won proposals, Deep red (#BE2020) lost/overdue
 - Signature: "Closer's Batting Average" — win rate displayed as a 56px Anton baseball batting average (.500 = HALL OF FAMER) in the persistent left-panel widget, with W/L/Ghost/Active tally counters and a rank label that progresses from "STEP UP TO THE PLATE" through "ROOKIE → SOLID REP → RELIABLE CLOSER → TOP PERFORMER → HALL OF FAMER." Pairs with a "Win Wall" of stone-gray deal tombstones (investment banking tombstone concept) that appear in the right panel showing all won proposals by client name, amount, and close date.
 
+## IncidentCanvas — 2026-03-15
+- Style: "Teletype Wire Room" — mid-century AP/UPI wire service newsroom aesthetic. Warm teletype paper background (#F4F0E6) with repeating horizontal ruled lines. Dark wire machine housing sidebar (#252018). Courier Prime monospace for all timeline events, mimicking AP/UPI wire dispatches. Events displayed as wire service cables with priority dispatch headers.
+- Palette: Warm paper (#F4F0E6) background, Dark sidebar (#252018), Urgent red (#C4430A) primary, Amber (#CC8800) bulletin, Green (#3A7A52) resolution, Blue (#2A5C8A) investigation, Purple (#6A3A8A) comms
+- Signature: Wire service priority flags — **FLASH ★** (P1 / Critical) / **URGENT** (P2) / **BULLETIN** (P3) / **ADVISORY** (P4) — displayed on every event card as colored badges exactly like AP/UPI wire dispatch headers. Timeline feed background uses CSS repeating-linear-gradient every 32px to create authentic ruled teletype paper. Left-border color-coding by severity (red/orange/blue/green).
+
 ---
 *New entries appended automatically after each build.*
 

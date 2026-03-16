@@ -1,0 +1,8 @@
+services:
+  incident-canvas:
+    build: .
+    container_name: incident-canvas
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - NGINX_PORT=3233
