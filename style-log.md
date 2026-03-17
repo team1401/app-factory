@@ -102,6 +102,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Warm paper (#F4F0E6) background, Dark sidebar (#252018), Urgent red (#C4430A) primary, Amber (#CC8800) bulletin, Green (#3A7A52) resolution, Blue (#2A5C8A) investigation, Purple (#6A3A8A) comms
 - Signature: Wire service priority flags — **FLASH ★** (P1 / Critical) / **URGENT** (P2) / **BULLETIN** (P3) / **ADVISORY** (P4) — displayed on every event card as colored badges exactly like AP/UPI wire dispatch headers. Timeline feed background uses CSS repeating-linear-gradient every 32px to create authentic ruled teletype paper. Left-border color-coding by severity (red/orange/blue/green).
 
+## mise — 2026-03-16
+- Style: "Nordic Tasting Menu" — inspired by Noma/Fäviken-era Scandinavian fine dining design philosophy. Extreme white space, one deeply considered accent color (forest green), warm natural material tones. Functional and beautiful — like a tasting menu card designed by an engineer.
+- Palette: Off-white (#F8F5EF) background, Forest green (#2C5F3E) accent, Terracotta (#9E4A2A) warnings, Warm sand (#C4A882) borders, Near-black (#1A1714) text
+- Signature: Gantt timeline ribbon — each dish is a horizontal bar split into three color-coded phase zones: prep (diagonal hatch pattern), cook (solid forest green), rest (dotted border). In Service Mode, a live playhead line advances through all dish bars like a DAW transport bar, showing exactly where "now" falls across every cook in progress. Category color-coding via left border accents on dish cards (7 distinct category colors).
+
 ---
 *New entries appended automatically after each build.*
 

@@ -1,0 +1,13 @@
+services:
+  mise:
+    build: .
+    container_name: mise
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - NGINX_PORT=3162
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3162/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
