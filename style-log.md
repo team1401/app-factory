@@ -164,3 +164,8 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Style: "WPA Federal Art Project" — New Deal poster aesthetic, flat bold colors, silhouetted mountain/forest/desert/coast landscape art
 - Palette: Forest green (#2D5016), sky blue (#1B6CA8), sunset orange (#E8631A), antique gold (#C9A840), warm cream (#F5F0E0), dark brown (#2C1A0E)
 - Signature: Each campsite card has a unique landscape silhouette header (6 types: mountains, forest, desert, plains, coast, canyon) rendered as flat WPA poster art — layered clip-path SVG silhouettes with no gradients. Page header is a full WPA poster composition with scrolling pine tree foreground, mountain range, sky gradient, gold sun disk, and eagle. Oswald all-caps + Lato typography pairing.
+
+## CueCard — 2026-03-17
+- Style: "Warm Stage Light" — backstage call board meets theater cue sheet meets Sharpie-on-cardstock energy. Heavy editorial typography with tactile warmth, inspired by actual theater production cue books.
+- Palette: Warm parchment (#FDFAF4) background, Stage amber/spotlight (#F5C842) primary accent, Dark ink (#1A1510) header/nav, GO green (#2E7D52), WARN red (#B83232), ENGAGE purple (#6B3A9E), NOTE blue (#2A5C8A)
+- Signature: Color-coded cue badge system (GO/PAUSE/ENGAGE/NOTE/WARN) matching actual theater production nomenclature, with a full dark-mode Teleprompter overlay that transforms cards into a live presentation view with timer and keyboard navigation. Amber spotlight glow effects throughout. Fraunces serif + DM Mono + DM Sans typography trio.

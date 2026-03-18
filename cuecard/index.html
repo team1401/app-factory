@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CueCard — Speaker Cue Cards That Actually Work</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================
+       DESIGN SYSTEM — "Warm Stage Light"
+       Inspired by backstage call boards, theater
+       cue sheets, and Sharpie-on-cardstock energy.
+       Warm amber/straw spotlight as hero accent.
+       Heavy editorial typography, tactile feel.
+    ============================================= */
+    :root {
+      --bg: #FDFAF4;
+      --surface: #FFFFFF;
+      --surface-warm: #FEF8EB;
+      --border: #E2D9C8;
+      --border-strong: #C4B89A;
+      
+      --ink: #1A1510;
+      --ink-mid: #4A3F32;
+      --ink-light: #8A7B68;
+      
+      --spotlight: #F5C842;        /* Stage amber / spotlight */
+      --spotlight-deep: #C89B1A;   /* Deep gold */
+      --spotlight-glow: rgba(245,200,66,0.15);
+      
+      --cue-green: #2E7D52;        /* GO cue */
+      --cue-green-bg: #EAF5EF;
+      --cue-red: #B83232;          /* STOP / Warning */
+      --cue-red-bg: #FAEAEA;
+      --cue-blue: #2A5C8A;         /* Note / context */
+      --cue-blue-bg: #EAF1F8;
+      --cue-purple: #6B3A9E;       /* Audience engage */
+      --cue-purple-bg: #F3ECFB;
+      --cue-amber: #C47B15;        /* Time warning */
+      --cue-amber-bg: #FEF5E4;
+      
+      --radius: 6px;
+      --radius-card: 10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ---- HEADER ---- */
+    header {
+      background: var(--ink);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--spotlight);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-mark svg { display: block; }
+
+    .logo-text {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--spotlight);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-left: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-header {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 7px 16px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #FFFFFF;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+
+    .btn-primary {
+      background: var(--spotlight);
+      color: var(--ink);
+    }
+    .btn-primary:hover { background: #F7D060; }
+
+    /* ---- MAIN LAYOUT ---- */
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ---- LEFT PANEL: TALK BUILDER ---- */
+    .panel-left {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-section:last-child { border-bottom: none; }
+
+    .panel-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--ink-light);
+      margin-bottom: 0.75rem;
+    }
+
+    .talk-title-input {
+      width: 100%;
+      font-family: 'Fraunces', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink);
+      border: none;
+      outline: none;
+      background: transparent;
+      resize: none;
+      line-height: 1.3;
+    }
+
+    .talk-title-input::placeholder { color: var(--ink-light); font-style: italic; }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .meta-field label {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ink-light);
+      margin-bottom: 4px;
+    }
+
+    .meta-field input, .meta-field select {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px 10px;
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .meta-field input:focus, .meta-field select:focus {
+      border-color: var(--spotlight-deep);
+    }
+
+    /* ---- SLIDES LIST ---- */
+    .slides-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-add-slide {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: var(--spotlight-glow);
+      border: 1px solid var(--spotlight);
+      color: var(--spotlight-deep);
+      border-radius: var(--radius);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-add-slide:hover { background: var(--spotlight); color: var(--ink); }
+
+    #slides-list {
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slide-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+
+    .slide-item:hover { border-color: var(--border-strong); }
+    .slide-item.active {
+      border-color: var(--spotlight);
+      background: var(--spotlight-glow);
+      box-shadow: 0 0 0 3px rgba(245,200,66,0.08);
+    }
+
+    .slide-item-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      min-width: 18px;
+    }
+
+    .slide-title-preview {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .slide-duration-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--cue-amber);
+      background: var(--cue-amber-bg);
+      border-radius: 3px;
+      padding: 2px 5px;
+      flex-shrink: 0;
+    }
+
+    .slide-cue-dots {
+      display: flex;
+      gap: 3px;
+      margin-top: 5px;
+      margin-left: 26px;
+    }
+
+    .cue-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      opacity: 0.7;
+    }
+
+    .btn-remove-slide {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.7rem;
+      color: var(--ink-light);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .slide-item:hover .btn-remove-slide { display: flex; }
+    .btn-remove-slide:hover { border-color: var(--cue-red); color: var(--cue-red); }
+
+    /* ---- TIME BAR ---- */
+    .time-bar-wrap {
+      margin-top: 0.75rem;
+    }
+
+    .time-bar-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .time-bar-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--ink-light);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .time-bar-total {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .time-bar-track {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .time-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--spotlight);
+      transition: width 0.3s ease, background-color 0.3s;
+    }
+
+    .time-bar-fill.over { background: var(--cue-red); }
+
+    /* ---- PANEL RIGHT: SLIDE EDITOR + PREVIEW ---- */
+    .panel-right {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Tabs */
+    .panel-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0 2rem;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .tab-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 14px 16px 12px;
+      border: none;
+      background: transparent;
+      color: var(--ink-light);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+
+    .tab-btn:hover { color: var(--ink); }
+    .tab-btn.active {
+      color: var(--ink);
+      border-bottom-color: var(--spotlight-deep);
+      font-weight: 600;
+    }
+
+    .tab-panel { display: none; padding: 2rem; flex: 1; }
+    .tab-panel.active { display: block; }
+
+    /* ---- SLIDE EDITOR ---- */
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .editor-col { display: flex; flex-direction: column; gap: 1rem; }
+
+    .field-group label {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ink-light);
+      margin-bottom: 6px;
+    }
+
+    .field-group input,
+    .field-group textarea,
+    .field-group select {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+      resize: vertical;
+    }
+
+    .field-group input:focus,
+    .field-group textarea:focus,
+    .field-group select:focus {
+      border-color: var(--spotlight-deep);
+      background: var(--surface);
+    }
+
+    .field-group textarea { min-height: 80px; line-height: 1.5; }
+
+    /* Cues builder */
+    .cues-builder {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cue-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .cue-type-select {
+      flex-shrink: 0;
+      width: 110px;
+      font-size: 0.8rem !important;
+    }
+
+    .cue-text-input {
+      flex: 1;
+      resize: none !important;
+      min-height: unset !important;
+      padding: 8px 10px !important;
+      font-size: 0.82rem !important;
+    }
+
+    .btn-remove-cue {
+      flex-shrink: 0;
+      width: 28px;
+      height: 34px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 0.75rem;
+      color: var(--ink-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .btn-remove-cue:hover { border-color: var(--cue-red); color: var(--cue-red); }
+
+    .btn-add-cue {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      background: transparent;
+      border: 1px dashed var(--border-strong);
+      color: var(--ink-light);
+      border-radius: var(--radius);
+      padding: 7px;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+      text-align: center;
+    }
+    .btn-add-cue:hover {
+      border-color: var(--spotlight);
+      color: var(--spotlight-deep);
+      background: var(--spotlight-glow);
+    }
+
+    /* No slides / empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--ink-light);
+      gap: 1rem;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      opacity: 0.4;
+    }
+
+    .empty-state h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--ink-mid);
+    }
+
+    .empty-state p {
+      font-size: 0.88rem;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    /* ---- CUE CARD PREVIEW ---- */
+    #preview-panel {
+      padding: 2rem;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .preview-talk-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .preview-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--ink-light);
+      margin-top: 2px;
+    }
+
+    .btn-print {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      background: var(--ink);
+      color: var(--surface);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-print:hover { background: var(--ink-mid); }
+
+    /* ---- THE CUE CARDS ---- */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .cue-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      break-inside: avoid;
+      transition: box-shadow 0.2s;
+    }
+
+    .cue-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* Card header stripe */
+    .card-header {
+      padding: 0.875rem 1.125rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--spotlight);
+    }
+
+    .card-slide-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 3px;
+    }
+
+    .card-slide-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+
+    .card-time-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .card-duration {
+      font-family: 'DM Mono', monospace;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--spotlight-deep);
+      line-height: 1;
+    }
+
+    .card-cumulative {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--ink-light);
+      margin-top: 2px;
+    }
+
+    /* Speaker notes area */
+    .card-notes {
+      padding: 0.875rem 1.125rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-notes-text {
+      font-size: 0.88rem;
+      color: var(--ink-mid);
+      line-height: 1.6;
+    }
+
+    /* Transition note */
+    .card-transition {
+      padding: 0.6rem 1.125rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-warm);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-transition-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-light);
+      flex-shrink: 0;
+    }
+
+    .card-transition-text {
+      font-size: 0.8rem;
+      color: var(--ink-mid);
+      font-style: italic;
+    }
+
+    /* Cue items */
+    .card-cues {
+      padding: 0.75rem 1.125rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .card-cue-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .cue-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 6px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* CUE TYPE COLORS */
+    .cue-go { background: var(--cue-green-bg); }
+    .cue-go .cue-badge { background: var(--cue-green); color: white; }
+    .cue-go .cue-text { color: var(--cue-green); }
+
+    .cue-pause { background: var(--cue-amber-bg); }
+    .cue-pause .cue-badge { background: var(--cue-amber); color: white; }
+    .cue-pause .cue-text { color: var(--cue-amber); }
+
+    .cue-engage { background: var(--cue-purple-bg); }
+    .cue-engage .cue-badge { background: var(--cue-purple); color: white; }
+    .cue-engage .cue-text { color: var(--cue-purple); }
+
+    .cue-note { background: var(--cue-blue-bg); }
+    .cue-note .cue-badge { background: var(--cue-blue); color: white; }
+    .cue-note .cue-text { color: var(--cue-blue); }
+
+    .cue-warning { background: var(--cue-red-bg); }
+    .cue-warning .cue-badge { background: var(--cue-red); color: white; }
+    .cue-warning .cue-text { color: var(--cue-red); }
+
+    .cue-text { flex: 1; }
+
+    /* ---- PROGRESS RIBBON ---- */
+    .cards-progress {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .progress-seg {
+      height: 6px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      transition: width 0.3s;
+      cursor: default;
+      position: relative;
+    }
+
+    .progress-seg-tooltip {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ink);
+      color: white;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      padding: 3px 7px;
+      border-radius: 3px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
+
+    .progress-seg:hover .progress-seg-tooltip { opacity: 1; }
+
+    /* ---- EMPTY PREVIEW ---- */
+    .preview-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      color: var(--ink-light);
+      gap: 0.75rem;
+      text-align: center;
+    }
+
+    /* ---- TELEPROMPTER VIEW ---- */
+    .teleprompter-wrap {
+      background: #0A0906;
+      border-radius: var(--radius-card);
+      padding: 2rem;
+      min-height: 400px;
+      position: relative;
+    }
+
+    .tp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .tp-slide-info {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: rgba(245,200,66,0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .tp-timer {
+      font-family: 'DM Mono', monospace;
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--spotlight);
+      line-height: 1;
+    }
+
+    .tp-timer.warning { color: #FF6B35; }
+    .tp-timer.over { color: #FF3333; }
+
+    .tp-content {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .tp-title {
+      font-family: 'Fraunces', serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .tp-notes {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.8;
+      max-width: 700px;
+      margin-bottom: 1.5rem;
+    }
+
+    .tp-cues {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .tp-cue-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    .tp-cue-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .tp-cue-text { font-size: 1rem; line-height: 1.4; }
+
+    .tp-cue-go { background: rgba(46,125,82,0.25); }
+    .tp-cue-go .tp-cue-badge { background: var(--cue-green); color: white; }
+    .tp-cue-go .tp-cue-text { color: #7AFFB2; }
+
+    .tp-cue-pause { background: rgba(196,123,21,0.25); }
+    .tp-cue-pause .tp-cue-badge { background: var(--cue-amber); color: white; }
+    .tp-cue-pause .tp-cue-text { color: #FFD080; }
+
+    .tp-cue-engage { background: rgba(107,58,158,0.25); }
+    .tp-cue-engage .tp-cue-badge { background: var(--cue-purple); color: white; }
+    .tp-cue-engage .tp-cue-text { color: #D4A0FF; }
+
+    .tp-cue-note { background: rgba(42,92,138,0.25); }
+    .tp-cue-note .tp-cue-badge { background: var(--cue-blue); color: white; }
+    .tp-cue-note .tp-cue-text { color: #90C8FF; }
+
+    .tp-cue-warning { background: rgba(184,50,50,0.25); }
+    .tp-cue-warning .tp-cue-badge { background: var(--cue-red); color: white; }
+    .tp-cue-warning .tp-cue-text { color: #FF9090; }
+
+    .tp-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .tp-nav-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tp-nav-btn:hover { background: rgba(255,255,255,0.12); }
+    .tp-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .tp-nav-btn.next-btn {
+      background: var(--spotlight);
+      border-color: var(--spotlight);
+      color: var(--ink);
+    }
+    .tp-nav-btn.next-btn:hover { background: #F7D060; }
+
+    .tp-progress-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .tp-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: background 0.2s;
+    }
+
+    .tp-dot.active { background: var(--spotlight); }
+    .tp-dot.done { background: rgba(245,200,66,0.35); }
+
+    .tp-transition-note {
+      margin-top: 1rem;
+      padding: 8px 14px;
+      background: rgba(245,200,66,0.08);
+      border-left: 3px solid var(--spotlight);
+      border-radius: 0 4px 4px 0;
+      font-size: 0.88rem;
+      color: rgba(245,200,66,0.8);
+      font-style: italic;
+    }
+
+    .btn-tp-exit {
+      font-size: 0.75rem;
+      color: rgba(245,200,66,0.5);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: color 0.15s;
+    }
+    .btn-tp-exit:hover { color: var(--spotlight); }
+
+    /* ---- PRINT STYLES ---- */
+    @media print {
+      header, .panel-left, .panel-tabs, .preview-header .btn-print,
+      .cards-progress, .tab-panel:not(#preview-panel) { display: none !important; }
+      .layout { display: block; }
+      .panel-right { display: block; }
+      #preview-panel { display: block !important; padding: 0; }
+      body { background: white; }
+      .cue-card { break-inside: avoid; border: 1px solid #ccc; box-shadow: none; }
+      .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .preview-header { margin-bottom: 0.75rem; }
+    }
+
+    /* ---- MOBILE ---- */
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .panel-left { border-right: none; border-bottom: 1px solid var(--border); max-height: 40vh; }
+      .editor-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ---- TRANSITIONS ---- */
+    .slide-item { user-select: none; }
+
+    .fade-in {
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .spotlight-pulse {
+      animation: spotlightPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes spotlightPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245,200,66,0.3); }
+      50% { box-shadow: 0 0 0 8px rgba(245,200,66,0); }
+    }
+
+    /* Section divider */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0.5rem 0;
+    }
+
+    .section-divider hr {
+      flex: 1;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-divider span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ink-light);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--ink);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      padding: 10px 18px;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a class="logo" href="#">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="2" width="5" height="3" rx="0.5" fill="#1A1510"/>
+          <rect x="2" y="7" width="12" height="1.5" rx="0.5" fill="#1A1510"/>
+          <rect x="2" y="10" width="9" height="1.5" rx="0.5" fill="#1A1510"/>
+          <rect x="2" y="13" width="6" height="1.5" rx="0.5" fill="#1A1510"/>
+          <rect x="9" y="2" width="5" height="1.5" rx="0.5" fill="#1A1510" opacity="0.4"/>
+          <rect x="9" y="4" width="5" height="1.5" rx="0.5" fill="#1A1510" opacity="0.4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">CueCard</div>
+        <div class="logo-sub">Speaker Cue Cards</div>
+      </div>
+    </a>
+    <div class="header-actions">
+      <button class="btn-header btn-ghost" onclick="loadSample()">Load Sample Talk</button>
+      <button class="btn-header btn-primary" onclick="startTeleprompter()">▶ Present</button>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="layout">
+    <!-- LEFT PANEL: TALK BUILDER -->
+    <aside class="panel-left">
+      <div class="panel-section">
+        <div class="panel-label">Talk Details</div>
+        <textarea class="talk-title-input" id="talk-title" rows="2" placeholder="Your talk title…" oninput="updatePreview()"></textarea>
+        <div class="meta-row">
+          <div class="meta-field">
+            <label>Total Time (min)</label>
+            <input type="number" id="total-time" value="20" min="1" max="480" oninput="updateTimeBar()">
+          </div>
+          <div class="meta-field">
+            <label>Venue / Event</label>
+            <input type="text" id="venue" placeholder="e.g. TED main stage" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-field">
+            <label>Speaker</label>
+            <input type="text" id="speaker-name" placeholder="Your name" oninput="updatePreview()">
+          </div>
+          <div class="meta-field">
+            <label>Date</label>
+            <input type="date" id="talk-date" oninput="updatePreview()">
+          </div>
+        </div>
+
+        <!-- Time bar -->
+        <div class="time-bar-wrap">
+          <div class="time-bar-row">
+            <span class="time-bar-label">Time allocated</span>
+            <span class="time-bar-total" id="time-bar-total">0 / 20 min</span>
+          </div>
+          <div class="time-bar-track">
+            <div class="time-bar-fill" id="time-bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDES LIST -->
+      <div class="panel-section" style="flex:1">
+        <div class="slides-header">
+          <div class="panel-label" style="margin-bottom:0">Slides</div>
+          <button class="btn-add-slide" onclick="addSlide()">+ Add Slide</button>
+        </div>
+        <div id="slides-list"></div>
+      </div>
+    </aside>
+
+    <!-- RIGHT PANEL -->
+    <main class="panel-right">
+      <!-- TABS -->
+      <div class="panel-tabs">
+        <button class="tab-btn active" onclick="switchTab('editor', this)" id="tab-editor">Edit Slide</button>
+        <button class="tab-btn" onclick="switchTab('preview', this)" id="tab-preview">Preview Cards</button>
+      </div>
+
+      <!-- EDITOR TAB -->
+      <div class="tab-panel active" id="editor-panel">
+        <div id="editor-empty" class="empty-state" style="display:none">
+          <div class="empty-state-icon">📋</div>
+          <h3>No slides yet</h3>
+          <p>Click "Add Slide" to start building your talk. Each slide becomes a cue card you can print or present from.</p>
+          <button class="btn-header btn-primary" style="margin-top:0.5rem" onclick="addSlide()">+ Add First Slide</button>
+        </div>
+
+        <div id="slide-editor" style="display:none">
+          <div class="editor-grid">
+            <!-- Left col: slide details -->
+            <div class="editor-col">
+              <div class="field-group">
+                <label>Slide Title</label>
+                <input type="text" id="edit-title" placeholder="e.g. The Problem We're Solving" oninput="updateCurrentSlide()">
+              </div>
+              <div class="field-group">
+                <label>Speaker Notes</label>
+                <textarea id="edit-notes" rows="5" placeholder="What you'll say — can be detailed or bullet points. This is YOUR reference, not the audience's.&#10;&#10;Tip: write the opening sentence verbatim, then bullet the rest." oninput="updateCurrentSlide()"></textarea>
+              </div>
+              <div class="field-group">
+                <label>Transition to Next</label>
+                <input type="text" id="edit-transition" placeholder="e.g. 'And that brings me to…' or 'So what's the solution?'" oninput="updateCurrentSlide()">
+              </div>
+            </div>
+
+            <!-- Right col: timing + cues -->
+            <div class="editor-col">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+                <div class="field-group">
+                  <label>Duration (min)</label>
+                  <input type="number" id="edit-duration" value="2" min="0.5" max="60" step="0.5" oninput="updateCurrentSlide()">
+                </div>
+                <div class="field-group">
+                  <label>Slide Color</label>
+                  <select id="edit-color" onchange="updateCurrentSlide()">
+                    <option value="default">Default</option>
+                    <option value="open">Opening</option>
+                    <option value="key">Key Point</option>
+                    <option value="story">Story</option>
+                    <option value="data">Data / Evidence</option>
+                    <option value="close">Closing</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label>Cue Items</label>
+                <div class="cues-builder" id="cues-builder"></div>
+                <button class="btn-add-cue" onclick="addCue()" style="margin-top:6px">+ Add cue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREVIEW TAB -->
+      <div class="tab-panel" id="preview-panel">
+        <div class="preview-header">
+          <div>
+            <div class="preview-talk-title" id="preview-title">Your Talk</div>
+            <div class="preview-meta" id="preview-meta"></div>
+          </div>
+          <button class="btn-print" onclick="window.print()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="1" width="8" height="5" rx="0.5" fill="currentColor" opacity="0.3"/><rect x="3.5" y="8" width="7" height="1" rx="0.5" fill="currentColor"/><rect x="3.5" y="10" width="5" height="1" rx="0.5" fill="currentColor"/></svg>
+            Print Cards
+          </button>
+        </div>
+
+        <!-- Segment progress ribbon -->
+        <div class="cards-progress" id="cards-progress"></div>
+
+        <div id="preview-empty" class="preview-empty" style="display:none">
+          <div style="font-size:2.5rem;opacity:0.3">🃏</div>
+          <p style="font-size:0.9rem;color:var(--ink-light)">Add slides to see your cue cards here.</p>
+        </div>
+
+        <div class="cards-grid" id="cards-grid"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- TELEPROMPTER OVERLAY -->
+  <div id="tp-overlay" style="display:none;position:fixed;inset:0;background:#0A0906;z-index:200;overflow-y:auto;padding:2rem">
+    <div class="teleprompter-wrap" style="max-width:900px;margin:0 auto;background:transparent;padding:0">
+      <div class="tp-header">
+        <div>
+          <div class="tp-slide-info" id="tp-slide-info">Slide 1 of 1</div>
+          <div style="font-family:'Fraunces',serif;font-size:0.9rem;color:rgba(255,255,255,0.4);margin-top:2px" id="tp-talk-name"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="tp-timer" id="tp-timer">0:00</div>
+          <button class="btn-tp-exit" onclick="exitTeleprompter()">✕ Exit</button>
+        </div>
+      </div>
+
+      <div class="tp-content" style="display:block">
+        <div class="tp-title" id="tp-title"></div>
+        <div class="tp-notes" id="tp-notes"></div>
+        <div class="tp-cues" id="tp-cues"></div>
+        <div class="tp-transition-note" id="tp-transition" style="display:none"></div>
+      </div>
+
+      <div class="tp-nav">
+        <button class="tp-nav-btn" id="tp-prev-btn" onclick="tpPrev()">← Previous</button>
+        <div class="tp-progress-dots" id="tp-dots"></div>
+        <button class="tp-nav-btn next-btn" id="tp-next-btn" onclick="tpNext()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // =============================================
+    // DATA MODEL
+    // =============================================
+    let state = {
+      title: '',
+      venue: '',
+      speaker: '',
+      date: '',
+      totalTime: 20,
+      slides: [],
+      activeSlideIndex: -1
+    };
+
+    const CUE_TYPES = {
+      go:      { label: 'GO',      color: 'green' },
+      pause:   { label: 'PAUSE',   color: 'amber' },
+      engage:  { label: 'ENGAGE',  color: 'purple' },
+      note:    { label: 'NOTE',    color: 'blue' },
+      warning: { label: 'WARN',    color: 'red' }
+    };
+
+    const SLIDE_COLORS = {
+      default: '#F5C842',
+      open:    '#2A5C8A',
+      key:     '#2E7D52',
+      story:   '#8A4A2A',
+      data:    '#6B3A9E',
+      close:   '#C84B1A'
+    };
+
+    function newSlide(num) {
+      return {
+        id: Date.now() + Math.random(),
+        title: `Slide ${num}`,
+        notes: '',
+        transition: '',
+        duration: 2,
+        color: 'default',
+        cues: []
+      };
+    }
+
+    function newCue() {
+      return { id: Date.now() + Math.random(), type: 'go', text: '' };
+    }
+
+    // =============================================
+    // PERSISTENCE
+    // =============================================
+    function saveState() {
+      try { localStorage.setItem('cuecard-state', JSON.stringify(state)); } catch(e){}
+    }
+
+    function loadState() {
+      try {
+        const s = localStorage.getItem('cuecard-state');
+        if (s) { state = JSON.parse(s); }
+      } catch(e){}
+    }
+
+    // =============================================
+    // INIT
+    // =============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      applyStateToForm();
+      renderSlidesList();
+      if (state.slides.length > 0 && state.activeSlideIndex < 0) {
+        selectSlide(0);
+      } else if (state.activeSlideIndex >= 0) {
+        selectSlide(state.activeSlideIndex);
+      } else {
+        showEditorEmpty(true);
+      }
+      updatePreview();
+      updateTimeBar();
+
+      // Set today's date if blank
+      if (!state.date) {
+        document.getElementById('talk-date').valueAsDate = new Date();
+        state.date = document.getElementById('talk-date').value;
+      }
+
+      // Keyboard shortcut for teleprompter
+      document.addEventListener('keydown', (e) => {
+        const tp = document.getElementById('tp-overlay');
+        if (tp.style.display !== 'none') {
+          if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); tpNext(); }
+          if (e.key === 'ArrowLeft') { e.preventDefault(); tpPrev(); }
+          if (e.key === 'Escape') { exitTeleprompter(); }
+        }
+      });
+    });
+
+    function applyStateToForm() {
+      document.getElementById('talk-title').value = state.title;
+      document.getElementById('total-time').value = state.totalTime;
+      document.getElementById('venue').value = state.venue;
+      document.getElementById('speaker-name').value = state.speaker;
+      document.getElementById('talk-date').value = state.date;
+    }
+
+    // =============================================
+    // SLIDE MANAGEMENT
+    // =============================================
+    function addSlide() {
+      const slide = newSlide(state.slides.length + 1);
+      state.slides.push(slide);
+      saveState();
+      renderSlidesList();
+      selectSlide(state.slides.length - 1);
+      switchTab('editor', document.getElementById('tab-editor'));
+      updatePreview();
+      updateTimeBar();
+    }
+
+    function removeSlide(index, e) {
+      e.stopPropagation();
+      state.slides.splice(index, 1);
+      if (state.activeSlideIndex >= state.slides.length) {
+        state.activeSlideIndex = state.slides.length - 1;
+      }
+      saveState();
+      renderSlidesList();
+      if (state.slides.length === 0) {
+        showEditorEmpty(true);
+        state.activeSlideIndex = -1;
+      } else {
+        selectSlide(Math.max(0, state.activeSlideIndex));
+      }
+      updatePreview();
+      updateTimeBar();
+    }
+
+    function selectSlide(index) {
+      state.activeSlideIndex = index;
+      saveState();
+      renderSlidesList();
+      if (state.slides.length === 0) { showEditorEmpty(true); return; }
+      showEditorEmpty(false);
+      const s = state.slides[index];
+      document.getElementById('edit-title').value = s.title;
+      document.getElementById('edit-notes').value = s.notes;
+      document.getElementById('edit-transition').value = s.transition;
+      document.getElementById('edit-duration').value = s.duration;
+      document.getElementById('edit-color').value = s.color;
+      renderCuesBuilder(s.cues);
+    }
+
+    function showEditorEmpty(show) {
+      document.getElementById('editor-empty').style.display = show ? 'flex' : 'none';
+      document.getElementById('slide-editor').style.display = show ? 'none' : 'block';
+    }
+
+    function renderSlidesList() {
+      const list = document.getElementById('slides-list');
+      if (state.slides.length === 0) {
+        list.innerHTML = `<div style="text-align:center;padding:1.5rem 0;color:var(--ink-light);font-size:0.8rem">No slides yet.<br>Click <b>+ Add Slide</b> to start.</div>`;
+        return;
+      }
+      list.innerHTML = state.slides.map((s, i) => {
+        const cueDots = s.cues.map(c =>
+          `<div class="cue-dot" style="background:${getCueColor(c.type)}"></div>`
+        ).join('');
+        return `
+          <div class="slide-item ${i === state.activeSlideIndex ? 'active' : ''}" onclick="selectSlide(${i})">
+            <div class="slide-item-header">
+              <span class="slide-num">${String(i+1).padStart(2,'0')}</span>
+              <span class="slide-title-preview">${escHtml(s.title) || '(untitled)'}</span>
+              <span class="slide-duration-badge">${formatDuration(s.duration)}</span>
+            </div>
+            ${cueDots ? `<div class="slide-cue-dots">${cueDots}</div>` : ''}
+            <button class="btn-remove-slide" onclick="removeSlide(${i}, event)" title="Remove slide">×</button>
+          </div>`;
+      }).join('');
+    }
+
+    function getCueColor(type) {
+      const colors = { go: '#2E7D52', pause: '#C47B15', engage: '#6B3A9E', note: '#2A5C8A', warning: '#B83232' };
+      return colors[type] || '#8A7B68';
+    }
+
+    function formatDuration(min) {
+      if (min >= 60) return `${Math.floor(min/60)}h ${min%60}m`;
+      if (Number.isInteger(min)) return `${min}m`;
+      return `${min}m`;
+    }
+
+    // =============================================
+    // SLIDE EDITOR UPDATES
+    // =============================================
+    function updateCurrentSlide() {
+      if (state.activeSlideIndex < 0) return;
+      const s = state.slides[state.activeSlideIndex];
+      s.title = document.getElementById('edit-title').value;
+      s.notes = document.getElementById('edit-notes').value;
+      s.transition = document.getElementById('edit-transition').value;
+      s.duration = parseFloat(document.getElementById('edit-duration').value) || 1;
+      s.color = document.getElementById('edit-color').value;
+      saveState();
+      renderSlidesList();
+      updatePreview();
+      updateTimeBar();
+    }
+
+    function updatePreview() {
+      state.title = document.getElementById('talk-title').value;
+      state.venue = document.getElementById('venue').value;
+      state.speaker = document.getElementById('speaker-name').value;
+      state.date = document.getElementById('talk-date').value;
+      saveState();
+      renderPreview();
+    }
+
+    function updateTimeBar() {
+      state.totalTime = parseInt(document.getElementById('total-time').value) || 20;
+      const used = state.slides.reduce((sum, s) => sum + (s.duration || 0), 0);
+      const total = state.totalTime;
+      const pct = Math.min((used / total) * 100, 100);
+      const fill = document.getElementById('time-bar-fill');
+      const label = document.getElementById('time-bar-total');
+      fill.style.width = pct + '%';
+      fill.classList.toggle('over', used > total);
+      label.textContent = `${used} / ${total} min`;
+      label.style.color = used > total ? 'var(--cue-red)' : 'var(--ink)';
+      saveState();
+      renderProgress();
+    }
+
+    // =============================================
+    // CUES BUILDER
+    // =============================================
+    function renderCuesBuilder(cues) {
+      const container = document.getElementById('cues-builder');
+      if (!cues || cues.length === 0) { container.innerHTML = ''; return; }
+      container.innerHTML = cues.map((c, i) => `
+        <div class="cue-row fade-in">
+          <select class="cue-type-select field-group input" onchange="updateCueType(${i}, this.value)">
+            <option value="go" ${c.type==='go'?'selected':''}>GO cue</option>
+            <option value="pause" ${c.type==='pause'?'selected':''}>PAUSE</option>
+            <option value="engage" ${c.type==='engage'?'selected':''}>ENGAGE</option>
+            <option value="note" ${c.type==='note'?'selected':''}>NOTE</option>
+            <option value="warning" ${c.type==='warning'?'selected':''}>WARN</option>
+          </select>
+          <textarea class="cue-text-input" rows="1" placeholder="Describe the cue…" oninput="updateCueText(${i}, this.value)">${escHtml(c.text)}</textarea>
+          <button class="btn-remove-cue" onclick="removeCue(${i})" title="Remove">×</button>
+        </div>
+      `).join('');
+    }
+
+    function addCue() {
+      if (state.activeSlideIndex < 0) return;
+      const s = state.slides[state.activeSlideIndex];
+      s.cues.push(newCue());
+      saveState();
+      renderCuesBuilder(s.cues);
+      updateCurrentSlide();
+    }
+
+    function removeCue(i) {
+      if (state.activeSlideIndex < 0) return;
+      state.slides[state.activeSlideIndex].cues.splice(i, 1);
+      saveState();
+      renderCuesBuilder(state.slides[state.activeSlideIndex].cues);
+      updateCurrentSlide();
+    }
+
+    function updateCueType(i, val) {
+      if (state.activeSlideIndex < 0) return;
+      state.slides[state.activeSlideIndex].cues[i].type = val;
+      saveState();
+      updatePreview();
+      renderSlidesList();
+    }
+
+    function updateCueText(i, val) {
+      if (state.activeSlideIndex < 0) return;
+      state.slides[state.activeSlideIndex].cues[i].text = val;
+      saveState();
+    }
+
+    // =============================================
+    // PREVIEW RENDER
+    // =============================================
+    function renderPreview() {
+      const titleEl = document.getElementById('preview-title');
+      const metaEl = document.getElementById('preview-meta');
+      titleEl.textContent = state.title || 'Your Talk';
+      const parts = [];
+      if (state.speaker) parts.push(state.speaker);
+      if (state.venue) parts.push(state.venue);
+      if (state.date) parts.push(formatDate(state.date));
+      if (state.totalTime) parts.push(`${state.totalTime} minutes`);
+      metaEl.textContent = parts.join(' · ');
+
+      renderCards();
+      renderProgress();
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('cards-grid');
+      const empty = document.getElementById('preview-empty');
+      if (state.slides.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'flex';
+        return;
+      }
+      empty.style.display = 'none';
+
+      let cumulative = 0;
+      grid.innerHTML = state.slides.map((s, i) => {
+        cumulative += s.duration || 0;
+        const color = SLIDE_COLORS[s.color] || SLIDE_COLORS.default;
+        const cuesHtml = (s.cues || []).map(c => `
+          <div class="card-cue-item cue-${c.type}">
+            <span class="cue-badge">${CUE_TYPES[c.type]?.label || c.type.toUpperCase()}</span>
+            <span class="cue-text">${escHtml(c.text)}</span>
+          </div>
+        `).join('');
+
+        return `
+          <div class="cue-card fade-in">
+            <div class="card-header" style="--card-stripe:${color}">
+              <style>.cue-card:nth-child(${i+1}) .card-header::before{background:${color}}</style>
+              <div>
+                <div class="card-slide-num">Card ${String(i+1).padStart(2,'0')} of ${state.slides.length}</div>
+                <div class="card-slide-title">${escHtml(s.title) || '(untitled)'}</div>
+              </div>
+              <div class="card-time-badge">
+                <div class="card-duration">${formatDuration(s.duration)}</div>
+                <div class="card-cumulative">+${formatDuration(cumulative)} total</div>
+              </div>
+            </div>
+            ${s.notes ? `<div class="card-notes"><div class="card-notes-text">${escHtml(s.notes).replace(/\n/g,'<br>')}</div></div>` : ''}
+            ${s.transition ? `<div class="card-transition"><span class="card-transition-label">→ Next:</span><span class="card-transition-text">${escHtml(s.transition)}</span></div>` : ''}
+            ${cuesHtml ? `<div class="card-cues">${cuesHtml}</div>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    function renderProgress() {
+      const bar = document.getElementById('cards-progress');
+      if (state.slides.length === 0) { bar.innerHTML = ''; return; }
+      const total = state.slides.reduce((sum, s) => sum + (s.duration || 0), 0) || 1;
+      bar.innerHTML = state.slides.map((s, i) => {
+        const pct = ((s.duration || 0) / total * 100).toFixed(1);
+        const color = SLIDE_COLORS[s.color] || SLIDE_COLORS.default;
+        return `<div class="progress-seg" style="width:${pct}%;background:${color};opacity:0.8;min-width:6px" title="${escHtml(s.title)} (${formatDuration(s.duration)})">
+          <div class="progress-seg-tooltip">${escHtml(s.title)} · ${formatDuration(s.duration)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // =============================================
+    // TABS
+    // =============================================
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(name + '-panel').classList.add('active');
+      if (name === 'preview') renderPreview();
+    }
+
+    // =============================================
+    // TELEPROMPTER
+    // =============================================
+    let tpState = { index: 0, interval: null, seconds: 0 };
+
+    function startTeleprompter() {
+      if (state.slides.length === 0) { showToast('Add slides first!'); return; }
+      tpState.index = 0;
+      tpState.seconds = 0;
+      clearInterval(tpState.interval);
+      tpState.interval = setInterval(() => {
+        tpState.seconds++;
+        renderTpTimer();
+      }, 1000);
+      document.getElementById('tp-talk-name').textContent = state.title || 'Your Talk';
+      document.getElementById('tp-overlay').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      renderTpSlide();
+    }
+
+    function exitTeleprompter() {
+      clearInterval(tpState.interval);
+      document.getElementById('tp-overlay').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function renderTpSlide() {
+      const s = state.slides[tpState.index];
+      if (!s) return;
+      document.getElementById('tp-slide-info').textContent = `Slide ${tpState.index+1} of ${state.slides.length}`;
+      document.getElementById('tp-title').textContent = s.title || '(untitled)';
+      document.getElementById('tp-notes').textContent = s.notes || '';
+
+      const cues = document.getElementById('tp-cues');
+      cues.innerHTML = (s.cues || []).map(c => `
+        <div class="tp-cue-item tp-cue-${c.type}">
+          <span class="tp-cue-badge">${CUE_TYPES[c.type]?.label || c.type.toUpperCase()}</span>
+          <span class="tp-cue-text">${escHtml(c.text)}</span>
+        </div>`).join('');
+
+      const trans = document.getElementById('tp-transition');
+      if (s.transition && tpState.index < state.slides.length - 1) {
+        trans.textContent = '→ ' + s.transition;
+        trans.style.display = 'block';
+      } else {
+        trans.style.display = 'none';
+      }
+
+      // Dots
+      const dots = document.getElementById('tp-dots');
+      dots.innerHTML = state.slides.map((_, i) => `
+        <div class="tp-dot ${i === tpState.index ? 'active' : i < tpState.index ? 'done' : ''}"></div>`).join('');
+
+      // Nav buttons
+      document.getElementById('tp-prev-btn').disabled = tpState.index === 0;
+      document.getElementById('tp-next-btn').textContent = tpState.index === state.slides.length - 1 ? '✓ Finish' : 'Next →';
+    }
+
+    function renderTpTimer() {
+      const min = Math.floor(tpState.seconds / 60);
+      const sec = tpState.seconds % 60;
+      const s = state.slides[tpState.index];
+      const limitSecs = (s?.duration || 999) * 60;
+      const warnSecs = limitSecs * 0.85;
+      const timerEl = document.getElementById('tp-timer');
+      timerEl.textContent = `${min}:${String(sec).padStart(2,'0')}`;
+      timerEl.className = 'tp-timer';
+      if (tpState.seconds >= limitSecs) timerEl.classList.add('over');
+      else if (tpState.seconds >= warnSecs) timerEl.classList.add('warning');
+    }
+
+    function tpNext() {
+      if (tpState.index >= state.slides.length - 1) { exitTeleprompter(); return; }
+      tpState.index++;
+      tpState.seconds = 0;
+      renderTpSlide();
+    }
+
+    function tpPrev() {
+      if (tpState.index <= 0) return;
+      tpState.index--;
+      tpState.seconds = 0;
+      renderTpSlide();
+    }
+
+    // =============================================
+    // SAMPLE DATA
+    // =============================================
+    function loadSample() {
+      state = {
+        title: 'The Future of Remote Work: A Skeptic\'s Guide',
+        venue: 'TechForward Conference 2026',
+        speaker: 'Your Name',
+        date: new Date().toISOString().split('T')[0],
+        totalTime: 18,
+        activeSlideIndex: 0,
+        slides: [
+          {
+            id: 1, title: 'Opening — The Big Lie', notes: 'Start with silence. Let it sit for 3 seconds.\n\nEvery remote-work article tells you productivity is up 40%. I\'m here to tell you that number is a lie — and the truth is actually much more interesting.', transition: 'Before I explain why it\'s a lie, let me introduce myself.', duration: 2, color: 'open',
+            cues: [
+              { id: 1, type: 'pause', text: 'Pause 3 seconds before first word' },
+              { id: 2, type: 'engage', text: 'Make eye contact with left side of room' }
+            ]
+          },
+          {
+            id: 2, title: 'Who I Am (20 seconds, max)', notes: 'Spent 6 years as a fully remote engineering lead.\n3 startups, 4 countries, 47 timezone-adjusted standups.\nI\'m not a researcher. I\'m a survivor.', transition: 'And survival requires understanding what\'s actually happening.', duration: 0.5, color: 'story',
+            cues: [
+              { id: 3, type: 'warning', text: '30 seconds MAX — don\'t over-explain your background' }
+            ]
+          },
+          {
+            id: 3, title: 'The Productivity Paradox', notes: 'The 40% productivity gains are real — for individual contributors.\nWhat they hide: collaboration taxes are up 300%.\nEvery 15% gain in deep work = 10 lost connections.\n\nData source: Stanford + Microsoft Work Trend Index 2023.', transition: 'So what do high-performing remote orgs actually do differently?', duration: 4, color: 'data',
+            cues: [
+              { id: 4, type: 'go', text: 'Advance to chart slide' },
+              { id: 5, type: 'note', text: 'Mention Stanford citation on screen — don\'t read it' },
+              { id: 6, type: 'engage', text: 'Pause and ask: "How many of you felt this in 2024?"' }
+            ]
+          },
+          {
+            id: 4, title: 'The 3 Things That Actually Work', notes: '1. Async-first communication norms (not async-only)\n2. Intentional synchronous moments (not mandatory Zoom)\n3. Output contracts instead of presence contracts\n\nThese sound obvious. Almost no company does all three.', transition: 'Let\'s go one level deeper on output contracts.', duration: 5, color: 'key',
+            cues: [
+              { id: 7, type: 'go', text: 'Animate list items one by one — wait for laughter on #3' },
+              { id: 8, type: 'pause', text: '2-second pause after "almost no company does all three"' }
+            ]
+          },
+          {
+            id: 5, title: 'Output Contracts — The Radical Idea', notes: 'An output contract is dead simple:\n- Here\'s what you\'re responsible for\n- Here\'s how we\'ll know it\'s done\n- Here\'s when it\'s due\n\nThat\'s it. No tracking software. No "are you at your desk?" culture.', transition: 'I know what you\'re thinking — what about collaboration? Trust?', duration: 4, color: 'key',
+            cues: [
+              { id: 9, type: 'engage', text: 'Invite question: "Who has actually seen this work?"' },
+              { id: 10, type: 'warning', text: 'Don\'t get into the trust debate — acknowledge and move on' }
+            ]
+          },
+          {
+            id: 6, title: 'Closing — The Only Question That Matters', notes: 'Don\'t ask "Is remote work productive?"\nAsk "What kind of work are we doing, and does remote serve it?"\n\nThat reframe is the entire talk in one sentence. Make them write it down.', transition: '', duration: 2.5, color: 'close',
+            cues: [
+              { id: 11, type: 'pause', text: 'Pause after the reframe — wait 4 full seconds' },
+              { id: 12, type: 'engage', text: 'Thank them — stay 10 min for questions, have water ready' },
+              { id: 13, type: 'go', text: 'Final slide: just your Twitter handle, nothing else' }
+            ]
+          }
+        ]
+      };
+      saveState();
+      applyStateToForm();
+      renderSlidesList();
+      selectSlide(0);
+      updatePreview();
+      updateTimeBar();
+      showToast('Sample talk loaded!');
+    }
+
+    // =============================================
+    // UTILITIES
+    // =============================================
+    function escHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      try {
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch(e) { return dateStr; }
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>
