@@ -107,6 +107,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Off-white (#F8F5EF) background, Forest green (#2C5F3E) accent, Terracotta (#9E4A2A) warnings, Warm sand (#C4A882) borders, Near-black (#1A1714) text
 - Signature: Gantt timeline ribbon — each dish is a horizontal bar split into three color-coded phase zones: prep (diagonal hatch pattern), cook (solid forest green), rest (dotted border). In Service Mode, a live playhead line advances through all dish bars like a DAW transport bar, showing exactly where "now" falls across every cook in progress. Category color-coding via left border accents on dish cards (7 distinct category colors).
 
+## LoadOrder — 2026-03-18
+- Style: "Letterpress Broadside" — 19th century theatrical broadside / letterpress print aesthetic. Warm cream paper stock, deep navy and crimson ink, condensed woodtype headline font (Ultra), ornamental border rules. Unexpected pairing: stately Victorian print design applied to a TTRPG combat tracker — the contrast between "parchment and ruled lines" and "who has Stunned on them" is the whole visual identity.
+- Palette: Aged cream (#F7F3EA) background, Navy (#1B2D4A) primary/headers, Crimson (#A8212A) active turn/damage, Copper (#B5762A) PC type/HP bars, Sage (#3A5C44) NPC type/heals, Border (#C4B898) rules/dividers
+- Signature: Active-turn combatant card gets a full crimson flush border with name rendered in huge Ultra woodtype at 1.4rem — the "MOST WANTED" broadside treatment. Double-rule letterpress border frame on every card via box-shadow inset layering. Corner diamond ornaments (◆) on all cards. HP bars color-shift from sage through copper to crimson as HP depletes.
+
 ---
 *New entries appended automatically after each build.*
 

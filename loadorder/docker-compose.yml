@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  loadorder:
+    build: .
+    container_name: loadorder
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - NGINX_PORT=3165
+    labels:
+      - "com.appfactory.app=loadorder"
+      - "com.appfactory.description=TTRPG Combat Initiative Tracker"

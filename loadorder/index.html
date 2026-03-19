@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LoadOrder — TTRPG Combat Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Ultra&family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;600&family=Playfair+Display+SC:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     LOADORDER — Letterpress Broadside Design System
+     19th century theatrical broadside / letterpress print aesthetic
+     ============================================================ */
+  :root {
+    --bg: #F7F3EA;
+    --surface: #FDFAF5;
+    --navy: #1B2D4A;
+    --crimson: #A8212A;
+    --copper: #B5762A;
+    --sage: #3A5C44;
+    --border: #C4B898;
+    --muted: #7A6E5E;
+    --text: #1E1912;
+    --pale: #EDE8DC;
+    --active-bg: #FFF8F0;
+    --ko-bg: #F5F0EA;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Playfair Display', Georgia, serif;
+    min-height: 100vh;
+    /* Subtle paper texture via noise-like pattern */
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(180,160,120,0.06) 31px, rgba(180,160,120,0.06) 32px),
+      repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(180,160,120,0.04) 47px, rgba(180,160,120,0.04) 48px);
+  }
+
+  /* ============================================================
+     HEADER / MASTHEAD
+     ============================================================ */
+  .masthead {
+    background: var(--navy);
+    color: var(--surface);
+    text-align: center;
+    padding: 20px 24px 16px;
+    border-bottom: 4px double var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .masthead::before,
+  .masthead::after {
+    content: '◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆';
+    display: block;
+    font-size: 10px;
+    color: rgba(196,184,152,0.4);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .masthead::after { margin-bottom: 0; margin-top: 4px; }
+
+  .masthead-title {
+    font-family: 'Ultra', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    letter-spacing: 0.06em;
+    color: #F7F3EA;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .masthead-subtitle {
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    color: var(--border);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  .masthead-rule {
+    width: 60px;
+    height: 2px;
+    background: var(--crimson);
+    margin: 10px auto 0;
+  }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .app-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: calc(100vh - 130px);
+  }
+
+  /* Left panel — add combatant + controls */
+  .left-panel {
+    background: var(--surface);
+    border-right: 3px solid var(--border);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Right panel — initiative order */
+  .right-panel {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ============================================================
+     SECTION HEADERS (letterpress style)
+     ============================================================ */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .section-header h2 {
+    font-family: 'Ultra', serif;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--navy);
+  }
+
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  /* ============================================================
+     ROUND TRACKER
+     ============================================================ */
+  .round-tracker {
+    background: var(--navy);
+    color: var(--surface);
+    border-radius: 2px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .round-info {
+    text-align: center;
+    flex: 1;
+  }
+
+  .round-label {
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--border);
+    text-transform: uppercase;
+  }
+
+  .round-number {
+    font-family: 'Ultra', serif;
+    font-size: 2.5rem;
+    color: #F7F3EA;
+    line-height: 1;
+  }
+
+  .elapsed-info {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--border);
+    margin-top: 2px;
+  }
+
+  .round-btn {
+    background: none;
+    border: 1px solid rgba(196,184,152,0.4);
+    color: var(--surface);
+    border-radius: 2px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .round-btn:hover { background: rgba(168,33,42,0.6); border-color: var(--crimson); }
+
+  .next-turn-btn {
+    width: 100%;
+    background: var(--crimson);
+    color: white;
+    border: none;
+    border-radius: 2px;
+    padding: 12px;
+    font-family: 'Ultra', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .next-turn-btn:hover { background: #8B1A22; transform: translateY(-1px); }
+  .next-turn-btn:active { transform: translateY(0); }
+
+  .end-encounter-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 2px;
+    padding: 8px;
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .end-encounter-btn:hover { border-color: var(--crimson); color: var(--crimson); }
+
+  /* ============================================================
+     ADD COMBATANT FORM
+     ============================================================ */
+  .add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    background: var(--pale);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 7px 9px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  input:focus, select:focus {
+    border-color: var(--navy);
+    background: var(--surface);
+  }
+
+  .type-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .type-btn {
+    padding: 7px 4px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--pale);
+    cursor: pointer;
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .type-btn.active-pc {
+    background: var(--copper);
+    border-color: var(--copper);
+    color: white;
+  }
+  .type-btn.active-npc {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: white;
+  }
+
+  .add-btn {
+    background: var(--navy);
+    color: var(--surface);
+    border: none;
+    border-radius: 2px;
+    padding: 11px;
+    font-family: 'Ultra', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .add-btn:hover { background: #2A4066; }
+
+  /* ============================================================
+     ENCOUNTER HEADER
+     ============================================================ */
+  .encounter-header {
+    text-align: center;
+    padding: 10px 0 4px;
+    border-bottom: 3px double var(--border);
+    margin-bottom: 4px;
+  }
+
+  .encounter-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .encounter-ornament {
+    color: var(--border);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .encounter-name {
+    font-family: 'Ultra', serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--navy);
+  }
+
+  .encounter-meta {
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    border: 2px dashed var(--border);
+    border-radius: 2px;
+  }
+
+  .empty-ornament {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  .empty-title {
+    font-family: 'Ultra', serif;
+    font-size: 1.2rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .empty-text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ============================================================
+     COMBATANT CARDS — Letterpress Broadside Style
+     ============================================================ */
+  .combatant-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .combatant-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 12px 14px;
+    position: relative;
+    transition: all 0.2s;
+    /* Letterpress card border frame — double rule effect */
+    box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 4px rgba(196,184,152,0.3);
+  }
+
+  /* Corner diamond ornaments */
+  .combatant-card::before,
+  .combatant-card::after {
+    content: '◆';
+    position: absolute;
+    font-size: 8px;
+    color: var(--border);
+    top: 5px;
+  }
+  .combatant-card::before { left: 7px; }
+  .combatant-card::after { right: 7px; }
+
+  /* Active turn card — crimson flush treatment */
+  .combatant-card.active-turn {
+    background: var(--active-bg);
+    border: 2px solid var(--crimson);
+    box-shadow:
+      inset 0 0 0 3px var(--active-bg),
+      inset 0 0 0 5px rgba(168,33,42,0.25),
+      0 4px 16px rgba(168,33,42,0.15);
+  }
+  .combatant-card.active-turn::before,
+  .combatant-card.active-turn::after { color: var(--crimson); }
+
+  /* KO'd cards */
+  .combatant-card.ko-card {
+    opacity: 0.55;
+    background: var(--ko-bg);
+  }
+  .combatant-card.ko-card .combatant-name { text-decoration: line-through; }
+
+  /* Card header row */
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .initiative-badge {
+    background: var(--navy);
+    color: var(--surface);
+    border-radius: 2px;
+    min-width: 38px;
+    text-align: center;
+    padding: 4px 6px;
+    flex-shrink: 0;
+  }
+  .initiative-badge .init-label {
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    color: var(--border);
+    display: block;
+    line-height: 1;
+  }
+  .initiative-badge .init-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.1;
+    display: block;
+  }
+  .combatant-card.active-turn .initiative-badge {
+    background: var(--crimson);
+  }
+
+  .card-name-area {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Big letterpress name for active turn */
+  .combatant-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--navy);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: font-size 0.2s, color 0.2s;
+  }
+  .combatant-card.active-turn .combatant-name {
+    font-size: 1.4rem;
+    color: var(--crimson);
+    font-family: 'Ultra', serif;
+    letter-spacing: 0.04em;
+  }
+
+  .type-tag {
+    display: inline-block;
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    padding: 1px 6px;
+    border-radius: 2px;
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+  .type-tag.pc { background: rgba(181,118,42,0.15); color: var(--copper); border: 1px solid rgba(181,118,42,0.3); }
+  .type-tag.npc { background: rgba(58,92,68,0.12); color: var(--sage); border: 1px solid rgba(58,92,68,0.3); }
+
+  .ac-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    background: var(--pale);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 4px 8px;
+  }
+  .ac-label {
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .ac-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--navy);
+    line-height: 1.1;
+  }
+
+  /* Remove button */
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--border);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px 4px;
+    border-radius: 2px;
+    transition: color 0.15s;
+    flex-shrink: 0;
+  }
+  .remove-btn:hover { color: var(--crimson); }
+
+  /* ============================================================
+     HP BAR + CONTROLS
+     ============================================================ */
+  .hp-section {
+    margin-bottom: 10px;
+  }
+
+  .hp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .hp-fraction {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .hp-fraction .hp-current { font-size: 1rem; }
+  .hp-fraction .hp-max { color: var(--muted); font-size: 0.75rem; }
+
+  .hp-bar-track {
+    height: 8px;
+    background: var(--pale);
+    border: 1px solid var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .hp-bar-fill {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+  /* Color shifts: green → copper → crimson as HP depletes */
+
+  .hp-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hp-input {
+    width: 60px !important;
+    text-align: center;
+    padding: 5px 6px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .hp-btn {
+    flex: 1;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .hp-btn.dmg {
+    background: rgba(168,33,42,0.08);
+    border-color: rgba(168,33,42,0.3);
+    color: var(--crimson);
+  }
+  .hp-btn.dmg:hover { background: var(--crimson); color: white; }
+  .hp-btn.heal {
+    background: rgba(58,92,68,0.08);
+    border-color: rgba(58,92,68,0.3);
+    color: var(--sage);
+  }
+  .hp-btn.heal:hover { background: var(--sage); color: white; }
+  .hp-btn.temp {
+    background: rgba(181,118,42,0.08);
+    border-color: rgba(181,118,42,0.3);
+    color: var(--copper);
+  }
+  .hp-btn.temp:hover { background: var(--copper); color: white; }
+
+  /* ============================================================
+     DEATH SAVES
+     ============================================================ */
+  .death-saves {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: rgba(168,33,42,0.06);
+    border: 1px solid rgba(168,33,42,0.2);
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .death-save-label {
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--crimson);
+    flex-shrink: 0;
+  }
+
+  .death-save-pips {
+    display: flex;
+    gap: 4px;
+  }
+
+  .death-pip {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .death-pip.success { border-color: var(--sage); }
+  .death-pip.success.filled { background: var(--sage); }
+  .death-pip.failure { border-color: var(--crimson); }
+  .death-pip.failure.filled { background: var(--crimson); }
+
+  .death-save-separator {
+    font-size: 0.7rem;
+    color: var(--border);
+    margin: 0 4px;
+  }
+
+  /* ============================================================
+     CONDITIONS
+     ============================================================ */
+  .conditions-section { margin-top: 8px; }
+
+  .conditions-label {
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .conditions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .condition-chip {
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--pale);
+    color: var(--muted);
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .condition-chip:hover { border-color: var(--navy); color: var(--navy); }
+  .condition-chip.active {
+    background: var(--crimson);
+    border-color: var(--crimson);
+    color: white;
+  }
+  .condition-chip.concentration-chip.active {
+    background: var(--copper);
+    border-color: var(--copper);
+    color: white;
+  }
+
+  /* Notes */
+  .notes-input {
+    width: 100%;
+    background: var(--pale);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 5px 8px;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.8rem;
+    color: var(--text);
+    font-style: italic;
+    resize: none;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-top: 8px;
+  }
+  .notes-input:focus { border-color: var(--navy); }
+  .notes-input::placeholder { color: var(--muted); opacity: 0.6; }
+
+  /* ============================================================
+     CONCENTRATION INDICATOR
+     ============================================================ */
+  .conc-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--copper);
+    background: rgba(181,118,42,0.1);
+    border: 1px solid rgba(181,118,42,0.3);
+    border-radius: 2px;
+    padding: 1px 6px;
+    margin-left: 6px;
+  }
+
+  /* ============================================================
+     HP FLASH ANIMATIONS
+     ============================================================ */
+  @keyframes dmg-flash {
+    0% { background-color: rgba(168,33,42,0.4); }
+    100% { background-color: transparent; }
+  }
+  @keyframes heal-flash {
+    0% { background-color: rgba(58,92,68,0.4); }
+    100% { background-color: transparent; }
+  }
+  .flash-dmg { animation: dmg-flash 0.4s ease-out; }
+  .flash-heal { animation: heal-flash 0.4s ease-out; }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 700px) {
+    .app-layout {
+      grid-template-columns: 1fr;
+    }
+    .left-panel {
+      border-right: none;
+      border-bottom: 3px solid var(--border);
+    }
+  }
+
+  /* ============================================================
+     SCROLLBAR
+     ============================================================ */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--pale); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ============================================================
+     QUICK TOAST NOTIFICATION
+     ============================================================ */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  .toast {
+    background: var(--navy);
+    color: var(--surface);
+    padding: 10px 16px;
+    border-radius: 2px;
+    font-family: 'Playfair Display SC', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    border-left: 3px solid var(--crimson);
+    animation: toast-in 0.2s ease-out, toast-out 0.3s ease-in 2.5s forwards;
+    pointer-events: none;
+  }
+  @keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
+
+  /* ============================================================
+     ENCOUNTER NAME EDIT
+     ============================================================ */
+  .enc-name-input {
+    font-family: 'Ultra', serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--navy);
+    background: none;
+    border: none;
+    border-bottom: 2px dashed var(--border);
+    outline: none;
+    text-align: center;
+    width: auto;
+    min-width: 80px;
+    padding: 2px 4px;
+  }
+  .enc-name-input:focus { border-bottom-color: var(--navy); }
+
+  /* Keyboard shortcut hint */
+  .kbd-hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    background: var(--pale);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1px 4px;
+    display: inline-block;
+    letter-spacing: 0.05em;
+  }
+
+  .shortcut-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--pale);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 0.62rem;
+    color: var(--muted);
+    font-family: 'Playfair Display SC', serif;
+    letter-spacing: 0.08em;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-title">⚔ LoadOrder</div>
+  <div class="masthead-subtitle">TTRPG Combat Initiative Tracker</div>
+  <div class="masthead-rule"></div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div class="app-layout">
+
+  <!-- LEFT PANEL: Controls -->
+  <aside class="left-panel">
+
+    <!-- Round Tracker -->
+    <div>
+      <div class="section-header">
+        <h2>Combat</h2>
+        <div class="section-rule"></div>
+      </div>
+
+      <div class="round-tracker" id="roundTracker">
+        <button class="round-btn" id="prevTurnBtn" title="Previous Turn (←)">‹</button>
+        <div class="round-info">
+          <span class="round-label">Round</span>
+          <div class="round-number" id="roundNumber">1</div>
+          <div class="elapsed-info" id="elapsedTime">0 sec elapsed</div>
+        </div>
+        <button class="round-btn" id="nextTurnBtnTop" title="Next Turn (→)">›</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+        <button class="next-turn-btn" id="nextTurnBtn">Next Turn ›</button>
+        <button class="end-encounter-btn" id="endEncounterBtn">⚑ End Encounter</button>
+      </div>
+    </div>
+
+    <!-- Add Combatant -->
+    <div>
+      <div class="section-header">
+        <h2>Add Combatant</h2>
+        <div class="section-rule"></div>
+      </div>
+
+      <form class="add-form" id="addForm" autocomplete="off">
+        <div class="form-group">
+          <label for="inputName">Name</label>
+          <input type="text" id="inputName" placeholder="Goblin, Thorin, etc." required maxlength="40" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inputInit">Initiative</label>
+            <input type="number" id="inputInit" placeholder="14" min="-10" max="40" required />
+          </div>
+          <div class="form-group">
+            <label for="inputAC">Armor Class</label>
+            <input type="number" id="inputAC" placeholder="15" min="1" max="30" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inputMaxHP">Max HP</label>
+            <input type="number" id="inputMaxHP" placeholder="30" min="1" max="999" required />
+          </div>
+          <div class="form-group">
+            <label>Current HP</label>
+            <input type="number" id="inputCurHP" placeholder="= Max HP" min="0" max="999" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Type</label>
+          <div class="type-selector">
+            <button type="button" class="type-btn active-pc" id="typePC" data-type="PC">Player Character</button>
+            <button type="button" class="type-btn" id="typeNPC" data-type="NPC">Monster / NPC</button>
+          </div>
+        </div>
+
+        <button type="submit" class="add-btn">+ Add to Order</button>
+      </form>
+    </div>
+
+    <!-- Keyboard shortcuts -->
+    <div class="shortcut-bar">
+      <span class="kbd-hint">Space / →</span> Next Turn
+      <span class="kbd-hint">←</span> Prev
+      <span class="kbd-hint">N</span> New Combatant Focus
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL: Initiative Order -->
+  <main class="right-panel">
+
+    <div class="encounter-header">
+      <div class="encounter-title-row">
+        <span class="encounter-ornament">⸻</span>
+        <input class="enc-name-input" id="encounterNameInput" value="The Encounter" maxlength="40" title="Click to rename" />
+        <span class="encounter-ornament">⸻</span>
+      </div>
+      <div class="encounter-meta" id="encounterMeta">Add combatants to begin combat</div>
+    </div>
+
+    <div id="combatantList" class="combatant-list">
+      <div class="empty-state">
+        <div class="empty-ornament">⚔</div>
+        <div class="empty-title">No Combatants Yet</div>
+        <div class="empty-text">Add players and monsters using the panel on the left, then press <strong>Next Turn</strong> to begin.</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============================================================
+// LOADORDER — Combat Tracker Logic
+// ============================================================
+
+const CONDITIONS = [
+  'Blinded', 'Charmed', 'Deafened', 'Exhaustion',
+  'Frightened', 'Grappled', 'Incapacitated', 'Invisible',
+  'Paralyzed', 'Petrified', 'Poisoned', 'Prone',
+  'Restrained', 'Stunned', 'Unconscious'
+];
+
+// ---- State ----
+let state = {
+  combatants: [],    // sorted by initiative desc
+  activeIndex: -1,   // -1 = not started
+  round: 1,
+  started: false,
+  nextId: 1
+};
+
+let selectedType = 'PC';
+
+// ---- Persistence ----
+function saveState() {
+  try { localStorage.setItem('loadorder_state', JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem('loadorder_state');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      state = parsed;
+    }
+  } catch(e) {}
+}
+
+// ---- Init ----
+loadState();
+render();
+
+// ---- Event Listeners ----
+document.getElementById('addForm').addEventListener('submit', handleAddCombatant);
+document.getElementById('nextTurnBtn').addEventListener('click', nextTurn);
+document.getElementById('nextTurnBtnTop').addEventListener('click', nextTurn);
+document.getElementById('prevTurnBtn').addEventListener('click', prevTurn);
+document.getElementById('endEncounterBtn').addEventListener('click', endEncounter);
+
+document.getElementById('typePC').addEventListener('click', () => setType('PC'));
+document.getElementById('typeNPC').addEventListener('click', () => setType('NPC'));
+
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+  if (e.code === 'Space' || e.code === 'ArrowRight') { e.preventDefault(); nextTurn(); }
+  if (e.code === 'ArrowLeft') { e.preventDefault(); prevTurn(); }
+  if (e.code === 'KeyN') { e.preventDefault(); document.getElementById('inputName').focus(); }
+});
+
+function setType(type) {
+  selectedType = type;
+  document.getElementById('typePC').className = 'type-btn' + (type === 'PC' ? ' active-pc' : '');
+  document.getElementById('typeNPC').className = 'type-btn' + (type === 'NPC' ? ' active-npc' : '');
+}
+
+// ---- Add Combatant ----
+function handleAddCombatant(e) {
+  e.preventDefault();
+  const name = document.getElementById('inputName').value.trim();
+  const init = parseInt(document.getElementById('inputInit').value, 10);
+  const ac = parseInt(document.getElementById('inputAC').value, 10) || null;
+  const maxHp = parseInt(document.getElementById('inputMaxHP').value, 10);
+  const curHpRaw = document.getElementById('inputCurHP').value;
+  const curHp = curHpRaw !== '' ? parseInt(curHpRaw, 10) : maxHp;
+
+  if (!name || isNaN(init) || isNaN(maxHp)) return;
+
+  const combatant = {
+    id: state.nextId++,
+    name,
+    initiative: init,
+    ac,
+    maxHp,
+    currentHp: Math.min(curHp, maxHp),
+    tempHp: 0,
+    type: selectedType,
+    conditions: [],
+    concentration: false,
+    notes: '',
+    deathSaves: { successes: 0, failures: 0 },
+    isKO: curHp <= 0
+  };
+
+  state.combatants.push(combatant);
+  sortCombatants();
+
+  // If combat is in progress, adjust activeIndex
+  if (state.started && state.activeIndex >= 0) {
+    // Keep the same combatant active
+    const activeId = state.combatants[state.activeIndex]?.id;
+    if (activeId) {
+      const newIdx = state.combatants.findIndex(c => c.id === activeId);
+      if (newIdx >= 0) state.activeIndex = newIdx;
+    }
+  }
+
+  e.target.reset();
+  setType('PC');
+  saveState();
+  render();
+  showToast(`${name} added to initiative order`);
+}
+
+function sortCombatants() {
+  // Sort descending by initiative
+  state.combatants.sort((a, b) => b.initiative - a.initiative);
+}
+
+// ---- Turn Navigation ----
+function nextTurn() {
+  if (state.combatants.length === 0) return;
+
+  if (!state.started) {
+    state.started = true;
+    state.activeIndex = 0;
+    state.round = 1;
+  } else {
+    const prevIdx = state.activeIndex;
+    state.activeIndex = (state.activeIndex + 1) % state.combatants.length;
+    if (state.activeIndex === 0) {
+      state.round++;
+      showToast(`Round ${state.round} begins!`);
+    }
+  }
+
+  saveState();
+  render();
+  scrollToActive();
+}
+
+function prevTurn() {
+  if (!state.started || state.combatants.length === 0) return;
+
+  state.activeIndex = (state.activeIndex - 1 + state.combatants.length) % state.combatants.length;
+  if (state.activeIndex === state.combatants.length - 1 && state.round > 1) {
+    state.round--;
+  }
+
+  saveState();
+  render();
+  scrollToActive();
+}
+
+function endEncounter() {
+  if (state.combatants.length > 0) {
+    if (!confirm('End the encounter? This will reset initiative but keep combatants.')) return;
+  }
+  state.activeIndex = -1;
+  state.round = 1;
+  state.started = false;
+  saveState();
+  render();
+  showToast('Encounter ended. Round tracker reset.');
+}
+
+function scrollToActive() {
+  const active = document.querySelector('.combatant-card.active-turn');
+  if (active) {
+    active.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ---- HP Management ----
+function applyHpChange(id, amount) {
+  const c = state.combatants.find(c => c.id === id);
+  if (!c) return;
+
+  if (amount < 0) {
+    // Damage: drain tempHp first
+    let dmg = Math.abs(amount);
+    if (c.tempHp > 0) {
+      const absorbed = Math.min(c.tempHp, dmg);
+      c.tempHp -= absorbed;
+      dmg -= absorbed;
+    }
+    c.currentHp = Math.max(0, c.currentHp - dmg);
+  } else {
+    // Heal: restores real HP, not temp
+    c.currentHp = Math.min(c.maxHp, c.currentHp + amount);
+    if (c.currentHp > 0) {
+      c.deathSaves = { successes: 0, failures: 0 };
+      c.isKO = false;
+    }
+  }
+
+  c.isKO = c.currentHp === 0;
+  saveState();
+  render();
+
+  // Flash animation
+  const card = document.querySelector(`[data-id="${id}"]`);
+  if (card) {
+    card.classList.remove('flash-dmg', 'flash-heal');
+    void card.offsetWidth; // trigger reflow
+    card.classList.add(amount < 0 ? 'flash-dmg' : 'flash-heal');
+  }
+}
+
+function applyTempHp(id, amount) {
+  const c = state.combatants.find(c => c.id === id);
+  if (!c) return;
+  c.tempHp = Math.max(c.tempHp, amount); // temp HP doesn't stack, take highest
+  saveState();
+  render();
+}
+
+function removeCombatant(id) {
+  const c = state.combatants.find(c => c.id === id);
+  if (!c) return;
+  if (!confirm(`Remove ${c.name} from initiative?`)) return;
+
+  const removedIdx = state.combatants.findIndex(c => c.id === id);
+  state.combatants = state.combatants.filter(c => c.id !== id);
+
+  if (state.started && state.activeIndex >= removedIdx) {
+    state.activeIndex = Math.max(0, state.activeIndex - 1);
+    if (state.combatants.length === 0) {
+      state.activeIndex = -1;
+      state.started = false;
+    }
+  }
+
+  saveState();
+  render();
+}
+
+function toggleCondition(combatantId, condition) {
+  const c = state.combatants.find(c => c.id === combatantId);
+  if (!c) return;
+  const idx = c.conditions.indexOf(condition);
+  if (idx >= 0) {
+    c.conditions.splice(idx, 1);
+  } else {
+    c.conditions.push(condition);
+  }
+  saveState();
+  render();
+}
+
+function toggleConcentration(id) {
+  const c = state.combatants.find(c => c.id === id);
+  if (!c) return;
+  c.concentration = !c.concentration;
+  saveState();
+  render();
+}
+
+function toggleDeathSave(id, type) {
+  const c = state.combatants.find(c => c.id === id);
+  if (!c) return;
+  const saves = c.deathSaves;
+  if (type === 'success') {
+    saves.successes = saves.successes >= 3 ? 0 : saves.successes + 1;
+    if (saves.successes >= 3) showToast(`${c.name} stabilizes!`);
+  } else {
+    saves.failures = saves.failures >= 3 ? 0 : saves.failures + 1;
+    if (saves.failures >= 3) showToast(`${c.name} has died! ☠`);
+  }
+  saveState();
+  render();
+}
+
+function updateNotes(id, value) {
+  const c = state.combatants.find(c => c.id === id);
+  if (!c) return;
+  c.notes = value;
+  saveState();
+}
+
+// ---- HP Bar Color ----
+function hpBarColor(current, max) {
+  const pct = max > 0 ? current / max : 0;
+  if (pct > 0.5) return 'var(--sage)';
+  if (pct > 0.25) return 'var(--copper)';
+  if (pct > 0) return 'var(--crimson)';
+  return '#666';
+}
+
+// ---- Elapsed Time ----
+function formatElapsed(rounds) {
+  const sec = (rounds - 1) * 6;
+  if (sec < 60) return `${sec} sec elapsed`;
+  const min = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${min}m ${s}s elapsed`;
+}
+
+// ---- Render ----
+function render() {
+  renderRound();
+  renderCombatantList();
+  renderMeta();
+}
+
+function renderRound() {
+  document.getElementById('roundNumber').textContent = state.round;
+  document.getElementById('elapsedTime').textContent = formatElapsed(state.round);
+}
+
+function renderMeta() {
+  const meta = document.getElementById('encounterMeta');
+  const n = state.combatants.length;
+  if (n === 0) {
+    meta.textContent = 'Add combatants to begin combat';
+  } else if (!state.started) {
+    meta.textContent = `${n} combatant${n !== 1 ? 's' : ''} — Press Next Turn to begin`;
+  } else {
+    const pcs = state.combatants.filter(c => c.type === 'PC').length;
+    const npcs = state.combatants.filter(c => c.type === 'NPC').length;
+    const active = state.combatants[state.activeIndex];
+    meta.textContent = `Round ${state.round} • ${pcs} PC${pcs !== 1 ? 's' : ''}, ${npcs} NPC${npcs !== 1 ? 's' : ''} • Active: ${active?.name || '—'}`;
+  }
+}
+
+function renderCombatantList() {
+  const container = document.getElementById('combatantList');
+
+  if (state.combatants.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-ornament">⚔</div>
+        <div class="empty-title">No Combatants Yet</div>
+        <div class="empty-text">Add players and monsters using the panel on the left, then press <strong>Next Turn</strong> to begin.</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  state.combatants.forEach((c, idx) => {
+    const card = buildCombatantCard(c, idx);
+    container.appendChild(card);
+  });
+}
+
+function buildCombatantCard(c, idx) {
+  const isActive = state.started && idx === state.activeIndex;
+  const isKO = c.currentHp === 0;
+  const hpPct = c.maxHp > 0 ? Math.max(0, c.currentHp / c.maxHp) * 100 : 0;
+  const fillColor = hpBarColor(c.currentHp, c.maxHp);
+
+  const div = document.createElement('div');
+  div.className = `combatant-card${isActive ? ' active-turn' : ''}${isKO ? ' ko-card' : ''}`;
+  div.setAttribute('data-id', c.id);
+
+  // Death saves if HP = 0
+  const deathSavesHtml = isKO ? `
+    <div class="death-saves">
+      <span class="death-save-label">Death Saves</span>
+      <div class="death-save-pips">
+        ${[0,1,2].map(i => `
+          <div class="death-pip success ${i < c.deathSaves.successes ? 'filled' : ''}"
+               onclick="toggleDeathSave(${c.id},'success')" title="Success"></div>
+        `).join('')}
+      </div>
+      <span class="death-save-separator">|</span>
+      <div class="death-save-pips">
+        ${[0,1,2].map(i => `
+          <div class="death-pip failure ${i < c.deathSaves.failures ? 'filled' : ''}"
+               onclick="toggleDeathSave(${c.id},'failure')" title="Failure"></div>
+        `).join('')}
+      </div>
+    </div>` : '';
+
+  // Conditions
+  const condHtml = CONDITIONS.map(cond => `
+    <span class="condition-chip ${c.conditions.includes(cond) ? 'active' : ''}"
+          onclick="toggleCondition(${c.id},'${cond}')">${cond}</span>
+  `).join('');
+
+  const concHtml = `
+    <span class="condition-chip concentration-chip ${c.concentration ? 'active' : ''}"
+          onclick="toggleConcentration(${c.id})">◉ Conc.</span>
+  `;
+
+  const concIndicator = c.concentration ? `<span class="conc-indicator">◉ Conc</span>` : '';
+
+  div.innerHTML = `
+    <div class="card-header">
+      <div class="initiative-badge">
+        <span class="init-label">Init</span>
+        <span class="init-value">${c.initiative}</span>
+      </div>
+      <div class="card-name-area">
+        <div class="combatant-name">${escHtml(c.name)}${concIndicator}</div>
+        <div>
+          <span class="type-tag ${c.type.toLowerCase()}">${c.type}</span>
+          ${c.tempHp > 0 ? `<span class="type-tag" style="background:rgba(181,118,42,0.15);color:var(--copper);border-color:rgba(181,118,42,0.3)">+${c.tempHp} Temp</span>` : ''}
+        </div>
+      </div>
+      ${c.ac !== null ? `
+        <div class="ac-badge">
+          <span class="ac-label">AC</span>
+          <span class="ac-value">${c.ac}</span>
+        </div>` : ''}
+      <button class="remove-btn" onclick="removeCombatant(${c.id})" title="Remove from encounter">✕</button>
+    </div>
+
+    <div class="hp-section">
+      <div class="hp-header">
+        <span class="hp-fraction">
+          <span class="hp-current">${c.currentHp}</span>
+          <span class="hp-max"> / ${c.maxHp} HP</span>
+        </span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--muted)">
+          ${Math.round(hpPct)}%
+        </span>
+      </div>
+      <div class="hp-bar-track">
+        <div class="hp-bar-fill" style="width:${hpPct}%;background:${fillColor}"></div>
+      </div>
+      <div class="hp-controls">
+        <input type="number" class="hp-input" id="hpInput_${c.id}" placeholder="Amt" min="1" max="999" />
+        <button class="hp-btn dmg" onclick="applyHpChange_from_input(${c.id}, -1)">⚔ Dmg</button>
+        <button class="hp-btn heal" onclick="applyHpChange_from_input(${c.id}, 1)">✦ Heal</button>
+        <button class="hp-btn temp" onclick="applyTempHp_from_input(${c.id})">◈ Temp</button>
+      </div>
+    </div>
+
+    ${deathSavesHtml}
+
+    <div class="conditions-section">
+      <span class="conditions-label">Conditions &amp; Status</span>
+      <div class="conditions-grid">
+        ${concHtml}
+        ${condHtml}
+      </div>
+    </div>
+
+    <textarea class="notes-input" rows="1"
+      placeholder="Notes (spells, tactics, concentrating on...)"
+      onchange="updateNotes(${c.id}, this.value)"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+    >${escHtml(c.notes)}</textarea>
+  `;
+
+  return div;
+}
+
+function applyHpChange_from_input(id, sign) {
+  const input = document.getElementById(`hpInput_${id}`);
+  const val = parseInt(input.value, 10);
+  if (isNaN(val) || val <= 0) {
+    input.style.borderColor = 'var(--crimson)';
+    setTimeout(() => input.style.borderColor = '', 600);
+    return;
+  }
+  applyHpChange(id, sign * val);
+  input.value = '';
+}
+
+function applyTempHp_from_input(id) {
+  const input = document.getElementById(`hpInput_${id}`);
+  const val = parseInt(input.value, 10);
+  if (isNaN(val) || val <= 0) {
+    input.style.borderColor = 'var(--crimson)';
+    setTimeout(() => input.style.borderColor = '', 600);
+    return;
+  }
+  applyTempHp(id, val);
+  input.value = '';
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ---- Toast ----
+function showToast(msg) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+</script>
+</body>
+</html>
