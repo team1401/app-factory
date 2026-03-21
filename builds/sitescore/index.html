@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteScore — Campsite Memory</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --ink: #1a1209;
+    --paper: #f4ede0;
+    --paper-dark: #e8dccb;
+    --leather: #8b5e3c;
+    --rust: #b84c2e;
+    --pine: #3a5a40;
+    --gold: #c9973a;
+    --sky: #6b9ab8;
+    --stone: #7a7268;
+    --shadow: rgba(26,18,9,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #2c1f0e;
+    font-family: 'Libre Baskerville', Georgia, serif;
+    color: var(--ink);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, rgba(139,94,60,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(58,90,64,0.2) 0%, transparent 50%);
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(180deg, #1a0e05 0%, #2c1f0e 100%);
+    border-bottom: 3px solid var(--gold);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+
+  .logo-text {
+    font-family: 'Space Mono', monospace;
+    color: var(--paper);
+    line-height: 1;
+  }
+
+  .logo-text .name { font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
+  .logo-text .tagline { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-top: 2px; }
+
+  .header-stats {
+    display: flex;
+    gap: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--stone);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .header-stats span { color: var(--gold); }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+
+  .search-wrap::before {
+    content: '⌕';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--stone);
+    pointer-events: none;
+  }
+
+  input[type="text"], input[type="number"], textarea, select {
+    font-family: 'Libre Baskerville', serif;
+    background: var(--paper);
+    border: 2px solid var(--paper-dark);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,151,58,0.15);
+  }
+
+  .search-wrap input { padding-left: 38px; }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--rust);
+    color: var(--paper);
+    border-color: var(--rust);
+  }
+  .btn-primary:hover { background: #a03e22; border-color: #a03e22; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--paper);
+    border-color: var(--stone);
+  }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-sm {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  select {
+    width: auto;
+    padding: 10px 32px 10px 14px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7268' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    cursor: pointer;
+  }
+
+  /* SORT FILTER ROW */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--stone);
+  }
+
+  .tag-filter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--stone);
+    background: transparent;
+    color: var(--stone);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+
+  .tag-btn.active {
+    background: var(--pine);
+    border-color: var(--pine);
+    color: var(--paper);
+  }
+
+  .tag-btn:hover:not(.active) {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* SITE GRID */
+  .site-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  /* SITE CARD */
+  .site-card {
+    background: var(--paper);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .site-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--pine) 0%, #2d4a32 100%);
+    padding: 14px 16px 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-header::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+
+  .card-type-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+
+  .card-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+
+  .card-location {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+  }
+
+  .card-overall {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 42px;
+    height: 42px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .card-overall .score { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1; }
+  .card-overall .of { font-family: 'Space Mono', monospace; font-size: 8px; color: rgba(26,18,9,0.6); }
+
+  .card-body { padding: 14px 16px; }
+
+  .criteria-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .criterion {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .crit-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--stone);
+  }
+
+  .crit-bar-wrap {
+    height: 6px;
+    background: var(--paper-dark);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .crit-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  .bar-1 { width: 10%; background: var(--rust); }
+  .bar-2 { width: 20%; background: #c96b2e; }
+  .bar-3 { width: 30%; background: var(--gold); }
+  .bar-4 { width: 40%; background: #8ba058; }
+  .bar-5 { width: 50%; background: var(--pine); }
+  .bar-6 { width: 60%; background: #4a7a52; }
+  .bar-7 { width: 70%; background: #3d8a50; }
+  .bar-8 { width: 80%; background: #2d9a50; }
+  .bar-9 { width: 90%; background: #1aaa50; }
+  .bar-10 { width: 100%; background: #0a9a40; }
+
+  .crit-score {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: right;
+  }
+
+  .card-notes {
+    font-size: 12px;
+    color: var(--stone);
+    line-height: 1.5;
+    font-style: italic;
+    margin-bottom: 12px;
+    border-top: 1px solid var(--paper-dark);
+    padding-top: 10px;
+    min-height: 20px;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--paper-dark);
+    padding-top: 10px;
+  }
+
+  .card-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--stone);
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .icon-btn {
+    background: transparent;
+    border: 1px solid var(--paper-dark);
+    color: var(--stone);
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .icon-btn:hover { border-color: var(--rust); color: var(--rust); }
+  .icon-btn.fav { color: var(--gold); border-color: var(--gold); }
+
+  .card-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .card-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--paper-dark);
+    color: var(--stone);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .card-tag.tag-electric { background: rgba(201,151,58,0.2); color: var(--gold); }
+  .card-tag.tag-water { background: rgba(107,154,184,0.2); color: var(--sky); }
+  .card-tag.tag-sewer { background: rgba(122,114,104,0.2); color: var(--stone); }
+  .card-tag.tag-wifi { background: rgba(58,90,64,0.2); color: var(--pine); }
+  .card-tag.tag-boondock { background: rgba(184,76,46,0.2); color: var(--rust); }
+  .card-tag.tag-pet { background: rgba(139,94,60,0.2); color: var(--leather); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--paper);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #1a0e05, #2c1f0e);
+    padding: 20px 24px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--gold);
+  }
+
+  .modal-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--paper);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--stone);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--rust); }
+
+  .modal-body { padding: 24px; }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--stone);
+    margin-bottom: 6px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* RATING SLIDERS */
+  .ratings-section {
+    background: var(--paper-dark);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .ratings-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--stone);
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ratings-title .avg-display {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    font-family: 'Libre Baskerville', serif;
+  }
+
+  .rating-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 30px;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .rating-row:last-child { margin-bottom: 0; }
+
+  .rating-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .rating-name .icon { font-size: 13px; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--pine) 0%, var(--pine) var(--pct, 50%), #ccc var(--pct, 50%), #ccc 100%);
+    outline: none;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 3px solid var(--pine);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    cursor: pointer;
+  }
+
+  .range-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: center;
+  }
+
+  /* CHECKBOX TAGS */
+  .tags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .tag-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .tag-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--pine);
+    cursor: pointer;
+  }
+
+  .tag-check span {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--stone);
+  }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--paper-dark);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--stone);
+  }
+
+  .empty-state .icon { font-size: 64px; opacity: 0.3; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 18px; color: var(--paper); opacity: 0.5; margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; max-width: 300px; margin: 0 auto 24px; opacity: 0.5; color: var(--paper); }
+
+  /* SCORE BIG */
+  .overall-score-big {
+    font-family: 'Space Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .header-stats { display: none; }
+    .site-grid { grid-template-columns: 1fr; }
+    .tags-grid { grid-template-columns: repeat(2, 1fr); }
+    .rating-row { grid-template-columns: 70px 1fr 25px; }
+  }
+
+  /* MAP LINK */
+  .map-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--sky);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .map-link:hover { color: var(--gold); }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--stone);
+    padding: 8px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0.7;
+  }
+
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* VISIT COUNT BADGE */
+  .visit-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    background: rgba(201,151,58,0.2);
+    color: var(--gold);
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+
+  /* NOTES EXPAND */
+  .notes-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">⛺</div>
+    <div class="logo-text">
+      <div class="name">SiteScore</div>
+      <div class="tagline">Campsite Memory</div>
+    </div>
+  </div>
+  <div class="header-stats" id="headerStats">
+    <div>Sites: <span id="statTotal">0</span></div>
+    <div>Avg: <span id="statAvg">—</span></div>
+    <div>⭐ Favs: <span id="statFavs">0</span></div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search sites, locations, notes…">
+    </div>
+    <select id="sortSelect">
+      <option value="recent">Most Recent</option>
+      <option value="score-hi">Highest Score</option>
+      <option value="score-lo">Lowest Score</option>
+      <option value="az">A → Z</option>
+      <option value="favs">Favorites First</option>
+    </select>
+    <button class="btn btn-primary" onclick="openAddModal()">+ Log Site</button>
+  </div>
+
+  <div class="filter-row">
+    <span class="filter-label">Filter:</span>
+    <div class="tag-filter" id="tagFilters">
+      <button class="tag-btn active" data-tag="all">All</button>
+      <button class="tag-btn" data-tag="electric">⚡ Electric</button>
+      <button class="tag-btn" data-tag="water">💧 Water</button>
+      <button class="tag-btn" data-tag="wifi">📶 WiFi</button>
+      <button class="tag-btn" data-tag="boondock">🌵 Boondock</button>
+      <button class="tag-btn" data-tag="pet">🐾 Pet-Friendly</button>
+      <button class="tag-btn" data-tag="favorite">⭐ Favorites</button>
+    </div>
+  </div>
+
+  <div id="siteGrid" class="site-grid"></div>
+  <div id="emptyState" class="empty-state" style="display:none">
+    <div class="icon">🗺️</div>
+    <h3>No sites logged yet</h3>
+    <p>Start building your campsite memory — rate sites you've stayed at and never forget the good ones.</p>
+    <button class="btn btn-primary" onclick="openAddModal()">Log Your First Site</button>
+  </div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Log New Site</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label class="form-label">Site Name *</label>
+        <input type="text" id="fName" placeholder="e.g. Lone Rock Beach Site 47">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Location / Park</label>
+          <input type="text" id="fLocation" placeholder="e.g. Page, AZ">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select id="fType">
+            <option value="campground">Campground</option>
+            <option value="boondock">Boondock / Dispersed</option>
+            <option value="rv-park">RV Park</option>
+            <option value="state-park">State Park</option>
+            <option value="national">National Park / Forest</option>
+            <option value="thousand-trails">Thousand Trails</option>
+            <option value="harvest-hosts">Harvest Hosts</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date Visited</label>
+          <input type="text" id="fDate" placeholder="e.g. Mar 2026">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nights Stayed</label>
+          <input type="number" id="fNights" placeholder="1" min="1">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Google Maps / Coordinates Link</label>
+        <input type="text" id="fMapLink" placeholder="https://maps.google.com/...">
+      </div>
+
+      <div class="ratings-section">
+        <div class="ratings-title">
+          <span>Ratings (1–10)</span>
+          <span>Overall: <span class="avg-display" id="avgDisplay">—</span></span>
+        </div>
+
+        <div class="rating-row">
+          <div class="rating-name"><span class="icon">📶</span> Signal</div>
+          <input type="range" id="rSignal" min="1" max="10" value="5" oninput="updateRange(this,'vSignal')">
+          <span class="range-val" id="vSignal">5</span>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name"><span class="icon">📐</span> Level</div>
+          <input type="range" id="rLevel" min="1" max="10" value="5" oninput="updateRange(this,'vLevel')">
+          <span class="range-val" id="vLevel">5</span>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name"><span class="icon">🌲</span> Shade</div>
+          <input type="range" id="rShade" min="1" max="10" value="5" oninput="updateRange(this,'vShade')">
+          <span class="range-val" id="vShade">5</span>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name"><span class="icon">🔇</span> Quiet</div>
+          <input type="range" id="rQuiet" min="1" max="10" value="5" oninput="updateRange(this,'vQuiet')">
+          <span class="range-val" id="vQuiet">5</span>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name"><span class="icon">🏔️</span> Views</div>
+          <input type="range" id="rViews" min="1" max="10" value="5" oninput="updateRange(this,'vViews')">
+          <span class="range-val" id="vViews">5</span>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name"><span class="icon">🚿</span> Facilities</div>
+          <input type="range" id="rFacilities" min="1" max="10" value="5" oninput="updateRange(this,'vFacilities')">
+          <span class="range-val" id="vFacilities">5</span>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name"><span class="icon">💰</span> Value</div>
+          <input type="range" id="rValue" min="1" max="10" value="5" oninput="updateRange(this,'vValue')">
+          <span class="range-val" id="vValue">5</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Hookups & Amenities</label>
+        <div class="tags-grid">
+          <label class="tag-check"><input type="checkbox" id="tElectric"> <span>⚡ Electric</span></label>
+          <label class="tag-check"><input type="checkbox" id="tWater"> <span>💧 Water</span></label>
+          <label class="tag-check"><input type="checkbox" id="tSewer"> <span>🪣 Sewer</span></label>
+          <label class="tag-check"><input type="checkbox" id="tWifi"> <span>📶 WiFi</span></label>
+          <label class="tag-check"><input type="checkbox" id="tPet"> <span>🐾 Pet-Friendly</span></label>
+          <label class="tag-check"><input type="checkbox" id="tPool"> <span>🏊 Pool</span></label>
+          <label class="tag-check"><input type="checkbox" id="tLaundry"> <span>👕 Laundry</span></label>
+          <label class="tag-check"><input type="checkbox" id="tFire"> <span>🔥 Fire Pit</span></label>
+          <label class="tag-check"><input type="checkbox" id="tPullThru"> <span>↔️ Pull-Thru</span></label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="fNotes" placeholder="What made it memorable? Anything to watch out for next visit?"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Price per Night (optional)</label>
+        <input type="text" id="fPrice" placeholder="e.g. $35 / night">
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSite()">Save Site</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'sitescore_v1';
+let sites = [];
+let editingId = null;
+let activeTagFilter = 'all';
+let searchQuery = '';
+let sortMode = 'recent';
+
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+function load() {
+  try { sites = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } 
+  catch { sites = []; }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(sites));
+}
+
+// ── RANGE SLIDERS ─────────────────────────────────────────────────────────────
+function updateRange(el, valId) {
+  const v = parseInt(el.value);
+  document.getElementById(valId).textContent = v;
+  const pct = ((v-1)/9*100).toFixed(0) + '%';
+  el.style.setProperty('--pct', pct);
+  updateAvgDisplay();
+}
+
+function updateAvgDisplay() {
+  const ids = ['rSignal','rLevel','rShade','rQuiet','rViews','rFacilities','rValue'];
+  const vals = ids.map(id => parseInt(document.getElementById(id).value));
+  const avg = (vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1);
+  document.getElementById('avgDisplay').textContent = avg;
+}
+
+function initRanges() {
+  const ids = ['rSignal','rLevel','rShade','rQuiet','rViews','rFacilities','rValue'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    const valId = 'v' + id.slice(1);
+    updateRange(el, valId);
+  });
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Log New Site';
+  resetForm();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditModal(id) {
+  const site = sites.find(s => s.id === id);
+  if (!site) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Site';
+  populateForm(site);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+
+function resetForm() {
+  document.getElementById('fName').value = '';
+  document.getElementById('fLocation').value = '';
+  document.getElementById('fType').value = 'campground';
+  document.getElementById('fDate').value = '';
+  document.getElementById('fNights').value = '';
+  document.getElementById('fMapLink').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('fPrice').value = '';
+  ['rSignal','rLevel','rShade','rQuiet','rViews','rFacilities','rValue'].forEach(id => {
+    document.getElementById(id).value = 5;
+  });
+  ['tElectric','tWater','tSewer','tWifi','tPet','tPool','tLaundry','tFire','tPullThru'].forEach(id => {
+    document.getElementById(id).checked = false;
+  });
+  initRanges();
+}
+
+function populateForm(site) {
+  document.getElementById('fName').value = site.name || '';
+  document.getElementById('fLocation').value = site.location || '';
+  document.getElementById('fType').value = site.type || 'campground';
+  document.getElementById('fDate').value = site.date || '';
+  document.getElementById('fNights').value = site.nights || '';
+  document.getElementById('fMapLink').value = site.mapLink || '';
+  document.getElementById('fNotes').value = site.notes || '';
+  document.getElementById('fPrice').value = site.price || '';
+
+  const r = site.ratings || {};
+  const map = {Signal:'rSignal',Level:'rLevel',Shade:'rShade',Quiet:'rQuiet',Views:'rViews',Facilities:'rFacilities',Value:'rValue'};
+  Object.entries(map).forEach(([k,id]) => {
+    document.getElementById(id).value = r[k] || 5;
+  });
+
+  const t = site.tags || [];
+  document.getElementById('tElectric').checked = t.includes('electric');
+  document.getElementById('tWater').checked = t.includes('water');
+  document.getElementById('tSewer').checked = t.includes('sewer');
+  document.getElementById('tWifi').checked = t.includes('wifi');
+  document.getElementById('tPet').checked = t.includes('pet');
+  document.getElementById('tPool').checked = t.includes('pool');
+  document.getElementById('tLaundry').checked = t.includes('laundry');
+  document.getElementById('tFire').checked = t.includes('fire');
+  document.getElementById('tPullThru').checked = t.includes('pullthru');
+
+  initRanges();
+}
+
+function saveSite() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { document.getElementById('fName').focus(); return; }
+
+  const tags = [];
+  if (document.getElementById('tElectric').checked) tags.push('electric');
+  if (document.getElementById('tWater').checked) tags.push('water');
+  if (document.getElementById('tSewer').checked) tags.push('sewer');
+  if (document.getElementById('tWifi').checked) tags.push('wifi');
+  if (document.getElementById('tPet').checked) tags.push('pet');
+  if (document.getElementById('tPool').checked) tags.push('pool');
+  if (document.getElementById('tLaundry').checked) tags.push('laundry');
+  if (document.getElementById('tFire').checked) tags.push('fire');
+  if (document.getElementById('tPullThru').checked) tags.push('pullthru');
+
+  const ratings = {
+    Signal: parseInt(document.getElementById('rSignal').value),
+    Level: parseInt(document.getElementById('rLevel').value),
+    Shade: parseInt(document.getElementById('rShade').value),
+    Quiet: parseInt(document.getElementById('rQuiet').value),
+    Views: parseInt(document.getElementById('rViews').value),
+    Facilities: parseInt(document.getElementById('rFacilities').value),
+    Value: parseInt(document.getElementById('rValue').value),
+  };
+  const overall = (Object.values(ratings).reduce((a,b)=>a+b,0) / 7).toFixed(1);
+
+  const type = document.getElementById('fType').value;
+  const isBoondock = type === 'boondock';
+  if (isBoondock && !tags.includes('boondock')) tags.push('boondock');
+
+  const site = {
+    id: editingId || Date.now().toString(),
+    name,
+    location: document.getElementById('fLocation').value.trim(),
+    type,
+    date: document.getElementById('fDate').value.trim(),
+    nights: document.getElementById('fNights').value,
+    mapLink: document.getElementById('fMapLink').value.trim(),
+    notes: document.getElementById('fNotes').value.trim(),
+    price: document.getElementById('fPrice').value.trim(),
+    ratings,
+    overall: parseFloat(overall),
+    tags,
+    favorite: editingId ? (sites.find(s=>s.id===editingId)?.favorite || false) : false,
+    createdAt: editingId ? (sites.find(s=>s.id===editingId)?.createdAt || Date.now()) : Date.now(),
+  };
+
+  if (editingId) {
+    const idx = sites.findIndex(s => s.id === editingId);
+    if (idx !== -1) sites[idx] = site;
+  } else {
+    sites.unshift(site);
+  }
+
+  save();
+  closeModal();
+  render();
+}
+
+// ── FAVORITE ──────────────────────────────────────────────────────────────────
+function toggleFavorite(id) {
+  const site = sites.find(s => s.id === id);
+  if (site) { site.favorite = !site.favorite; save(); render(); }
+}
+
+function deleteSite(id) {
+  if (!confirm('Delete this site?')) return;
+  sites = sites.filter(s => s.id !== id);
+  save();
+  render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function getBarClass(v) {
+  return 'bar-' + Math.min(10, Math.max(1, Math.round(v)));
+}
+
+function typeLabel(t) {
+  const map = {campground:'Campground',boondock:'Boondock',  'rv-park':'RV Park','state-park':'State Park',national:'National','thousand-trails':'Thousand Trails','harvest-hosts':'Harvest Hosts',other:'Other'};
+  return map[t] || t;
+}
+
+function tagDisplay(tag) {
+  const map = {electric:'⚡ Electric',water:'💧 Water',sewer:'🪣 Sewer',wifi:'📶 WiFi',pet:'🐾 Pet-Friendly',pool:'🏊 Pool',laundry:'👕 Laundry',fire:'🔥 Fire Pit',pullthru:'↔️ Pull-Thru',boondock:'🌵 Boondock'};
+  return map[tag] || tag;
+}
+
+function render() {
+  let filtered = [...sites];
+
+  // search
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      (s.location||'').toLowerCase().includes(q) ||
+      (s.notes||'').toLowerCase().includes(q)
+    );
+  }
+
+  // tag filter
+  if (activeTagFilter !== 'all') {
+    if (activeTagFilter === 'favorite') {
+      filtered = filtered.filter(s => s.favorite);
+    } else {
+      filtered = filtered.filter(s => s.tags && s.tags.includes(activeTagFilter));
+    }
+  }
+
+  // sort
+  if (sortMode === 'score-hi') filtered.sort((a,b) => b.overall - a.overall);
+  else if (sortMode === 'score-lo') filtered.sort((a,b) => a.overall - b.overall);
+  else if (sortMode === 'az') filtered.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sortMode === 'favs') filtered.sort((a,b) => (b.favorite?1:0) - (a.favorite?1:0));
+  else filtered.sort((a,b) => b.createdAt - a.createdAt);
+
+  // stats
+  const total = sites.length;
+  const favs = sites.filter(s=>s.favorite).length;
+  const avg = total ? (sites.reduce((a,s)=>a+s.overall,0)/total).toFixed(1) : '—';
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statAvg').textContent = avg;
+  document.getElementById('statFavs').textContent = favs;
+
+  const grid = document.getElementById('siteGrid');
+  const empty = document.getElementById('emptyState');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    if (sites.length > 0) {
+      empty.querySelector('h3').textContent = 'No matches';
+      empty.querySelector('p').textContent = 'Try a different search or filter.';
+      empty.querySelector('button').style.display = 'none';
+    }
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(s => {
+    const r = s.ratings || {};
+    const critKeys = ['Signal','Level','Shade','Quiet','Views','Facilities','Value'];
+    const critIcons = {Signal:'📶',Level:'📐',Shade:'🌲',Quiet:'🔇',Views:'🏔️',Facilities:'🚿',Value:'💰'};
+    const criteriaHTML = critKeys.map(k => `
+      <div class="criterion">
+        <div class="crit-label">${critIcons[k]} ${k}</div>
+        <div class="crit-bar-wrap"><div class="crit-bar ${getBarClass(r[k]||5)}"></div></div>
+      </div>
+    `).join('');
+
+    const tagsToShow = (s.tags||[]).filter(t => ['electric','water','sewer','wifi','pet','boondock','pullthru'].includes(t));
+    const tagsHTML = tagsToShow.slice(0,4).map(t => `<span class="card-tag tag-${t}">${tagDisplay(t)}</span>`).join('');
+
+    const mapHTML = s.mapLink ? `<a href="${s.mapLink}" target="_blank" class="map-link">📍 Map</a>` : '';
+    const nightsText = s.nights ? `${s.nights} night${s.nights > 1 ? 's' : ''}` : '';
+    const priceText = s.price ? ` · ${s.price}` : '';
+
+    return `
+    <div class="site-card">
+      <div class="card-header">
+        <div class="card-type-badge">${typeLabel(s.type)}</div>
+        <div class="card-name">${s.name}</div>
+        <div class="card-location">${s.location || ''}${nightsText ? ' · ' + nightsText : ''}${priceText}</div>
+        <div class="card-overall">
+          <div class="score">${s.overall.toFixed(1)}</div>
+          <div class="of">/10</div>
+        </div>
+      </div>
+      <div class="card-body">
+        ${tagsHTML ? `<div class="card-tags">${tagsHTML}</div>` : ''}
+        <div class="criteria-grid">${criteriaHTML}</div>
+        ${s.notes ? `<div class="card-notes notes-clamp">${s.notes}</div>` : ''}
+        <div class="card-footer">
+          <div>
+            ${s.date ? `<div class="card-date">📅 ${s.date}</div>` : ''}
+            ${mapHTML}
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn ${s.favorite ? 'fav' : ''}" onclick="toggleFavorite('${s.id}')" title="Favorite">⭐</button>
+            <button class="icon-btn" onclick="openEditModal('${s.id}')" title="Edit">✏️</button>
+            <button class="icon-btn" onclick="deleteSite('${s.id}')" title="Delete">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  render();
+});
+
+document.getElementById('sortSelect').addEventListener('change', e => {
+  sortMode = e.target.value;
+  render();
+});
+
+document.getElementById('tagFilters').addEventListener('click', e => {
+  const btn = e.target.closest('.tag-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeTagFilter = btn.dataset.tag;
+  render();
+});
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+// Seed data for demo
+function seedIfEmpty() {
+  if (sites.length > 0) return;
+  const demo = [
+    {
+      id:'demo1', name:'Lone Rock Beach Site 47', location:'Page, AZ', type:'boondock',
+      date:'Nov 2024', nights:'7', price:'$14/night',
+      mapLink:'https://maps.google.com', notes:'Incredible views of Lake Powell. Drive right to the water. Can get crowded on weekends but stunning at sunrise. Loose sand — bring traction boards.',
+      ratings:{Signal:4,Level:6,Shade:2,Quiet:7,Views:10,Facilities:3,Value:9},
+      overall:5.9, tags:['boondock','fire','pet'], favorite:true, createdAt:Date.now()-100000
+    },
+    {
+      id:'demo2', name:'Catalina State Park Loop B', location:'Tucson, AZ', type:'state-park',
+      date:'Jan 2025', nights:'4', price:'$35/night',
+      mapLink:'', notes:'Great base for saguaro hiking. Very level sites. Clean bathrooms. Cell signal solid on Verizon.',
+      ratings:{Signal:8,Level:9,Shade:7,Quiet:6,Views:8,Facilities:8,Value:7},
+      overall:7.6, tags:['electric','water','pet','fire'], favorite:false, createdAt:Date.now()-200000
+    },
+    {
+      id:'demo3', name:'Terlingua Ranch Lodge', location:'Big Bend Area, TX', type:'rv-park',
+      date:'Feb 2025', nights:'10', price:'$30/night',
+      mapLink:'', notes:'Wide open skies. Stargazing is unreal. No hookups on the west side but the desert views make up for it. Hot showers available.',
+      ratings:{Signal:2,Level:8,Shade:1,Quiet:9,Views:10,Facilities:5,Value:8},
+      overall:6.1, tags:['water','pet','fire','pullthru'], favorite:true, createdAt:Date.now()-300000
+    }
+  ];
+  sites = demo;
+  save();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+load();
+seedIfEmpty();
+initRanges();
+render();
+</script>
+</body>
+</html>
