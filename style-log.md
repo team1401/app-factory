@@ -112,6 +112,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Aged cream (#F7F3EA) background, Navy (#1B2D4A) primary/headers, Crimson (#A8212A) active turn/damage, Copper (#B5762A) PC type/HP bars, Sage (#3A5C44) NPC type/heals, Border (#C4B898) rules/dividers
 - Signature: Active-turn combatant card gets a full crimson flush border with name rendered in huge Ultra woodtype at 1.4rem — the "MOST WANTED" broadside treatment. Double-rule letterpress border frame on every card via box-shadow inset layering. Corner diamond ornaments (◆) on all cards. HP bars color-shift from sage through copper to crimson as HP depletes.
 
+## InkBook — 2026-03-21
+- Style: "Traditional Tattoo Flash Sheet" — classic American traditional tattoo parlor design language. Aged cream paper (#F5F0E0) with horizontal ruled lines, deep warm black ink, bold red/green/gold/navy palette derived from traditional tattoo ink colors. Appointment cards styled as laminated flash panels. Corner ✦ ornaments on all cards.
+- Palette: Ink black (#1A1008), Aged cream (#F5F0E0), Traditional red (#C41A1A), Traditional green (#1A6B2A), Flash gold (#D4A017), Navy blue (#1A3A6B)
+- Signature: Anton bold condensed for client names stamped on appointment cards like a "flash design" label; today's queue styled as a parlor call board with time column in deep black; design briefs displayed in dashed-border italic Special Elite typeface as if handwritten on a job ticket; Pinyon Script watermark footer. Zero gradients, zero glassmorphism — pure flat ink-on-paper.
+
 ---
 *New entries appended automatically after each build.*
 

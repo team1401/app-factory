@@ -1,0 +1,13 @@
+services:
+  inkbook:
+    build: .
+    container_name: inkbook
+    restart: unless-stopped
+    ports:
+      - "3236:80"
+    networks:
+      - servershed_servershed-net
+
+networks:
+  servershed_servershed-net:
+    external: true
