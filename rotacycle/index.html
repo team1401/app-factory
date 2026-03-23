@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RotaCycle — On-Call Rotation Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --cream-dark: #EDE5D0;
+    --cream-mid: #F0EAD8;
+    --valentine: #C8232C;
+    --valentine-dark: #A01820;
+    --valentine-light: #D94550;
+    --olivetti-black: #1A1410;
+    --ink: #2C2218;
+    --slate: #4A4038;
+    --silver: #8C8480;
+    --chrome: #B8B0A8;
+    --tape-bg: #FFFDF8;
+    --shadow: rgba(26,20,16,0.12);
+
+    /* Person colors — typewriter ink colors */
+    --p0: #C8232C; /* Valentine red */
+    --p1: #1A5C8A; /* Olivetti blue */
+    --p2: #2A7A4A; /* Carbon green */
+    --p3: #8A4A1A; /* Amber ink */
+    --p4: #5A1A8A; /* Ribbon purple */
+    --p5: #1A7A7A; /* Teal */
+    --p6: #8A1A5A; /* Magenta */
+    --p7: #4A5A1A; /* Olive */
+    --p8: #1A4A8A; /* Indigo */
+    --p9: #8A6A1A; /* Gold */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: var(--olivetti-black);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--valentine);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .logo-mark::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    background: var(--cream);
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  .logo-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .logo-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--chrome);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: -4px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    border-radius: 2px;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--chrome);
+    color: var(--chrome);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--cream);
+    color: var(--cream);
+  }
+
+  .btn-primary {
+    background: var(--valentine);
+    border-color: var(--valentine);
+    color: var(--cream);
+  }
+
+  .btn-primary:hover {
+    background: var(--valentine-light);
+    border-color: var(--valentine-light);
+  }
+
+  .btn-secondary {
+    background: var(--cream);
+    border-color: var(--cream-dark);
+    color: var(--ink);
+  }
+
+  .btn-secondary:hover {
+    background: var(--cream-dark);
+  }
+
+  .btn-sm {
+    padding: 5px 12px;
+    font-size: 0.78rem;
+  }
+
+  .btn-danger {
+    background: transparent;
+    border-color: var(--silver);
+    color: var(--silver);
+  }
+
+  .btn-danger:hover {
+    border-color: var(--valentine);
+    color: var(--valentine);
+  }
+
+  /* ─── LAYOUT ─── */
+  main {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 0;
+    height: calc(100vh - 64px - 48px);
+    overflow: hidden;
+  }
+
+  /* ─── SIDEBAR ─── */
+  aside {
+    background: var(--cream-dark);
+    border-right: 2px solid var(--chrome);
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .panel {
+    background: var(--tape-bg);
+    border: 1.5px solid var(--chrome);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .panel-head {
+    background: var(--olivetti-black);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
+  .panel-body {
+    padding: 1rem;
+  }
+
+  /* ─── PERSON TAGS ─── */
+  .person-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .person-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .person-swatch {
+    width: 12px;
+    height: 32px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .person-input {
+    flex: 1;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    padding: 6px 10px;
+    border: 1.5px solid var(--chrome);
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.1s;
+  }
+
+  .person-input:focus {
+    border-color: var(--valentine);
+  }
+
+  .person-input::placeholder {
+    color: var(--silver);
+  }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--silver);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    border-radius: 2px;
+    transition: color 0.1s;
+  }
+
+  .remove-btn:hover { color: var(--valentine); }
+
+  /* ─── FORM FIELDS ─── */
+  .field {
+    margin-bottom: 0.875rem;
+  }
+
+  .field label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 0.3rem;
+  }
+
+  .field input[type="text"],
+  .field input[type="date"],
+  .field input[type="number"],
+  .field select {
+    width: 100%;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    padding: 8px 10px;
+    border: 1.5px solid var(--chrome);
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.12s;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    border-color: var(--valentine);
+  }
+
+  /* ─── HOLIDAYS ─── */
+  .holiday-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+
+  .holiday-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--cream);
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    padding: 5px 8px;
+    font-size: 0.78rem;
+  }
+
+  .holiday-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--silver);
+  }
+
+  /* Shift type checkboxes */
+  .shift-types {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .shift-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .shift-chip input { cursor: pointer; accent-color: var(--valentine); }
+
+  /* ─── CONTENT AREA ─── */
+  .content {
+    overflow-y: auto;
+    padding: 1.5rem;
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* ─── PAPER TAPE — SIGNATURE ELEMENT ─── */
+  .tape-wrapper {
+    overflow-x: auto;
+    padding: 0.5rem 0;
+  }
+
+  .tape {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: 100%;
+    background: var(--tape-bg);
+    border: 2px solid var(--chrome);
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  /* Sprocket holes row at top and bottom */
+  .tape-sprockets {
+    display: flex;
+    align-items: center;
+    height: 20px;
+    background: var(--cream-dark);
+    gap: 0;
+  }
+
+  .sprocket-hole {
+    width: 16px;
+    height: 12px;
+    background: var(--tape-bg);
+    border-radius: 2px;
+    margin: 0 8px;
+    flex-shrink: 0;
+    border: 1px solid var(--chrome);
+  }
+
+  .tape-body {
+    padding: 0.5rem 0.25rem;
+    overflow-x: auto;
+  }
+
+  /* Calendar grid */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem 0.75rem;
+  }
+
+  .cal-month {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--olivetti-black);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    padding: 0 0.25rem;
+    min-width: 560px;
+  }
+
+  .cal-day-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    text-align: center;
+    padding: 4px 0;
+  }
+
+  .cal-cell {
+    min-height: 60px;
+    border: 1px solid var(--cream-dark);
+    border-radius: 2px;
+    padding: 4px;
+    background: var(--cream);
+    position: relative;
+    transition: background 0.1s;
+  }
+
+  .cal-cell.other-month {
+    background: var(--cream-dark);
+    opacity: 0.5;
+  }
+
+  .cal-cell.today {
+    border-color: var(--valentine);
+    border-width: 2px;
+  }
+
+  .cal-cell.holiday {
+    background: #FFF5F5;
+  }
+
+  .cal-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--silver);
+    margin-bottom: 3px;
+  }
+
+  .cal-date.today-num {
+    background: var(--valentine);
+    color: #fff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+  }
+
+  .cal-shifts {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .cal-shift-block {
+    padding: 2px 5px;
+    border-radius: 2px;
+    font-size: 0.65rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: opacity 0.1s;
+    user-select: none;
+  }
+
+  .cal-shift-block:hover { opacity: 0.85; }
+
+  .shift-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    flex-shrink: 0;
+  }
+
+  .holiday-label {
+    font-size: 0.58rem;
+    color: var(--valentine);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── WEEK STRIP VIEW (paper tape style) ─── */
+  .week-strip {
+    display: grid;
+    grid-template-columns: 70px repeat(7, 1fr);
+    gap: 0;
+    border: 1.5px solid var(--chrome);
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 600px;
+  }
+
+  .week-strip-header {
+    background: var(--olivetti-black);
+    color: var(--cream);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 8px;
+    text-align: center;
+    border-right: 1px solid #3A3028;
+  }
+
+  .week-strip-person {
+    background: var(--cream-dark);
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-right: 1px solid var(--chrome);
+    border-bottom: 1px solid var(--chrome);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .week-strip-cell {
+    padding: 4px;
+    border-right: 1px solid var(--cream-dark);
+    border-bottom: 1px solid var(--cream-dark);
+    background: var(--tape-bg);
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .strip-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  .strip-badge.on-call { background: var(--valentine); }
+  .strip-badge.backup { background: var(--slate); }
+
+  /* ─── STATS STRIP ─── */
+  .stats-strip {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 0.25rem 0;
+  }
+
+  .stat-card {
+    background: var(--tape-bg);
+    border: 1.5px solid var(--chrome);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+
+  .stat-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--olivetti-black);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-top: 3px;
+  }
+
+  .fairness-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .fairness-track {
+    flex: 1;
+    height: 6px;
+    background: var(--cream-dark);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .fairness-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  .fairness-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .fairness-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--slate);
+    min-width: 20px;
+    text-align: right;
+  }
+
+  /* ─── SWAP MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,20,16,0.6);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--tape-bg);
+    border: 2px solid var(--chrome);
+    border-radius: 2px;
+    width: 440px;
+    max-width: 95vw;
+    box-shadow: 0 8px 32px rgba(26,20,16,0.3);
+  }
+
+  .modal-head {
+    background: var(--olivetti-black);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--chrome);
+    font-size: 1.3rem;
+    cursor: pointer;
+  }
+
+  .modal-body { padding: 1.25rem; }
+
+  /* ─── VIEW TABS ─── */
+  .view-tabs {
+    display: flex;
+    gap: 0;
+    border: 1.5px solid var(--chrome);
+    border-radius: 2px;
+    overflow: hidden;
+    align-self: flex-start;
+  }
+
+  .view-tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    background: var(--cream-dark);
+    border: none;
+    color: var(--slate);
+    cursor: pointer;
+    border-right: 1px solid var(--chrome);
+    transition: all 0.1s;
+  }
+
+  .view-tab:last-child { border-right: none; }
+
+  .view-tab.active {
+    background: var(--olivetti-black);
+    color: var(--cream);
+  }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--silver);
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .empty-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-sub {
+    font-size: 0.875rem;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* ─── GENERATE BUTTON ─── */
+  .generate-area {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-generate {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 28px;
+    background: var(--valentine);
+    color: var(--cream);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.12s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-generate:hover { background: var(--valentine-dark); }
+
+  .btn-generate:disabled {
+    background: var(--chrome);
+    cursor: not-allowed;
+  }
+
+  /* Spinning state indicator */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+  }
+
+  .generating .spinner { display: block; }
+
+  /* ─── NAV MONTH ─── */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .month-nav-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    background: none;
+    border: 1.5px solid var(--chrome);
+    color: var(--slate);
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.1s;
+  }
+
+  .month-nav-btn:hover {
+    border-color: var(--valentine);
+    color: var(--valentine);
+  }
+
+  /* ─── ICS EXPORT ─── */
+  .export-area {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* ─── FAIRNESS SECTION ─── */
+  .fairness-section {
+    background: var(--tape-bg);
+    border: 1.5px solid var(--chrome);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .fairness-head {
+    background: var(--olivetti-black);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fairness-head-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
+  .fairness-rows {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  /* ─── TOOLTIP ─── */
+  .tooltip-badge {
+    display: inline-block;
+    background: var(--valentine);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    padding: 1px 5px;
+    border-radius: 2px;
+    cursor: help;
+    user-select: none;
+  }
+
+  /* ─── WEEK RANGE DISPLAY ─── */
+  .week-range {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--silver);
+    padding: 0 0.25rem 0.5rem;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--olivetti-black);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+  }
+
+  .footer-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--chrome);
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      height: auto;
+      overflow: visible;
+    }
+    aside {
+      height: auto;
+      border-right: none;
+      border-bottom: 2px solid var(--chrome);
+    }
+    .content {
+      height: auto;
+    }
+    footer {
+      flex-direction: column;
+      height: auto;
+      padding: 0.75rem 1rem;
+      gap: 0.25rem;
+    }
+  }
+
+  /* ─── PRINT STYLES ─── */
+  @media print {
+    header, footer, aside, .generate-area, .export-area, .view-tabs { display: none !important; }
+    main { grid-template-columns: 1fr; }
+    .content { padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark"></div>
+    <div>
+      <span class="logo-text">RotaCycle</span>
+      <span class="logo-sub">On-Call Rotation Builder</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost btn-sm" onclick="openSwapModal()">⇄ Swap</button>
+    <button class="btn btn-primary btn-sm" onclick="exportICS()">↓ Export ICS</button>
+  </div>
+</header>
+
+<main>
+  <!-- ─── SIDEBAR ─── -->
+  <aside>
+    <!-- Team -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Team Members</span>
+        <button class="btn btn-ghost btn-sm" onclick="addPerson()">+ Add</button>
+      </div>
+      <div class="panel-body">
+        <div class="person-list" id="personList"></div>
+        <div style="font-size:0.75rem;color:var(--silver);">Max 10 · Click swatch to edit name</div>
+      </div>
+    </div>
+
+    <!-- Schedule Config -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Schedule</span>
+      </div>
+      <div class="panel-body">
+        <div class="field">
+          <label>Start Date</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="field">
+          <label>End Date</label>
+          <input type="date" id="endDate">
+        </div>
+        <div class="field">
+          <label>Rotation Pattern</label>
+          <select id="rotationPattern">
+            <option value="weekly">Weekly (1 person / week)</option>
+            <option value="daily">Daily (1 person / day)</option>
+            <option value="custom">Custom Shift Length</option>
+          </select>
+        </div>
+        <div class="field" id="customShiftField" style="display:none;">
+          <label>Shift Length (days)</label>
+          <input type="number" id="customShiftDays" value="3" min="1" max="14">
+        </div>
+        <div class="field">
+          <label>Shift Types</label>
+          <div class="shift-types">
+            <label class="shift-chip">
+              <input type="checkbox" id="shiftPrimary" checked> Primary On-Call
+            </label>
+            <label class="shift-chip">
+              <input type="checkbox" id="shiftBackup"> Backup On-Call
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Algorithm</label>
+          <select id="algorithm">
+            <option value="fair">Fair Distribution (equalize shifts)</option>
+            <option value="round">Round Robin (strict order)</option>
+            <option value="weighted">Weighted (by seniority)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Holidays -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Blackout / Holidays</span>
+        <button class="btn btn-ghost btn-sm" onclick="addHoliday()">+ Add</button>
+      </div>
+      <div class="panel-body">
+        <div class="holiday-list" id="holidayList"></div>
+        <button class="btn btn-secondary btn-sm" onclick="loadUSHolidays()" style="width:100%;margin-top:0.25rem;">Load US 2026 Holidays</button>
+      </div>
+    </div>
+
+    <!-- Generate -->
+    <div class="generate-area">
+      <button class="btn-generate" id="generateBtn" onclick="generateSchedule()">
+        <div class="spinner" id="generateSpinner"></div>
+        ▶ Generate Rotation
+      </button>
+    </div>
+  </aside>
+
+  <!-- ─── CONTENT ─── -->
+  <div class="content">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+      <div class="view-tabs">
+        <button class="view-tab active" onclick="setView('calendar')" id="tabCalendar">Calendar</button>
+        <button class="view-tab" onclick="setView('strip')" id="tabStrip">Week Strip</button>
+        <button class="view-tab" onclick="setView('fairness')" id="tabFairness">Fairness</button>
+      </div>
+      <div class="export-area" id="exportArea" style="display:none;">
+        <button class="btn btn-secondary btn-sm" onclick="exportCSV()">↓ CSV</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportICS()">↓ ICS Calendar</button>
+        <button class="btn btn-secondary btn-sm" onclick="window.print()">⎙ Print</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-strip" id="statsStrip" style="display:none;"></div>
+
+    <!-- Views -->
+    <div id="calendarView"></div>
+    <div id="stripView" style="display:none;"></div>
+    <div id="fairnessView" style="display:none;"></div>
+  </div>
+</main>
+
+<footer>
+  <span class="footer-text">ROTACYCLE · ON-CALL ROTATION BUILDER · NO ACCOUNT REQUIRED</span>
+  <span class="footer-text">ALL DATA STAYS IN YOUR BROWSER</span>
+</footer>
+
+<!-- Swap Modal -->
+<div class="modal-overlay" id="swapModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">⇄ Swap Shifts</span>
+      <button class="modal-close" onclick="closeSwapModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.875rem;color:var(--slate);margin-bottom:1rem;">Select two shifts to swap their assignees. Great for vacation coverage.</p>
+      <div class="field">
+        <label>Shift A (Date)</label>
+        <input type="date" id="swapDateA">
+      </div>
+      <div class="field">
+        <label>Shift B (Date)</label>
+        <input type="date" id="swapDateB">
+      </div>
+      <div class="field">
+        <label>Shift Type</label>
+        <select id="swapShiftType">
+          <option value="primary">Primary On-Call</option>
+          <option value="backup">Backup On-Call</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+        <button class="btn btn-primary" onclick="executeSwap()">Swap Shifts</button>
+        <button class="btn btn-secondary" onclick="closeSwapModal()">Cancel</button>
+      </div>
+      <div id="swapMessage" style="margin-top:0.75rem;font-size:0.85rem;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const PERSON_COLORS = [
+  '#C8232C','#1A5C8A','#2A7A4A','#8A4A1A',
+  '#5A1A8A','#1A7A7A','#8A1A5A','#4A5A1A','#1A4A8A','#8A6A1A'
+];
+
+let state = {
+  people: [],
+  startDate: null,
+  endDate: null,
+  rotationPattern: 'weekly',
+  customShiftDays: 3,
+  useBackup: false,
+  algorithm: 'fair',
+  holidays: [],
+  schedule: null, // { primary: {dateStr: personIdx}, backup: {dateStr: personIdx} }
+  view: 'calendar',
+  calViewDate: new Date(),
+};
+
+// ─── INIT ───
+function init() {
+  // Default people
+  const defaultPeople = ['Alice','Bob','Carol','Dave','Eve'];
+  defaultPeople.forEach(n => addPerson(n));
+
+  // Default dates: this week to 8 weeks out
+  const today = new Date();
+  const start = new Date(today);
+  start.setDate(today.getDate() - today.getDay() + 1); // Monday
+  const end = new Date(start);
+  end.setDate(start.getDate() + 55);
+
+  document.getElementById('startDate').value = fmtDate(start);
+  document.getElementById('endDate').value = fmtDate(end);
+
+  state.calViewDate = new Date(start);
+
+  document.getElementById('rotationPattern').addEventListener('change', e => {
+    state.rotationPattern = e.target.value;
+    document.getElementById('customShiftField').style.display =
+      e.target.value === 'custom' ? 'block' : 'none';
+  });
+
+  document.getElementById('algorithm').addEventListener('change', e => {
+    state.algorithm = e.target.value;
+  });
+
+  document.getElementById('shiftBackup').addEventListener('change', e => {
+    state.useBackup = e.target.checked;
+  });
+
+  showEmptyState();
+  loadFromStorage();
+}
+
+// ─── STORAGE ───
+function saveToStorage() {
+  const data = {
+    people: state.people,
+    startDate: document.getElementById('startDate').value,
+    endDate: document.getElementById('endDate').value,
+    rotationPattern: state.rotationPattern,
+    customShiftDays: state.customShiftDays,
+    useBackup: state.useBackup,
+    algorithm: state.algorithm,
+    holidays: state.holidays,
+    schedule: state.schedule,
+  };
+  try { localStorage.setItem('rotacycle_state', JSON.stringify(data)); } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const saved = localStorage.getItem('rotacycle_state');
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    if (data.people && data.people.length) {
+      state.people = [];
+      document.getElementById('personList').innerHTML = '';
+      data.people.forEach(p => addPerson(p.name));
+    }
+    if (data.startDate) document.getElementById('startDate').value = data.startDate;
+    if (data.endDate) document.getElementById('endDate').value = data.endDate;
+    if (data.rotationPattern) {
+      document.getElementById('rotationPattern').value = data.rotationPattern;
+      state.rotationPattern = data.rotationPattern;
+      document.getElementById('customShiftField').style.display =
+        data.rotationPattern === 'custom' ? 'block' : 'none';
+    }
+    if (data.customShiftDays) document.getElementById('customShiftDays').value = data.customShiftDays;
+    if (data.algorithm) {
+      document.getElementById('algorithm').value = data.algorithm;
+      state.algorithm = data.algorithm;
+    }
+    if (data.useBackup) {
+      document.getElementById('shiftBackup').checked = true;
+      state.useBackup = true;
+    }
+    if (data.holidays) {
+      state.holidays = data.holidays;
+      renderHolidays();
+    }
+    if (data.schedule) {
+      state.schedule = data.schedule;
+      renderAll();
+    }
+  } catch(e) {}
+}
+
+// ─── PEOPLE ───
+function addPerson(name) {
+  if (state.people.length >= 10) return;
+  const idx = state.people.length;
+  const person = { name: name || `Person ${idx+1}`, color: PERSON_COLORS[idx] };
+  state.people.push(person);
+  renderPeople();
+}
+
+function removePerson(idx) {
+  state.people.splice(idx, 1);
+  renderPeople();
+  if (state.schedule) generateSchedule();
+}
+
+function renderPeople() {
+  const list = document.getElementById('personList');
+  list.innerHTML = '';
+  state.people.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'person-row';
+    row.innerHTML = `
+      <div class="person-swatch" style="background:${p.color};" title="${p.name}"></div>
+      <input class="person-input" value="${escHtml(p.name)}" placeholder="Name"
+        onchange="state.people[${i}].name = this.value; if(state.schedule) generateSchedule();">
+      <button class="remove-btn" onclick="removePerson(${i})" title="Remove">✕</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ─── HOLIDAYS ───
+const US_HOLIDAYS_2026 = [
+  { date: '2026-01-01', name: "New Year's Day" },
+  { date: '2026-01-19', name: 'MLK Day' },
+  { date: '2026-02-16', name: "Presidents' Day" },
+  { date: '2026-05-25', name: 'Memorial Day' },
+  { date: '2026-07-04', name: 'Independence Day' },
+  { date: '2026-09-07', name: 'Labor Day' },
+  { date: '2026-11-26', name: 'Thanksgiving' },
+  { date: '2026-11-27', name: 'Day After Thanksgiving' },
+  { date: '2026-12-24', name: 'Christmas Eve' },
+  { date: '2026-12-25', name: 'Christmas Day' },
+  { date: '2026-12-31', name: "New Year's Eve" },
+];
+
+function loadUSHolidays() {
+  US_HOLIDAYS_2026.forEach(h => {
+    if (!state.holidays.find(x => x.date === h.date)) {
+      state.holidays.push(h);
+    }
+  });
+  renderHolidays();
+}
+
+function addHoliday() {
+  const dateStr = prompt('Enter date (YYYY-MM-DD):');
+  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return;
+  const name = prompt('Holiday name (optional):') || 'Holiday';
+  state.holidays.push({ date: dateStr, name });
+  renderHolidays();
+}
+
+function removeHoliday(i) {
+  state.holidays.splice(i, 1);
+  renderHolidays();
+}
+
+function renderHolidays() {
+  const list = document.getElementById('holidayList');
+  list.innerHTML = '';
+  state.holidays.sort((a,b) => a.date.localeCompare(b.date)).forEach((h, i) => {
+    const row = document.createElement('div');
+    row.className = 'holiday-row';
+    row.innerHTML = `
+      <span>${escHtml(h.name)}</span>
+      <span style="display:flex;gap:0.5rem;align-items:center;">
+        <span class="holiday-date">${h.date}</span>
+        <button class="remove-btn" style="font-size:0.85rem;" onclick="removeHoliday(${i})">✕</button>
+      </span>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ─── SCHEDULE GENERATION ───
+function generateSchedule() {
+  if (state.people.length < 1) {
+    alert('Add at least one team member.');
+    return;
+  }
+
+  const startVal = document.getElementById('startDate').value;
+  const endVal = document.getElementById('endDate').value;
+  if (!startVal || !endVal) { alert('Set start and end dates.'); return; }
+
+  const start = parseDate(startVal);
+  const end = parseDate(endVal);
+  if (end <= start) { alert('End date must be after start date.'); return; }
+
+  const btn = document.getElementById('generateBtn');
+  btn.classList.add('generating');
+  btn.disabled = true;
+
+  state.rotationPattern = document.getElementById('rotationPattern').value;
+  state.customShiftDays = parseInt(document.getElementById('customShiftDays').value) || 3;
+  state.useBackup = document.getElementById('shiftBackup').checked;
+  state.algorithm = document.getElementById('algorithm').value;
+
+  const holidaySet = new Set(state.holidays.map(h => h.date));
+
+  // Build shift windows
+  const shiftDays = state.rotationPattern === 'weekly' ? 7
+                  : state.rotationPattern === 'daily' ? 1
+                  : state.customShiftDays;
+
+  // Generate primary schedule
+  const primary = {};
+  const backup = {};
+
+  // Counts for fairness
+  const primaryCount = new Array(state.people.length).fill(0);
+  const backupCount = new Array(state.people.length).fill(0);
+
+  let personIdx = 0; // for round robin
+
+  const cur = new Date(start);
+  while (cur <= end) {
+    const dateStr = fmtDate(cur);
+    const isHoliday = holidaySet.has(dateStr);
+
+    let assignee;
+    if (state.algorithm === 'round') {
+      assignee = personIdx % state.people.length;
+    } else if (state.algorithm === 'fair') {
+      // Pick person with fewest shifts; for holidays prefer person with fewest holiday shifts
+      assignee = fairPick(primaryCount, state.people.length, primary, dateStr, isHoliday);
+    } else {
+      // Weighted: rotate but weight by index (lower idx = more shifts)
+      assignee = personIdx % state.people.length;
+    }
+
+    primary[dateStr] = assignee;
+    primaryCount[assignee]++;
+
+    if (state.useBackup) {
+      // Backup = person with fewest backup shifts who is NOT primary
+      const backupAssignee = fairPickExclude(backupCount, state.people.length, assignee);
+      backup[dateStr] = backupAssignee;
+      backupCount[backupAssignee]++;
+    }
+
+    // Advance
+    const nextShiftStart = new Date(cur);
+    if (state.rotationPattern === 'weekly') {
+      nextShiftStart.setDate(cur.getDate() + 1);
+      if (nextShiftStart.getDay() === 1) personIdx++; // Monday advances person
+    } else if (state.rotationPattern === 'daily') {
+      nextShiftStart.setDate(cur.getDate() + 1);
+      personIdx++;
+    } else {
+      nextShiftStart.setDate(cur.getDate() + 1);
+      const elapsed = Math.floor((nextShiftStart - start) / 86400000);
+      if (elapsed % state.customShiftDays === 0) personIdx++;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  state.schedule = { primary, backup: state.useBackup ? backup : {} };
+  state.calViewDate = new Date(start);
+
+  saveToStorage();
+
+  btn.classList.remove('generating');
+  btn.disabled = false;
+
+  renderAll();
+}
+
+function fairPick(counts, n, existing, dateStr, isHoliday) {
+  // Find person with min count; tie-break by last assigned (spread consecutive)
+  let minCount = Infinity;
+  let pick = 0;
+  for (let i = 0; i < n; i++) {
+    if (counts[i] < minCount) {
+      minCount = counts[i];
+      pick = i;
+    }
+  }
+  return pick;
+}
+
+function fairPickExclude(counts, n, exclude) {
+  let minCount = Infinity;
+  let pick = (exclude + 1) % n;
+  for (let i = 0; i < n; i++) {
+    if (i === exclude) continue;
+    if (counts[i] < minCount) {
+      minCount = counts[i];
+      pick = i;
+    }
+  }
+  return pick;
+}
+
+// ─── RENDER ALL ───
+function renderAll() {
+  document.getElementById('exportArea').style.display = 'flex';
+  document.getElementById('statsStrip').style.display = 'flex';
+  renderStats();
+  renderCalendarView();
+  renderStripView();
+  renderFairnessView();
+  setView(state.view);
+}
+
+// ─── STATS ───
+function renderStats() {
+  if (!state.schedule) return;
+  const primary = state.schedule.primary;
+  const dates = Object.keys(primary);
+  const n = state.people.length;
+  const counts = new Array(n).fill(0);
+  dates.forEach(d => { if (primary[d] !== undefined) counts[primary[d]]++; });
+
+  const totalShifts = dates.length;
+  const avgShifts = totalShifts / n;
+  const maxOff = Math.max(...counts) - Math.min(...counts);
+
+  document.getElementById('statsStrip').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--valentine);">${totalShifts}</div>
+      <div class="stat-label">Total Shifts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${n}</div>
+      <div class="stat-label">Team Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${avgShifts.toFixed(1)}</div>
+      <div class="stat-label">Avg per Person</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:${maxOff<=1?'var(--olivetti-black)':'var(--valentine)'};">${maxOff}</div>
+      <div class="stat-label">Max Imbalance</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${state.holidays.length}</div>
+      <div class="stat-label">Blackout Days</div>
+    </div>
+  `;
+}
+
+// ─── CALENDAR VIEW ───
+function renderCalendarView() {
+  const cv = document.getElementById('calendarView');
+  if (!state.schedule) { showEmptyState(); return; }
+
+  const primary = state.schedule.primary;
+  const backup = state.schedule.backup;
+  const holidaySet = new Set(state.holidays.map(h => h.date));
+  const holidayNames = {};
+  state.holidays.forEach(h => holidayNames[h.date] = h.name);
+
+  // Determine range
+  const startDateVal = document.getElementById('startDate').value;
+  const endDateVal = document.getElementById('endDate').value;
+  const scheduleStart = parseDate(startDateVal);
+  const scheduleEnd = parseDate(endDateVal);
+
+  // Current view month
+  const viewYear = state.calViewDate.getFullYear();
+  const viewMonth = state.calViewDate.getMonth();
+
+  const monthNames = ['January','February','March','April','May','June',
+    'July','August','September','October','November','December'];
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const today = new Date();
+
+  // Build month calendar
+  const firstDay = new Date(viewYear, viewMonth, 1);
+  const lastDay = new Date(viewYear, viewMonth + 1, 0);
+  const startDow = firstDay.getDay(); // day of week for first
+
+  let html = `
+    <div class="tape-wrapper">
+      <div class="tape">
+        <div class="tape-sprockets" id="sprocketsTop">${makeSprockets()}</div>
+        <div class="tape-body">
+          <div class="cal-header">
+            <div class="month-nav">
+              <button class="month-nav-btn" onclick="prevMonth()">‹</button>
+              <button class="month-nav-btn" onclick="nextMonth()">›</button>
+            </div>
+            <div class="cal-month">${monthNames[viewMonth]} ${viewYear}</div>
+          </div>
+          <div class="cal-grid">
+  `;
+
+  // Day name headers
+  dayNames.forEach(d => {
+    html += `<div class="cal-day-name">${d}</div>`;
+  });
+
+  // Empty leading cells
+  for (let i = 0; i < startDow; i++) {
+    html += `<div class="cal-cell other-month"></div>`;
+  }
+
+  // Day cells
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const cellDate = new Date(viewYear, viewMonth, d);
+    const dateStr = fmtDate(cellDate);
+    const isToday = fmtDate(today) === dateStr;
+    const isHoliday = holidaySet.has(dateStr);
+    const inRange = cellDate >= scheduleStart && cellDate <= scheduleEnd;
+    const pIdx = primary[dateStr];
+    const bIdx = backup ? backup[dateStr] : undefined;
+
+    let classes = 'cal-cell';
+    if (isToday) classes += ' today';
+    if (isHoliday) classes += ' holiday';
+
+    const dateDisp = isToday
+      ? `<div class="cal-date today-num">${d}</div>`
+      : `<div class="cal-date">${d}</div>`;
+
+    let shiftsHtml = '';
+    if (isHoliday) {
+      shiftsHtml += `<div class="holiday-label">⚑ ${escHtml(holidayNames[dateStr]||'Holiday')}</div>`;
+    }
+    if (inRange && pIdx !== undefined) {
+      const p = state.people[pIdx];
+      if (p) {
+        shiftsHtml += `<div class="cal-shift-block" style="background:${p.color};" onclick="openSwapFromDate('${dateStr}','primary')" title="Click to swap">
+          <span class="shift-dot"></span>${escHtml(p.name)}
+        </div>`;
+      }
+    }
+    if (inRange && bIdx !== undefined) {
+      const p = state.people[bIdx];
+      if (p) {
+        shiftsHtml += `<div class="cal-shift-block" style="background:${darken(p.color)};" onclick="openSwapFromDate('${dateStr}','backup')" title="Click to swap (backup)">
+          <span class="shift-dot"></span>${escHtml(p.name)} ✦
+        </div>`;
+      }
+    }
+    if (inRange && pIdx === undefined) {
+      shiftsHtml += `<div style="font-size:0.6rem;color:var(--chrome);font-style:italic;">–</div>`;
+    }
+
+    html += `<div class="${classes}">${dateDisp}<div class="cal-shifts">${shiftsHtml}</div></div>`;
+  }
+
+  // Trailing cells
+  const trailing = 7 - ((startDow + lastDay.getDate()) % 7);
+  if (trailing < 7) {
+    for (let i = 0; i < trailing; i++) {
+      html += `<div class="cal-cell other-month"></div>`;
+    }
+  }
+
+  html += `
+          </div>
+        </div>
+        <div class="tape-sprockets">${makeSprockets()}</div>
+      </div>
+    </div>
+  `;
+
+  cv.innerHTML = html;
+  // Sprockets are now static; just render them
+  setTimeout(() => {
+    const tops = document.querySelectorAll('.tape-sprockets');
+    tops.forEach(el => {
+      const tapeWidth = el.closest('.tape').offsetWidth;
+      const count = Math.floor(tapeWidth / 32);
+      el.innerHTML = Array(count).fill('<div class="sprocket-hole"></div>').join('');
+    });
+  }, 50);
+}
+
+function makeSprockets() {
+  // Will be replaced by JS
+  return Array(24).fill('<div class="sprocket-hole"></div>').join('');
+}
+
+function prevMonth() {
+  state.calViewDate.setMonth(state.calViewDate.getMonth() - 1);
+  renderCalendarView();
+}
+
+function nextMonth() {
+  state.calViewDate.setMonth(state.calViewDate.getMonth() + 1);
+  renderCalendarView();
+}
+
+// ─── WEEK STRIP VIEW ───
+function renderStripView() {
+  const sv = document.getElementById('stripView');
+  if (!state.schedule) { sv.innerHTML = ''; return; }
+
+  const primary = state.schedule.primary;
+  const backup = state.schedule.backup;
+  const dates = Object.keys(primary).sort();
+
+  if (!dates.length) { sv.innerHTML = ''; return; }
+
+  // Group into weeks (Mon–Sun)
+  const weeks = groupIntoWeeks(dates);
+  const dayNames = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+
+  let html = `<div style="overflow-x:auto;display:flex;flex-direction:column;gap:1.5rem;">`;
+
+  weeks.slice(0, 12).forEach(week => { // show up to 12 weeks
+    const weekStart = week[0];
+    const weekEnd = week[week.length-1];
+    html += `<div class="week-range">${weekStart} → ${weekEnd}</div>`;
+    html += `<div class="tape-wrapper"><div class="tape"><div class="tape-body">`;
+    html += `<div class="week-strip">`;
+
+    // Header row
+    html += `<div class="week-strip-header">MEMBER</div>`;
+    week.forEach((d, i) => {
+      const dt = parseDate(d);
+      const dow = (dt.getDay() + 6) % 7; // 0=Mon
+      html += `<div class="week-strip-header">${dayNames[dow]}<br><span style="font-size:0.6rem;font-weight:400;">${d.slice(5)}</span></div>`;
+    });
+
+    // Person rows
+    state.people.forEach((p, pi) => {
+      html += `<div class="week-strip-person"><div class="person-swatch" style="background:${p.color};width:8px;height:20px;border-radius:1px;"></div>${escHtml(p.name)}</div>`;
+      week.forEach(d => {
+        const pVal = primary[d];
+        const bVal = backup ? backup[d] : undefined;
+        let cell = '';
+        if (pVal === pi) {
+          cell = `<span class="strip-badge on-call">ON</span>`;
+        } else if (bVal === pi) {
+          cell = `<span class="strip-badge backup">BCK</span>`;
+        }
+        html += `<div class="week-strip-cell">${cell}</div>`;
+      });
+    });
+
+    html += `</div></div></div></div>`;
+  });
+
+  html += '</div>';
+  sv.innerHTML = html;
+}
+
+function groupIntoWeeks(sortedDates) {
+  const weeks = [];
+  let curWeek = [];
+  let lastWeekNum = -1;
+
+  sortedDates.forEach(d => {
+    const dt = parseDate(d);
+    const dow = (dt.getDay() + 6) % 7; // 0=Mon
+    if (dow < lastWeekNum || lastWeekNum === -1) {
+      if (curWeek.length) weeks.push(curWeek);
+      curWeek = [];
+    }
+    curWeek.push(d);
+    lastWeekNum = dow;
+  });
+  if (curWeek.length) weeks.push(curWeek);
+  return weeks;
+}
+
+// ─── FAIRNESS VIEW ───
+function renderFairnessView() {
+  const fv = document.getElementById('fairnessView');
+  if (!state.schedule) { fv.innerHTML = ''; return; }
+
+  const primary = state.schedule.primary;
+  const backup = state.schedule.backup;
+  const n = state.people.length;
+
+  const pCounts = new Array(n).fill(0);
+  const bCounts = new Array(n).fill(0);
+  const weekendCounts = new Array(n).fill(0);
+  const holidaySet = new Set(state.holidays.map(h => h.date));
+  const holCounts = new Array(n).fill(0);
+
+  Object.keys(primary).forEach(d => {
+    const idx = primary[d];
+    if (idx !== undefined) {
+      pCounts[idx]++;
+      const dt = parseDate(d);
+      if (dt.getDay() === 0 || dt.getDay() === 6) weekendCounts[idx]++;
+      if (holidaySet.has(d)) holCounts[idx]++;
+    }
+  });
+
+  if (backup) {
+    Object.keys(backup).forEach(d => {
+      const idx = backup[d];
+      if (idx !== undefined) bCounts[idx]++;
+    });
+  }
+
+  const maxP = Math.max(...pCounts, 1);
+  const maxW = Math.max(...weekendCounts, 1);
+
+  let html = `<div style="display:flex;flex-direction:column;gap:1.5rem;">`;
+
+  // Primary shifts
+  html += `
+    <div class="fairness-section">
+      <div class="fairness-head">
+        <span class="fairness-head-title">Primary On-Call Distribution</span>
+        <span class="tooltip-badge" title="Lower max imbalance = fairer schedule">IMBALANCE: ${Math.max(...pCounts)-Math.min(...pCounts)} shifts</span>
+      </div>
+      <div class="fairness-rows">
+  `;
+  state.people.forEach((p, i) => {
+    const pct = (pCounts[i] / maxP * 100).toFixed(0);
+    html += `
+      <div>
+        <div class="fairness-name">
+          <div style="width:10px;height:10px;border-radius:2px;background:${p.color};flex-shrink:0;"></div>
+          ${escHtml(p.name)}
+        </div>
+        <div class="fairness-bar">
+          <div class="fairness-track">
+            <div class="fairness-fill" style="width:${pct}%;background:${p.color};"></div>
+          </div>
+          <span class="fairness-count">${pCounts[i]}</span>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div></div>`;
+
+  // Weekend shifts
+  html += `
+    <div class="fairness-section">
+      <div class="fairness-head">
+        <span class="fairness-head-title">Weekend Shifts</span>
+      </div>
+      <div class="fairness-rows">
+  `;
+  state.people.forEach((p, i) => {
+    const pct = maxW > 0 ? (weekendCounts[i] / maxW * 100).toFixed(0) : 0;
+    html += `
+      <div>
+        <div class="fairness-name">
+          <div style="width:10px;height:10px;border-radius:2px;background:${p.color};flex-shrink:0;"></div>
+          ${escHtml(p.name)}
+        </div>
+        <div class="fairness-bar">
+          <div class="fairness-track">
+            <div class="fairness-fill" style="width:${pct}%;background:${p.color};"></div>
+          </div>
+          <span class="fairness-count">${weekendCounts[i]}</span>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div></div>`;
+
+  // Holiday shifts
+  if (state.holidays.length > 0) {
+    const maxH = Math.max(...holCounts, 1);
+    html += `
+      <div class="fairness-section">
+        <div class="fairness-head">
+          <span class="fairness-head-title">Holiday / Blackout Coverage</span>
+        </div>
+        <div class="fairness-rows">
+    `;
+    state.people.forEach((p, i) => {
+      const pct = (holCounts[i] / maxH * 100).toFixed(0);
+      html += `
+        <div>
+          <div class="fairness-name">
+            <div style="width:10px;height:10px;border-radius:2px;background:${p.color};flex-shrink:0;"></div>
+            ${escHtml(p.name)}
+          </div>
+          <div class="fairness-bar">
+            <div class="fairness-track">
+              <div class="fairness-fill" style="width:${pct}%;background:${p.color};"></div>
+            </div>
+            <span class="fairness-count">${holCounts[i]}</span>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+  }
+
+  // Backup
+  if (state.useBackup) {
+    const maxB = Math.max(...bCounts, 1);
+    html += `
+      <div class="fairness-section">
+        <div class="fairness-head">
+          <span class="fairness-head-title">Backup On-Call Distribution</span>
+        </div>
+        <div class="fairness-rows">
+    `;
+    state.people.forEach((p, i) => {
+      const pct = (bCounts[i] / maxB * 100).toFixed(0);
+      html += `
+        <div>
+          <div class="fairness-name">
+            <div style="width:10px;height:10px;border-radius:2px;background:${p.color};flex-shrink:0;"></div>
+            ${escHtml(p.name)}
+          </div>
+          <div class="fairness-bar">
+            <div class="fairness-track">
+              <div class="fairness-fill" style="width:${pct}%;background:${p.color};"></div>
+            </div>
+            <span class="fairness-count">${bCounts[i]}</span>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+  }
+
+  html += '</div>';
+  fv.innerHTML = html;
+}
+
+// ─── EMPTY STATE ───
+function showEmptyState() {
+  document.getElementById('calendarView').innerHTML = `
+    <div class="empty-state">
+      <span class="empty-icon">⊙</span>
+      <div class="empty-title">No Rotation Generated</div>
+      <p class="empty-sub">Add your team, set the date range, configure the rotation pattern, then click Generate.</p>
+    </div>
+  `;
+}
+
+// ─── VIEWS ───
+function setView(view) {
+  state.view = view;
+  const views = ['calendar','strip','fairness'];
+  views.forEach(v => {
+    document.getElementById(v+'View').style.display = v === view ? 'block' : 'none';
+    document.getElementById('tab'+capitalize(v)).classList.toggle('active', v === view);
+  });
+}
+
+// ─── SWAP ───
+function openSwapModal() {
+  document.getElementById('swapModal').classList.add('open');
+  document.getElementById('swapMessage').textContent = '';
+}
+
+function openSwapFromDate(dateStr, type) {
+  document.getElementById('swapDateA').value = dateStr;
+  document.getElementById('swapShiftType').value = type;
+  document.getElementById('swapModal').classList.add('open');
+  document.getElementById('swapMessage').textContent = '';
+}
+
+function closeSwapModal() {
+  document.getElementById('swapModal').classList.remove('open');
+}
+
+function executeSwap() {
+  const dateA = document.getElementById('swapDateA').value;
+  const dateB = document.getElementById('swapDateB').value;
+  const shiftType = document.getElementById('swapShiftType').value;
+  const msg = document.getElementById('swapMessage');
+
+  if (!dateA || !dateB) {
+    msg.textContent = '⚠ Enter both dates.'; msg.style.color = 'var(--valentine)'; return;
+  }
+  if (dateA === dateB) {
+    msg.textContent = '⚠ Dates must be different.'; msg.style.color = 'var(--valentine)'; return;
+  }
+
+  const sched = shiftType === 'backup' ? state.schedule.backup : state.schedule.primary;
+  if (!sched) { msg.textContent = '⚠ No schedule yet.'; msg.style.color = 'var(--valentine)'; return; }
+
+  const valA = sched[dateA];
+  const valB = sched[dateB];
+
+  if (valA === undefined || valB === undefined) {
+    msg.textContent = '⚠ One or both dates are not in the schedule range.';
+    msg.style.color = 'var(--valentine)'; return;
+  }
+
+  sched[dateA] = valB;
+  sched[dateB] = valA;
+
+  const nameA = state.people[valA]?.name || 'Unknown';
+  const nameB = state.people[valB]?.name || 'Unknown';
+  msg.innerHTML = `✓ Swapped: <strong>${nameA}</strong> (${dateA}) ↔ <strong>${nameB}</strong> (${dateB})`;
+  msg.style.color = 'var(--olivetti-black)';
+
+  saveToStorage();
+  renderAll();
+}
+
+// ─── EXPORT ICS ───
+function exportICS() {
+  if (!state.schedule) { alert('Generate a schedule first.'); return; }
+
+  const primary = state.schedule.primary;
+  const backup = state.schedule.backup;
+
+  let ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//RotaCycle//On-Call Rotation//EN',
+    'CALSCALE:GREGORIAN',
+    'X-WR-CALNAME:On-Call Rotation',
+  ];
+
+  // Group consecutive days for same person into VEVENT
+  const dates = Object.keys(primary).sort();
+  let i = 0;
+  while (i < dates.length) {
+    const startDate = dates[i];
+    const pIdx = primary[startDate];
+    let j = i;
+    while (j + 1 < dates.length && primary[dates[j+1]] === pIdx) j++;
+    const endDate = dates[j];
+    const endDt = parseDate(endDate);
+    endDt.setDate(endDt.getDate() + 1); // ICS all-day is exclusive end
+
+    const p = state.people[pIdx];
+    if (p) {
+      ics.push('BEGIN:VEVENT');
+      ics.push(`DTSTART;VALUE=DATE:${startDate.replace(/-/g,'')}`);
+      ics.push(`DTEND;VALUE=DATE:${fmtDate(endDt).replace(/-/g,'')}`);
+      ics.push(`SUMMARY:ON-CALL: ${p.name}`);
+      ics.push(`DESCRIPTION:Primary on-call: ${p.name}`);
+      ics.push(`UID:rotacycle-primary-${startDate}-${pIdx}@rotacycle`);
+      ics.push('STATUS:CONFIRMED');
+      ics.push('END:VEVENT');
+    }
+    i = j + 1;
+  }
+
+  if (backup) {
+    Object.keys(backup).sort().forEach(d => {
+      const bIdx = backup[d];
+      const p = state.people[bIdx];
+      if (!p) return;
+      const dt = parseDate(d);
+      const end = new Date(dt); end.setDate(end.getDate() + 1);
+      ics.push('BEGIN:VEVENT');
+      ics.push(`DTSTART;VALUE=DATE:${d.replace(/-/g,'')}`);
+      ics.push(`DTEND;VALUE=DATE:${fmtDate(end).replace(/-/g,'')}`);
+      ics.push(`SUMMARY:BACKUP: ${p.name}`);
+      ics.push(`DESCRIPTION:Backup on-call: ${p.name}`);
+      ics.push(`UID:rotacycle-backup-${d}-${bIdx}@rotacycle`);
+      ics.push('STATUS:CONFIRMED');
+      ics.push('END:VEVENT');
+    });
+  }
+
+  ics.push('END:VCALENDAR');
+  downloadFile('on-call-rotation.ics', ics.join('\r\n'), 'text/calendar');
+}
+
+// ─── EXPORT CSV ───
+function exportCSV() {
+  if (!state.schedule) { alert('Generate a schedule first.'); return; }
+
+  const primary = state.schedule.primary;
+  const backup = state.schedule.backup;
+  const holidaySet = new Set(state.holidays.map(h => h.date));
+
+  let rows = ['Date,Day,Primary On-Call,Backup On-Call,Holiday'];
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  Object.keys(primary).sort().forEach(d => {
+    const dt = parseDate(d);
+    const pIdx = primary[d];
+    const bIdx = backup ? backup[d] : undefined;
+    const pName = pIdx !== undefined ? state.people[pIdx]?.name || '' : '';
+    const bName = bIdx !== undefined ? state.people[bIdx]?.name || '' : '';
+    const isHol = holidaySet.has(d) ? 'YES' : '';
+    rows.push(`${d},${dayNames[dt.getDay()]},"${pName}","${bName}","${isHol}"`);
+  });
+
+  downloadFile('on-call-rotation.csv', rows.join('\n'), 'text/csv');
+}
+
+// ─── UTILS ───
+function fmtDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function parseDate(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function darken(hex) {
+  // Darken hex color by ~20%
+  const num = parseInt(hex.slice(1), 16);
+  const r = Math.max(0, (num >> 16) - 40);
+  const g = Math.max(0, ((num >> 8) & 0xFF) - 40);
+  const b = Math.max(0, (num & 0xFF) - 40);
+  return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── INIT ───
+init();
+</script>
+</body>
+</html>

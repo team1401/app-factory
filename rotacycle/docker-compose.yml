@@ -1,0 +1,7 @@
+services:
+  rotacycle:
+    build: .
+    container_name: rotacycle
+    restart: unless-stopped
+    ports:
+      - "3237:80"

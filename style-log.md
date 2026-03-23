@@ -117,6 +117,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Ink black (#1A1008), Aged cream (#F5F0E0), Traditional red (#C41A1A), Traditional green (#1A6B2A), Flash gold (#D4A017), Navy blue (#1A3A6B)
 - Signature: Anton bold condensed for client names stamped on appointment cards like a "flash design" label; today's queue styled as a parlor call board with time column in deep black; design briefs displayed in dashed-border italic Special Elite typeface as if handwritten on a job ticket; Pinyon Script watermark footer. Zero gradients, zero glassmorphism — pure flat ink-on-paper.
 
+## RotaCycle — 2026-03-22
+- Style: "Olivetti Modernist Office Machine" — Italian industrial design aesthetic from the 1950s–70s Olivetti era. Warm cream paper stock, Valentine red primary accent, Space Grotesk + Barlow Condensed + Space Mono type trio. Zero gradients, functional precision over decoration. Inspired by the visual language of Olivetti typewriters, calculators, and early computing machinery.
+- Palette: Cream (#F5F0E8) background, Olivetti black (#1A1410) header/nav, Valentine red (#C8232C) primary/CTAs, Chrome silver (#B8B0A8) borders, Tape white (#FFFDF8) surfaces, Slate (#4A4038) secondary labels
+- Signature: Paper tape output strip — the calendar and week-strip views are rendered inside a "tape" element with sprocket-hole rows at top and bottom (CSS-generated rectangles in the tape header background, matching the look of teletype/calculator paper tape with perforations). Each person's shifts are rendered as color-coded ink blocks on the tape, mimicking the output of an Olivetti printing calculator. Ten distinct typewriter-ink colors (red, blue, green, amber, purple, teal, magenta, olive, indigo, gold).
+
 ---
 *New entries appended automatically after each build.*
 
