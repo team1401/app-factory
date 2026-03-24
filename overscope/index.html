@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OverScope — Scope Creep Tracker for Freelancers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ====================================================
+     OVERSCOPE — LITIGATION BRIEF AESTHETIC
+     Cream legal paper, black Baskerville body, red rubber
+     stamps, numbered exhibits, court-document precision.
+     ==================================================== */
+
+  :root {
+    --paper: #FAF8F2;
+    --card: #FFFEFB;
+    --black: #1A1712;
+    --mid: #4A4540;
+    --light: #8A8480;
+    --rule: #C8C0B0;
+    --court-red: #B8160A;
+    --stamp-red: #CC1A1A;
+    --gold: #8B6914;
+    --gold-light: #C49A28;
+    --green: #1A6B30;
+    --amber: #B87414;
+    --surface-2: #F2EFE8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--black);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ─── LETTERHEAD HEADER ─── */
+  header {
+    background: var(--black);
+    color: var(--paper);
+    padding: 0;
+    border-bottom: 4px solid var(--court-red);
+  }
+
+  .letterhead {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .letterhead-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .firm-seal {
+    width: 52px;
+    height: 52px;
+    border: 3px solid var(--gold-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold-light);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .firm-seal::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid var(--gold-light);
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+
+  .firm-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+
+  .firm-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: rgba(250,248,242,0.55);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .header-stat {
+    text-align: right;
+  }
+
+  .header-stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(250,248,242,0.5);
+    display: block;
+  }
+
+  .header-stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--paper);
+  }
+
+  .header-stat-value.danger {
+    color: #FF6B6B;
+  }
+
+  /* ─── COURT NOTICE BANNER ─── */
+  .court-notice {
+    background: var(--court-red);
+    color: #fff;
+    text-align: center;
+    padding: 7px 32px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* ─── MAIN LAYOUT ─── */
+  .app-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 32px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 32px;
+    min-height: calc(100vh - 120px);
+  }
+
+  /* ─── SIDEBAR / CASE FILE LIST ─── */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sidebar-heading {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--light);
+    padding: 0 0 10px 0;
+    border-bottom: 2px double var(--black);
+    margin-bottom: 16px;
+  }
+
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--rule);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+
+  .project-card:hover {
+    border-color: var(--black);
+    border-left-color: var(--gold);
+    background: #FFFDF6;
+  }
+
+  .project-card.active {
+    border-left-color: var(--court-red);
+    border-color: var(--black);
+    background: #FFFDF6;
+  }
+
+  .project-card-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--black);
+    line-height: 1.3;
+  }
+
+  .project-card-client {
+    font-size: 11px;
+    color: var(--light);
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  .project-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .project-card-exposure {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--court-red);
+  }
+
+  .project-card-exposure.clean {
+    color: var(--green);
+  }
+
+  .project-card-events {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--light);
+  }
+
+  .status-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  .status-badge.active { background: #E8F5E9; color: var(--green); border: 1px solid #A5D6A7; }
+  .status-badge.closed { background: #F5F5F5; color: var(--light); border: 1px solid var(--rule); }
+  .status-badge.disputed { background: #FFF3E0; color: var(--amber); border: 1px solid #FFCC80; }
+
+  .btn-new-project {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 16px;
+    background: var(--black);
+    color: var(--paper);
+    border: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+    width: 100%;
+  }
+
+  .btn-new-project:hover {
+    background: var(--court-red);
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .sidebar-tip {
+    font-size: 11px;
+    font-style: italic;
+    color: var(--light);
+    line-height: 1.5;
+  }
+
+  /* ─── MAIN CONTENT AREA ─── */
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ─── CASE FILE DOCUMENT ─── */
+  .case-file {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06), 4px 4px 0 rgba(0,0,0,0.04);
+    position: relative;
+  }
+
+  .case-file::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(90deg, var(--court-red) 0, var(--court-red) 20px, var(--black) 20px, var(--black) 40px);
+  }
+
+  .case-header {
+    padding: 28px 32px 20px;
+    border-bottom: 2px double var(--rule);
+    position: relative;
+    margin-top: 6px;
+  }
+
+  .case-number-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .case-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--light);
+  }
+
+  .case-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: var(--black);
+  }
+
+  .case-subtitle {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--mid);
+    margin-top: 4px;
+  }
+
+  .case-vitals {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .vital-box {
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+  }
+
+  .vital-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--light);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .vital-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1;
+  }
+
+  .vital-value.red { color: var(--court-red); }
+  .vital-value.green { color: var(--green); }
+  .vital-value.amber { color: var(--amber); }
+
+  .vital-sub {
+    font-size: 10px;
+    color: var(--light);
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  /* ─── SECTION HEADING ─── */
+  .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface-2);
+  }
+
+  .section-heading-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+
+  /* ─── SCOPE EVENT ENTRIES ─── */
+  .event-list {
+    padding: 0;
+  }
+
+  .event-empty {
+    padding: 48px 32px;
+    text-align: center;
+    color: var(--light);
+  }
+
+  .event-empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .event-empty-text {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 15px;
+    max-width: 340px;
+    margin: 0 auto 8px;
+  }
+
+  .event-empty-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--light);
+  }
+
+  .event-entry {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    gap: 16px;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--rule);
+    align-items: flex-start;
+    transition: background 0.1s;
+  }
+
+  .event-entry:hover {
+    background: #FFFDF5;
+  }
+
+  .event-entry:last-child {
+    border-bottom: none;
+  }
+
+  /* ─── EXHIBIT STAMP ─── */
+  .exhibit-stamp {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--stamp-red);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    opacity: 0;
+    transform: scale(1.4) rotate(-8deg);
+    animation: stamp-in 0.35s cubic-bezier(0.22,1.2,0.36,1) forwards;
+  }
+
+  .exhibit-stamp::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--stamp-red);
+    border-radius: 2px;
+    opacity: 0.4;
+  }
+
+  @keyframes stamp-in {
+    0% { opacity: 0; transform: scale(1.6) rotate(-12deg); }
+    60% { opacity: 1; transform: scale(0.95) rotate(-2deg); }
+    80% { transform: scale(1.02) rotate(-1deg); }
+    100% { opacity: 1; transform: scale(1) rotate(-3deg); }
+  }
+
+  .exhibit-word {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 6.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--stamp-red);
+    font-weight: 600;
+  }
+
+  .exhibit-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--stamp-red);
+    line-height: 1;
+  }
+
+  .event-body {}
+
+  .event-description {
+    font-size: 14px;
+    color: var(--black);
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+
+  .event-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .event-date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--light);
+  }
+
+  .event-cat {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+
+  .cat-feature    { background: #FFF3E0; color: #E65100; border: 1px solid #FFB74D; }
+  .cat-revision   { background: #E8F5E9; color: #2E7D32; border: 1px solid #81C784; }
+  .cat-meeting    { background: #E3F2FD; color: #1565C0; border: 1px solid #64B5F6; }
+  .cat-support    { background: #F3E5F5; color: #6A1B9A; border: 1px solid #CE93D8; }
+  .cat-spec       { background: #FFF8E1; color: #F57F17; border: 1px solid #FFD54F; }
+  .cat-other      { background: #FAFAFA; color: #424242; border: 1px solid #BDBDBD; }
+
+  .client-flag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    background: #FFEBEE;
+    color: var(--court-red);
+    border: 1px solid #FFCDD2;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .event-amount {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .event-hours {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mid);
+    display: block;
+  }
+
+  .event-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--court-red);
+    display: block;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .event-delete {
+    background: none;
+    border: none;
+    color: var(--rule);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+    transition: color 0.15s;
+    margin-top: 2px;
+    display: block;
+  }
+
+  .event-delete:hover {
+    color: var(--court-red);
+  }
+
+  /* ─── ADD EVENT FORM ─── */
+  .add-event-section {
+    padding: 24px 32px;
+    background: var(--surface-2);
+    border-top: 2px double var(--rule);
+  }
+
+  .add-event-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 16px;
+  }
+
+  .form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .form-grid-4 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+    align-items: end;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .form-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--light);
+  }
+
+  .form-input, .form-select, .form-textarea {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 8px 10px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 13px;
+    color: var(--black);
+    width: 100%;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--black);
+    box-shadow: 0 0 0 2px rgba(26,23,18,0.08);
+  }
+
+  .form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A4540' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .checkbox-row input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--court-red);
+  }
+
+  .checkbox-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+
+  .btn-add-event {
+    background: var(--court-red);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn-add-event:hover {
+    background: #8B0A07;
+    transform: translateY(-1px);
+  }
+
+  .btn-add-event:active {
+    transform: translateY(0);
+  }
+
+  /* ─── CHANGE ORDER ─── */
+  .change-order-section {
+    padding: 24px 32px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .change-order-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .change-order-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--black);
+  }
+
+  .btn-generate {
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-generate:hover { background: var(--gold-light); }
+
+  .change-order-doc {
+    background: #FFFDF5;
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--gold);
+    padding: 20px 24px;
+    font-family: 'IM Fell English', serif;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--black);
+    white-space: pre-wrap;
+    position: relative;
+  }
+
+  .change-order-doc.hidden { display: none; }
+
+  .btn-copy-co {
+    margin-top: 12px;
+    background: none;
+    border: 1px solid var(--rule);
+    padding: 7px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-copy-co:hover { border-color: var(--black); color: var(--black); }
+
+  .btn-copy-co.copied { border-color: var(--green); color: var(--green); }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 32px;
+    text-align: center;
+  }
+
+  .empty-seal {
+    width: 100px;
+    height: 100px;
+    border: 3px solid var(--rule);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .empty-seal::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+  }
+
+  .empty-seal-inner {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--rule);
+  }
+
+  .empty-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--mid);
+    margin-bottom: 10px;
+  }
+
+  .empty-body {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--light);
+    max-width: 380px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .btn-create-first {
+    background: var(--black);
+    color: var(--paper);
+    border: none;
+    padding: 12px 28px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-create-first:hover { background: var(--court-red); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,23,18,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 540px;
+    position: relative;
+  }
+
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: repeating-linear-gradient(90deg, var(--court-red) 0, var(--court-red) 16px, var(--black) 16px, var(--black) 32px);
+  }
+
+  .modal-header {
+    padding: 24px 28px 16px;
+    border-bottom: 2px double var(--rule);
+    margin-top: 5px;
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--black);
+  }
+
+  .modal-sub {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--light);
+    margin-top: 2px;
+  }
+
+  .modal-body {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .modal-footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .btn-cancel {
+    background: none;
+    border: 1px solid var(--rule);
+    padding: 9px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel:hover { border-color: var(--black); color: var(--black); }
+
+  .btn-create {
+    background: var(--black);
+    color: var(--paper);
+    border: none;
+    padding: 9px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-create:hover { background: var(--court-red); }
+
+  /* ─── EXPOSURE SUMMARY ─── */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    background: var(--card);
+    margin-bottom: 0;
+  }
+
+  .summary-cell {
+    padding: 16px 20px;
+    border-right: 1px solid var(--rule);
+    text-align: center;
+  }
+
+  .summary-cell:last-child { border-right: none; }
+
+  .summary-cell-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--light);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .summary-cell-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--black);
+  }
+
+  .summary-cell-value.red { color: var(--court-red); }
+  .summary-cell-value.green { color: var(--green); }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface-2); }
+  ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .app-shell {
+      grid-template-columns: 1fr;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    .case-vitals {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-grid-4 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .header-stats {
+      display: none;
+    }
+
+    .letterhead {
+      padding: 16px;
+    }
+  }
+
+  /* ─── TOOLTIP ─── */
+  .tooltip-container { position: relative; display: inline-block; }
+  .tooltip-text {
+    visibility: hidden;
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--black);
+    color: var(--paper);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .tooltip-container:hover .tooltip-text { visibility: visible; }
+
+  /* ─── RULE SEPARATOR ─── */
+  .double-rule {
+    border: none;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    height: 3px;
+    margin: 0;
+    background: transparent;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- LETTERHEAD HEADER -->
+<header>
+  <div class="letterhead">
+    <div class="letterhead-left">
+      <div class="firm-seal">OS</div>
+      <div>
+        <div class="firm-name">OverScope</div>
+        <div class="firm-sub">Scope Creep Documentation System &amp; Change Order Generator</div>
+      </div>
+    </div>
+    <div class="header-stats" id="header-stats">
+      <div class="header-stat">
+        <span class="header-stat-label">Open Cases</span>
+        <span class="header-stat-value" id="stat-projects">0</span>
+      </div>
+      <div class="header-stat">
+        <span class="header-stat-label">Total Exhibits</span>
+        <span class="header-stat-value" id="stat-events">0</span>
+      </div>
+      <div class="header-stat">
+        <span class="header-stat-label">Total Exposure</span>
+        <span class="header-stat-value danger" id="stat-exposure">$0</span>
+      </div>
+    </div>
+  </div>
+  <div class="court-notice">
+    Every undocumented "quick favor" is a transfer of value. Document everything.
+  </div>
+</header>
+
+<!-- MAIN APP SHELL -->
+<div class="app-shell">
+
+  <!-- SIDEBAR — Case File Index -->
+  <aside class="sidebar">
+    <div class="sidebar-heading">Case File Index</div>
+    <div class="project-list" id="project-list"></div>
+    <button class="btn-new-project" onclick="openNewProjectModal()">
+      + Open New Case File
+    </button>
+    <div class="sidebar-footer">
+      <p class="sidebar-tip">Each project is a case file. Each scope creep event is an exhibit. Your change order is the filing.</p>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <!-- Populated by JS -->
+  </main>
+</div>
+
+<!-- NEW PROJECT MODAL -->
+<div class="modal-overlay" id="new-project-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Open New Case File</div>
+      <div class="modal-sub">A new project scope documentation dossier</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label">Project Name *</label>
+        <input class="form-input" id="np-name" type="text" placeholder="e.g. Robertson Marketing Website" autocomplete="off">
+      </div>
+      <div class="form-grid-2">
+        <div class="form-field">
+          <label class="form-label">Client Name *</label>
+          <input class="form-input" id="np-client" type="text" placeholder="e.g. Apex Digital LLC">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Your Hourly Rate ($)</label>
+          <input class="form-input" id="np-rate" type="number" placeholder="150" min="1" step="0.01">
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-field">
+          <label class="form-label">Project Start Date</label>
+          <input class="form-input" id="np-start" type="date">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Original Contract Value ($)</label>
+          <input class="form-input" id="np-value" type="number" placeholder="5000" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Original Scope Summary</label>
+        <textarea class="form-input form-textarea" id="np-scope" rows="3" placeholder="Briefly describe what was agreed to in the original contract..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeNewProjectModal()">Cancel</button>
+      <button class="btn-create" onclick="createProject()">Open Case File</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// OVERSCOPE — APPLICATION STATE & LOGIC
+// ============================================================
+
+const STORAGE_KEY = 'overscope_data_v2';
+let state = { projects: [], events: [] };
+let activeProjectId = null;
+
+// ─── PERSISTENCE ───
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state = JSON.parse(raw);
+  } catch(e) { state = { projects: [], events: [] }; }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ─── CATEGORIES ───
+const CATEGORIES = {
+  feature:  { label: 'New Feature',      cls: 'cat-feature' },
+  revision: { label: 'Excess Revision',  cls: 'cat-revision' },
+  meeting:  { label: 'Unplanned Meeting',cls: 'cat-meeting' },
+  support:  { label: 'Ongoing Support',  cls: 'cat-support' },
+  spec:     { label: 'Spec Change',      cls: 'cat-spec' },
+  other:    { label: 'Other',            cls: 'cat-other' },
+};
+
+// ─── FORMAT HELPERS ───
+function fmt$(n) {
+  if (!n && n !== 0) return '—';
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function fmtHours(h) {
+  if (!h && h !== 0) return '—';
+  const n = Number(h);
+  return n === 1 ? '1 hr' : n + ' hrs';
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const parts = d.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(parts[1])-1] + ' ' + parseInt(parts[2]) + ', ' + parts[0];
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+// ─── COMPUTED STATS ───
+function getProjectStats(projectId) {
+  const events = state.events.filter(e => e.projectId === projectId);
+  const totalHours = events.reduce((s, e) => s + (parseFloat(e.hours) || 0), 0);
+  const project = state.projects.find(p => p.id === projectId);
+  const rate = parseFloat(project?.rate) || 0;
+  const exposure = totalHours * rate;
+  return { totalHours, exposure, count: events.length };
+}
+
+function getGlobalStats() {
+  let totalExposure = 0;
+  let totalEvents = 0;
+  for (const p of state.projects) {
+    const s = getProjectStats(p.id);
+    totalExposure += s.exposure;
+    totalEvents += s.count;
+  }
+  return { totalExposure, totalEvents, projectCount: state.projects.length };
+}
+
+// ─── HEADER STATS ───
+function updateHeaderStats() {
+  const g = getGlobalStats();
+  document.getElementById('stat-projects').textContent = g.projectCount;
+  document.getElementById('stat-events').textContent = g.totalEvents;
+  document.getElementById('stat-exposure').textContent = fmt$(g.totalExposure);
+}
+
+// ─── SIDEBAR RENDER ───
+function renderSidebar() {
+  const list = document.getElementById('project-list');
+  if (state.projects.length === 0) {
+    list.innerHTML = '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:13px;color:var(--light);padding:8px 0;">No case files open yet.</div>';
+    return;
+  }
+
+  list.innerHTML = state.projects.map(p => {
+    const s = getProjectStats(p.id);
+    const isActive = p.id === activeProjectId;
+    const exposureClass = s.exposure > 0 ? '' : 'clean';
+    const statusCls = p.status === 'closed' ? 'closed' : p.status === 'disputed' ? 'disputed' : 'active';
+    const statusLabel = p.status === 'closed' ? 'Closed' : p.status === 'disputed' ? 'Disputed' : 'Active';
+    return `
+      <div class="project-card ${isActive ? 'active' : ''}" onclick="selectProject('${p.id}')">
+        <div class="project-card-name">${escHtml(p.name)}</div>
+        <div class="project-card-client">${escHtml(p.client || '—')}</div>
+        <div class="project-card-meta">
+          <span class="project-card-exposure ${exposureClass}">${s.exposure > 0 ? fmt$(s.exposure) + ' at risk' : 'Clean'}</span>
+          <span class="project-card-events">${s.count} exhibit${s.count !== 1 ? 's' : ''}</span>
+        </div>
+        <div style="margin-top:8px;">
+          <span class="status-badge ${statusCls}">${statusLabel}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── MAIN CONTENT RENDER ───
+function renderMain() {
+  const main = document.getElementById('main-content');
+
+  if (state.projects.length === 0) {
+    main.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-seal"><div class="empty-seal-inner">OS</div></div>
+        <div class="empty-title">No Active Case Files</div>
+        <div class="empty-body">OverScope documents the scope creep that's costing you money. Open a case file for each project and log every out-of-scope request as it happens.</div>
+        <button class="btn-create-first" onclick="openNewProjectModal()">+ Open Your First Case File</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (!activeProjectId) {
+    selectProject(state.projects[0].id);
+    return;
+  }
+
+  const project = state.projects.find(p => p.id === activeProjectId);
+  if (!project) {
+    selectProject(state.projects[0].id);
+    return;
+  }
+
+  const s = getProjectStats(project.id);
+  const events = state.events.filter(e => e.projectId === project.id).sort((a,b) => b.date.localeCompare(a.date));
+
+  const changeOrderHidden = true; // starts collapsed
+
+  main.innerHTML = `
+    <!-- CASE FILE DOCUMENT -->
+    <div class="case-file">
+      <div class="case-header">
+        <div class="case-number-row">
+          <span class="case-number">Case File No. OS-${String(state.projects.findIndex(p=>p.id===project.id)+1).padStart(4,'0')} &nbsp;/&nbsp; ${fmtDate(project.startDate)} &nbsp;/&nbsp; ${project.client || 'Unknown Client'}</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="status-badge ${project.status === 'closed' ? 'closed' : project.status === 'disputed' ? 'disputed' : 'active'}">${project.status === 'closed' ? 'Closed' : project.status === 'disputed' ? 'Disputed' : 'Active'}</span>
+            <select class="form-select" style="font-size:10px;padding:3px 24px 3px 8px;width:auto;" onchange="updateProjectStatus(event)">
+              <option value="active" ${project.status==='active'?'selected':''}>Active</option>
+              <option value="disputed" ${project.status==='disputed'?'selected':''}>Disputed</option>
+              <option value="closed" ${project.status==='closed'?'selected':''}>Closed</option>
+            </select>
+            <button onclick="deleteProject('${project.id}')" style="background:none;border:none;color:var(--light);cursor:pointer;font-size:16px;padding:2px 4px;transition:color 0.15s;" title="Delete case file" onmouseover="this.style.color='var(--court-red)'" onmouseout="this.style.color='var(--light)'">✕</button>
+          </div>
+        </div>
+        <div class="case-title">${escHtml(project.name)}</div>
+        ${project.scope ? `<div class="case-subtitle">${escHtml(project.scope)}</div>` : ''}
+        <div class="case-vitals">
+          <div class="vital-box">
+            <span class="vital-label">Total Exposure</span>
+            <div class="vital-value ${s.exposure > 0 ? 'red' : 'green'}">${fmt$(s.exposure)}</div>
+            <div class="vital-sub">${fmtHours(s.totalHours)} undocumented</div>
+          </div>
+          <div class="vital-box">
+            <span class="vital-label">Scope Events</span>
+            <div class="vital-value">${s.count}</div>
+            <div class="vital-sub">Exhibits filed</div>
+          </div>
+          <div class="vital-box">
+            <span class="vital-label">Hourly Rate</span>
+            <div class="vital-value amber">${project.rate ? fmt$(project.rate) + '/hr' : '—'}</div>
+            <div class="vital-sub">Basis for exposure</div>
+          </div>
+          <div class="vital-box">
+            <span class="vital-label">Original Value</span>
+            <div class="vital-value">${project.originalValue ? fmt$(project.originalValue) : '—'}</div>
+            <div class="vital-sub">
+              ${project.originalValue && s.exposure > 0 ? '+' + Math.round((s.exposure/parseFloat(project.originalValue))*100) + '% overage' : 'Contract amount'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXHIBITS SECTION -->
+      <div class="section-heading">
+        <span class="section-heading-text">§ I — Scope Creep Exhibits (${s.count})</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--light);">Undocumented work performed beyond original contract</span>
+      </div>
+
+      <div class="event-list" id="event-list">
+        ${events.length === 0 ? `
+          <div class="event-empty">
+            <div class="event-empty-icon">📋</div>
+            <div class="event-empty-text">No scope creep documented yet. The moment a client asks for "just one more thing," log it here.</div>
+            <div class="event-empty-sub">Use the form below to add your first exhibit</div>
+          </div>
+        ` : events.map((e, i) => {
+          const catKey = e.category || 'other';
+          const cat = CATEGORIES[catKey] || CATEGORIES.other;
+          const exhibitNum = String.fromCharCode(65 + (events.length - 1 - i)); // A, B, C...
+          const hours = parseFloat(e.hours) || 0;
+          const rate = parseFloat(project.rate) || 0;
+          const value = hours * rate;
+          return `
+            <div class="event-entry" data-event-id="${e.id}">
+              <div class="exhibit-stamp" style="animation-delay:${(events.length - 1 - i) * 0.05}s">
+                <span class="exhibit-word">Exhibit</span>
+                <span class="exhibit-num">${exhibitNum}</span>
+              </div>
+              <div class="event-body">
+                <div class="event-description">${escHtml(e.description)}</div>
+                <div class="event-meta-row">
+                  <span class="event-date">${fmtDate(e.date)}</span>
+                  <span class="event-cat ${cat.cls}">${cat.label}</span>
+                  ${e.clientRequested ? '<span class="client-flag">Client Request</span>' : ''}
+                </div>
+              </div>
+              <div class="event-amount">
+                <span class="event-hours">${fmtHours(e.hours)}</span>
+                ${value > 0 ? `<span class="event-value">${fmt$(value)}</span>` : ''}
+                <button class="event-delete" onclick="deleteEvent('${e.id}')" title="Remove exhibit">✕</button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <!-- ADD EVENT FORM -->
+      <div class="add-event-section">
+        <div class="add-event-title">§ II — File New Exhibit</div>
+        <div class="form-grid-4">
+          <div class="form-field">
+            <label class="form-label">Description *</label>
+            <input class="form-input" id="ev-desc" type="text" placeholder="What did they ask for that wasn't in scope?">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Hours</label>
+            <input class="form-input" id="ev-hours" type="number" placeholder="2.5" min="0.25" step="0.25">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="ev-cat">
+              ${Object.entries(CATEGORIES).map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Date</label>
+            <input class="form-input" id="ev-date" type="date" value="${today()}">
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <label class="checkbox-row">
+            <input type="checkbox" id="ev-client">
+            <span class="checkbox-label">Client Requested</span>
+          </label>
+          <button class="btn-add-event" onclick="addEvent()">+ File Exhibit</button>
+        </div>
+      </div>
+
+      <!-- CHANGE ORDER -->
+      <div class="change-order-section">
+        <div class="change-order-header">
+          <div class="change-order-title">§ III — Change Order Generator</div>
+          <button class="btn-generate" onclick="generateChangeOrder()">Generate Change Order Email</button>
+        </div>
+        <div class="change-order-doc hidden" id="co-doc"></div>
+        <button class="btn-copy-co hidden" id="co-copy-btn" onclick="copyChangeOrder()">Copy to Clipboard</button>
+      </div>
+    </div>
+  `;
+}
+
+// ─── PROJECT ACTIONS ───
+function selectProject(id) {
+  activeProjectId = id;
+  renderSidebar();
+  renderMain();
+}
+
+function openNewProjectModal() {
+  document.getElementById('np-name').value = '';
+  document.getElementById('np-client').value = '';
+  document.getElementById('np-rate').value = '';
+  document.getElementById('np-start').value = today();
+  document.getElementById('np-value').value = '';
+  document.getElementById('np-scope').value = '';
+  document.getElementById('new-project-modal').classList.add('open');
+  setTimeout(() => document.getElementById('np-name').focus(), 100);
+}
+
+function closeNewProjectModal() {
+  document.getElementById('new-project-modal').classList.remove('open');
+}
+
+function createProject() {
+  const name = document.getElementById('np-name').value.trim();
+  const client = document.getElementById('np-client').value.trim();
+  if (!name) { alert('Project name is required.'); return; }
+
+  const project = {
+    id: uid(),
+    name,
+    client,
+    rate: parseFloat(document.getElementById('np-rate').value) || 0,
+    startDate: document.getElementById('np-start').value || today(),
+    originalValue: parseFloat(document.getElementById('np-value').value) || 0,
+    scope: document.getElementById('np-scope').value.trim(),
+    status: 'active',
+    createdAt: new Date().toISOString()
+  };
+
+  state.projects.unshift(project);
+  save();
+  closeNewProjectModal();
+  activeProjectId = project.id;
+  renderAll();
+}
+
+function updateProjectStatus(ev) {
+  const project = state.projects.find(p => p.id === activeProjectId);
+  if (!project) return;
+  project.status = ev.target.value;
+  save();
+  renderSidebar();
+}
+
+function deleteProject(id) {
+  if (!confirm('Delete this case file and all its exhibits? This cannot be undone.')) return;
+  state.projects = state.projects.filter(p => p.id !== id);
+  state.events = state.events.filter(e => e.projectId !== id);
+  if (activeProjectId === id) {
+    activeProjectId = state.projects.length > 0 ? state.projects[0].id : null;
+  }
+  save();
+  renderAll();
+}
+
+// ─── EVENT ACTIONS ───
+function addEvent() {
+  const desc = document.getElementById('ev-desc').value.trim();
+  if (!desc) { alert('Please enter a description of the scope creep.'); return; }
+  if (!activeProjectId) return;
+
+  const hours = parseFloat(document.getElementById('ev-hours').value) || 0;
+  const ev = {
+    id: uid(),
+    projectId: activeProjectId,
+    description: desc,
+    hours,
+    category: document.getElementById('ev-cat').value,
+    date: document.getElementById('ev-date').value || today(),
+    clientRequested: document.getElementById('ev-client').checked,
+    createdAt: new Date().toISOString()
+  };
+
+  state.events.push(ev);
+  save();
+
+  // Reset form
+  document.getElementById('ev-desc').value = '';
+  document.getElementById('ev-hours').value = '';
+  document.getElementById('ev-client').checked = false;
+  document.getElementById('ev-date').value = today();
+
+  renderAll();
+
+  // Scroll to the new event
+  setTimeout(() => {
+    const list = document.getElementById('event-list');
+    if (list) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function deleteEvent(id) {
+  if (!confirm('Remove this exhibit?')) return;
+  state.events = state.events.filter(e => e.id !== id);
+  save();
+  renderAll();
+}
+
+// ─── CHANGE ORDER GENERATOR ───
+function generateChangeOrder() {
+  if (!activeProjectId) return;
+  const project = state.projects.find(p => p.id === activeProjectId);
+  const events = state.events.filter(e => e.projectId === activeProjectId);
+  if (events.length === 0) {
+    alert('No scope events to include in change order. Log some exhibits first.');
+    return;
+  }
+
+  const s = getProjectStats(activeProjectId);
+  const doc = document.getElementById('co-doc');
+  const copyBtn = document.getElementById('co-copy-btn');
+
+  const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const eventLines = events.map((e, i) => {
+    const hours = parseFloat(e.hours) || 0;
+    const rate = parseFloat(project.rate) || 0;
+    const val = hours * rate;
+    const cat = CATEGORIES[e.category || 'other']?.label || 'Other';
+    return `  ${i+1}. ${e.description} (${cat} — ${fmtHours(e.hours)}${val > 0 ? ` — ${fmt$(val)}` : ''})`;
+  }).join('\n');
+
+  const text = `Subject: Change Order Request — ${project.name}
+
+${date}
+
+Dear ${project.client || '[Client Name]'},
+
+I hope this message finds you well. As we continue work on ${project.name}, I wanted to formally document several items of work performed outside the original project scope, as outlined in our original agreement.
+
+ORIGINAL SCOPE SUMMARY:
+${project.scope || '[Original scope as defined in contract]'}
+
+OUT-OF-SCOPE WORK PERFORMED:
+${eventLines}
+
+CHANGE ORDER SUMMARY:
+  Total Additional Hours: ${s.totalHours.toFixed(2)} hours
+  Hourly Rate: ${fmt$(project.rate)}/hour
+  Additional Amount Due: ${fmt$(s.exposure)}
+
+Please review the above and confirm your acceptance of this change order at your earliest convenience. Upon your written approval, I will issue an updated invoice reflecting these additional services.
+
+I've truly enjoyed working on this project and want to ensure we're aligned as scope has evolved. Thank you for your understanding.
+
+Regards,
+[Your Name]`;
+
+  doc.textContent = text;
+  doc.classList.remove('hidden');
+  copyBtn.classList.remove('hidden');
+  copyBtn.textContent = 'Copy to Clipboard';
+  copyBtn.classList.remove('copied');
+  doc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyChangeOrder() {
+  const doc = document.getElementById('co-doc');
+  const btn = document.getElementById('co-copy-btn');
+  navigator.clipboard.writeText(doc.textContent).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy to Clipboard';
+      btn.classList.remove('copied');
+    }, 2500);
+  });
+}
+
+// ─── FULL RENDER ───
+function renderAll() {
+  updateHeaderStats();
+  renderSidebar();
+  renderMain();
+}
+
+// ─── ESCAPE HTML ───
+function escHtml(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── MODAL CLOSE ON OVERLAY CLICK ───
+document.getElementById('new-project-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeNewProjectModal();
+});
+
+// ─── KEYBOARD SHORTCUTS ───
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeNewProjectModal();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+    e.preventDefault();
+    openNewProjectModal();
+  }
+});
+
+// ─── SEED DATA (first run) ───
+function seedData() {
+  if (state.projects.length > 0) return;
+
+  const p1 = {
+    id: uid(), name: 'Henderson Insurance Website Redesign',
+    client: 'Henderson Insurance Group', rate: 125,
+    startDate: '2026-02-01', originalValue: 6500,
+    scope: 'Full 8-page website redesign including homepage, about, services, contact, team, blog, and FAQ pages. One round of revisions per page.',
+    status: 'active', createdAt: new Date().toISOString()
+  };
+
+  state.projects = [p1];
+
+  const evs = [
+    { id: uid(), projectId: p1.id, description: 'Add live chat widget with custom styling to homepage', hours: 3, category: 'feature', date: '2026-02-12', clientRequested: true },
+    { id: uid(), projectId: p1.id, description: 'Fourth revision pass on homepage hero section — "completely different direction"', hours: 4.5, category: 'revision', date: '2026-02-18', clientRequested: true },
+    { id: uid(), projectId: p1.id, description: 'Emergency call to discuss logo concepts (not in scope)', hours: 1, category: 'meeting', date: '2026-02-22', clientRequested: false },
+    { id: uid(), projectId: p1.id, description: 'Add ADA compliance / WCAG 2.1 audit + remediations after launch', hours: 6, category: 'spec', date: '2026-03-04', clientRequested: true },
+  ];
+
+  state.events = evs;
+  save();
+}
+
+// ─── INIT ───
+load();
+seedData();
+renderAll();
+</script>
+</body>
+</html>

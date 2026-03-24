@@ -125,6 +125,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## OverScope — 2026-03-23
+- Style: "Litigation Brief" — cream legal paper (#FAF8F2), double-rule dividers, case file numbering, formal section notation (§ I, § II, § III). The entire visual metaphor: you're building your legal case. Playfair Display headings, IM Fell English italic accents, IBM Plex Mono for all data labels and monospaced values. Zero gradients, zero rounded corners, sharp 2px borders throughout.
+- Palette: Paper cream (#FAF8F2), Card white (#FFFEFB), Ink black (#1A1712), Court red (#B8160A), Stamp red (#CC1A1A), Gold (#8B6914), Legal green (#1A6B30), Amber (#B87414)
+- Signature: Rubber-stamp EXHIBIT markers — each scope event gets an animated stamp (A, B, C...) that slams in with scale+rotate keyframe animation (starts at 1.6x/−12° and springs to resting position). The stamp has a double-border circle treatment and is rendered in court-red. The visual contrast between "formal legal documents" and "my client asked me to add a live chat widget for free" is the entire personality of the app.
+
 ## Dry Run — 2026-03-07
 - Style: "Vintage American Recipe Card" — 1950s/60s index card aesthetic with ruled lines, red margin line, coffee ring stain watermark, warm parchment-cream palette. The handwritten Caveat labels mixed with Playfair Display headers and Lora body text evoke a well-worn recipe box.
 - Palette: Aged parchment (#F5EDD8) background, card cream (#FBF7EE) surfaces, recipe red (#A8372B) primary, amber ale (#C68B17) accent, dark ink (#2C1A0E) text, border tan (#C4B49A) lines

@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  overscope:
+    build: .
+    container_name: overscope
+    restart: unless-stopped
+    ports:
+      - "3238:80"
+    networks:
+      - overscope-net
+
+networks:
+  overscope-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.238.0.0/24
