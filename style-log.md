@@ -125,6 +125,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## TrueHour — 2026-03-24
+- Style: "HP Financial Calculator" — skeuomorphic vintage financial calculator hardware (HP-12C/HP-12CP era). Dark charcoal chassis, amber LED display glow, orange accent keys, gunmetal gray secondary keys.
+- Palette: Chassis near-black (#2E2D2C), LED amber (#FF8C00), display bg (#1A1200), orange keys (#E55A00), tape paper (#FEFCF8)
+- Signature: Live calculation tape (Courier Prime monospace on warm paper background) that reprints on every input change — 5 labeled sections (§1–§5) showing the complete math from take-home target → tax gross-up → overhead → real billable hours → minimum rate. Every slider and input triggers an instant tape reprint with staggered CSS slide-in animation.
+
 ## OverScope — 2026-03-23
 - Style: "Litigation Brief" — cream legal paper (#FAF8F2), double-rule dividers, case file numbering, formal section notation (§ I, § II, § III). The entire visual metaphor: you're building your legal case. Playfair Display headings, IM Fell English italic accents, IBM Plex Mono for all data labels and monospaced values. Zero gradients, zero rounded corners, sharp 2px borders throughout.
 - Palette: Paper cream (#FAF8F2), Card white (#FFFEFB), Ink black (#1A1712), Court red (#B8160A), Stamp red (#CC1A1A), Gold (#8B6914), Legal green (#1A6B30), Amber (#B87414)
