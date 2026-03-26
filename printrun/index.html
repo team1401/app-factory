@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrintRun — Indie Publishing Break-Even Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ─── Design Tokens: Penguin Modern Classics Grid ─── */
+  :root {
+    --penguin-orange:  #E8560A;
+    --penguin-black:   #111111;
+    --penguin-white:   #FAFAF8;
+    --penguin-cream:   #F5F2EC;
+    --penguin-gray:    #4A4A48;
+    --penguin-rule:    #D4C9B8;
+    --penguin-green:   #1A7A4A;
+    --penguin-red:     #C42020;
+    --penguin-amber:   #B87818;
+
+    /* Bands */
+    --band-top:    var(--penguin-orange);
+    --band-mid:    var(--penguin-white);
+    --band-bot:    var(--penguin-orange);
+
+    --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --font-body:    'Barlow', sans-serif;
+    --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--penguin-cream);
+    color: var(--penguin-black);
+    font-family: var(--font-body);
+    min-height: 100vh;
+  }
+
+  /* ─── Top Nav ─── */
+  header {
+    background: var(--penguin-black);
+    color: var(--penguin-white);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    border-bottom: 4px solid var(--penguin-orange);
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--penguin-orange);
+  }
+  .logo span {
+    color: var(--penguin-white);
+  }
+  .tagline {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #888;
+  }
+
+  /* ─── Main Layout ─── */
+  .app-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 0;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* ─── Left Panel: Inputs ─── */
+  .inputs-panel {
+    background: var(--penguin-white);
+    border-right: 2px solid var(--penguin-rule);
+    overflow-y: auto;
+  }
+  .panel-section {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--penguin-rule);
+  }
+  .section-label {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--penguin-orange);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--penguin-orange);
+    opacity: 0.35;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .input-row.full { grid-template-columns: 1fr; }
+  .input-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .field label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--penguin-gray);
+  }
+  .field-hint {
+    font-size: 0.72rem;
+    color: #888;
+    margin-top: -0.1rem;
+    margin-bottom: 0.2rem;
+    font-style: italic;
+  }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    border: 1.5px solid var(--penguin-rule);
+    border-radius: 0;
+    padding: 0.5rem 0.65rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--penguin-black);
+    background: var(--penguin-cream);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--penguin-orange);
+    background: #fff;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--penguin-orange);
+  }
+  .range-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .range-val {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--penguin-orange);
+    min-width: 3rem;
+    text-align: right;
+  }
+  select {
+    cursor: pointer;
+  }
+
+  /* Channel checkboxes */
+  .channel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .channel-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border: 1.5px solid var(--penguin-rule);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .channel-item:hover { border-color: var(--penguin-orange); }
+  .channel-item input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--penguin-orange);
+  }
+  .channel-item span {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Cost rows */
+  .cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+  }
+  .cost-table th {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--penguin-gray);
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 2px solid var(--penguin-rule);
+  }
+  .cost-table td {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--penguin-rule);
+    vertical-align: middle;
+  }
+  .cost-table td input[type="number"] {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.8rem;
+  }
+  .cost-table td.label {
+    font-size: 0.85rem;
+    color: var(--penguin-gray);
+  }
+  .add-cost-btn {
+    margin-top: 0.6rem;
+    background: transparent;
+    border: 1.5px dashed var(--penguin-rule);
+    color: var(--penguin-gray);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.45rem 1rem;
+    cursor: pointer;
+    width: 100%;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .add-cost-btn:hover { border-color: var(--penguin-orange); color: var(--penguin-orange); }
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #bbb;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0.2rem;
+    transition: color 0.15s;
+  }
+  .remove-btn:hover { color: var(--penguin-red); }
+
+  /* ─── Right Panel: Penguin Book + Results ─── */
+  .results-panel {
+    background: var(--penguin-cream);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Signature: Penguin Book Cover Preview */
+  .book-preview-wrap {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: center;
+    background: var(--penguin-black);
+    border-bottom: 4px solid var(--penguin-orange);
+  }
+  .penguin-book {
+    width: 180px;
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.4), 12px 12px 0 rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    background: var(--penguin-white);
+    border: 2px solid var(--penguin-black);
+    font-family: var(--font-display);
+    user-select: none;
+  }
+  .book-band-top {
+    background: var(--penguin-orange);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0.5rem;
+  }
+  .book-logo {
+    font-weight: 900;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--penguin-white);
+  }
+  .book-oval {
+    width: 44px;
+    height: 28px;
+    border: 2px solid var(--penguin-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .book-oval-inner {
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--penguin-white);
+    text-align: center;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .book-mid {
+    background: var(--penguin-white);
+    flex: 1;
+    min-height: 100px;
+    padding: 0.75rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    text-align: center;
+    border-top: 2px solid var(--penguin-black);
+    border-bottom: 2px solid var(--penguin-black);
+  }
+  .book-title {
+    font-weight: 900;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--penguin-black);
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .book-author {
+    font-weight: 600;
+    font-size: 0.68rem;
+    color: var(--penguin-gray);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .book-pages-badge {
+    margin-top: 0.3rem;
+    background: var(--penguin-black);
+    color: var(--penguin-white);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+  }
+  .book-band-bot {
+    background: var(--penguin-orange);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--penguin-white);
+  }
+
+  /* ─── Results Output ─── */
+  .results-content {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .results-header {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--penguin-orange);
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--penguin-orange);
+  }
+
+  /* Summary row */
+  .summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .summary-card {
+    background: var(--penguin-white);
+    border: 1.5px solid var(--penguin-rule);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .summary-card.highlight {
+    border-color: var(--penguin-orange);
+    background: #fff;
+  }
+  .summary-card.green-card { border-color: var(--penguin-green); }
+  .summary-card.red-card   { border-color: var(--penguin-red); }
+  .sc-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--penguin-gray);
+  }
+  .sc-value {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--penguin-black);
+  }
+  .sc-value.orange { color: var(--penguin-orange); }
+  .sc-value.green  { color: var(--penguin-green); }
+  .sc-value.red    { color: var(--penguin-red); }
+  .sc-sub {
+    font-size: 0.72rem;
+    color: #888;
+  }
+
+  /* Channel breakdown table */
+  .channel-breakdown {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .channel-breakdown th {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--penguin-gray);
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 2px solid var(--penguin-rule);
+  }
+  .channel-breakdown th.right { text-align: right; }
+  .channel-breakdown td {
+    padding: 0.55rem 0.5rem;
+    border-bottom: 1px solid var(--penguin-rule);
+    font-size: 0.82rem;
+    vertical-align: middle;
+  }
+  .channel-breakdown td.right {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  .channel-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    color: var(--penguin-white);
+    margin-right: 0.3rem;
+  }
+  .cb-ks { background: #1A7A4A; }
+  .cb-is { background: #1A3A8A; }
+  .cb-az { background: #C47A10; }
+  .cb-di { background: #5A1A8A; }
+  .cb-gf { background: #1A6A7A; }
+  .cb-pe { background: #8A1A1A; }
+
+  .be-price {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--penguin-orange);
+  }
+  .profit-positive { color: var(--penguin-green); font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; }
+  .profit-negative { color: var(--penguin-red); font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; }
+
+  /* Profit at price visualization */
+  .profit-bar-section { }
+  .pbar-label {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--penguin-gray);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+  }
+  .profit-bar-wrap {
+    position: relative;
+    height: 18px;
+    background: var(--penguin-cream);
+    border: 1.5px solid var(--penguin-rule);
+    overflow: hidden;
+  }
+  .profit-bar-fill {
+    height: 100%;
+    transition: width 0.4s cubic-bezier(.23,1.1,.62,1), background 0.3s;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .pbar-val {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--penguin-black);
+    mix-blend-mode: multiply;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #aaa;
+  }
+  .empty-state h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    color: #ccc;
+  }
+  .empty-state p { font-size: 0.85rem; }
+
+  /* Alert/hint box */
+  .insight-box {
+    background: var(--penguin-cream);
+    border-left: 4px solid var(--penguin-orange);
+    padding: 0.65rem 0.75rem;
+    font-size: 0.82rem;
+    color: var(--penguin-gray);
+    line-height: 1.5;
+  }
+  .insight-box strong { color: var(--penguin-black); }
+
+  /* ─── Mobile ─── */
+  @media (max-width: 768px) {
+    .app-grid {
+      grid-template-columns: 1fr;
+    }
+    .results-panel {
+      border-top: 2px solid var(--penguin-orange);
+    }
+    .book-preview-wrap { padding: 1rem; }
+  }
+
+  /* Print margin band (signature: Penguin triple-band rule) */
+  .triple-rule {
+    height: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .triple-rule span {
+    flex: 1;
+    background: var(--penguin-black);
+  }
+  .triple-rule span:nth-child(2) {
+    background: var(--penguin-orange);
+  }
+  .triple-rule span:nth-child(3) {
+    background: var(--penguin-black);
+  }
+
+  /* Footer */
+  footer {
+    background: var(--penguin-black);
+    color: #666;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.75rem;
+    border-top: 3px solid var(--penguin-orange);
+    margin-top: auto;
+  }
+
+  /* Tooltip */
+  [data-tip] {
+    position: relative;
+    cursor: help;
+    border-bottom: 1px dashed #aaa;
+  }
+  [data-tip]::after {
+    content: attr(data-tip);
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--penguin-black);
+    color: var(--penguin-white);
+    padding: 0.35rem 0.6rem;
+    font-size: 0.72rem;
+    font-family: var(--font-body);
+    font-style: normal;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+  [data-tip]:hover::after { display: block; }
+
+  .form-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--penguin-rule);
+  }
+  .form-tab {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.25rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    color: var(--penguin-gray);
+    transition: color 0.15s;
+    margin-bottom: -2px;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .form-tab.active {
+    color: var(--penguin-orange);
+    border-bottom-color: var(--penguin-orange);
+  }
+  .form-tab:hover { color: var(--penguin-orange); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Print<span>Run</span></div>
+  <div class="tagline">Indie Publishing Break-Even Calculator</div>
+</header>
+
+<div class="app-grid">
+
+  <!-- ═══ LEFT: Input Panel ═══ -->
+  <div class="inputs-panel">
+
+    <div class="form-tabs">
+      <button class="form-tab active" data-tab="book">Book Details</button>
+      <button class="form-tab" data-tab="costs">Production Costs</button>
+      <button class="form-tab" data-tab="channels">Sales Channels</button>
+      <button class="form-tab" data-tab="target">Targets</button>
+    </div>
+
+    <!-- ── TAB: Book Details ── -->
+    <div class="tab-pane active" id="tab-book">
+      <div class="panel-section">
+        <div class="section-label">Book Identity</div>
+        <div class="input-row full">
+          <div class="field">
+            <label>Book Title</label>
+            <input type="text" id="bookTitle" value="My Book Title" maxlength="80">
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="field">
+            <label>Author Name</label>
+            <input type="text" id="authorName" value="Author Name" maxlength="40">
+          </div>
+          <div class="field">
+            <label>Genre</label>
+            <select id="genre">
+              <option>Memoir</option>
+              <option>Fiction</option>
+              <option>Non-Fiction</option>
+              <option>Self-Help</option>
+              <option>Humor</option>
+              <option>Travel</option>
+              <option>Technical</option>
+              <option>Children's</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-label">Print Specifications</div>
+        <div class="input-row three">
+          <div class="field">
+            <label>Page Count</label>
+            <input type="number" id="pageCount" value="240" min="24" max="828">
+          </div>
+          <div class="field">
+            <label>Trim Size</label>
+            <select id="trimSize">
+              <option value="pocket">5×8"</option>
+              <option value="trade" selected>6×9"</option>
+              <option value="large">8.5×11"</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Interior</label>
+            <select id="interior">
+              <option value="bw" selected>B&W</option>
+              <option value="color">Color</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="field">
+            <label>Binding</label>
+            <select id="binding">
+              <option value="paperback" selected>Paperback (POD)</option>
+              <option value="hardcover">Hardcover (POD)</option>
+              <option value="ebook">eBook Only</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Print Run (units)</label>
+            <input type="number" id="printRun" value="0" min="0" max="10000">
+            <span class="field-hint">0 = POD only</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-label">Your Retail Price</div>
+        <div class="field">
+          <label>Cover Price (USD)</label>
+          <div class="range-row">
+            <input type="range" id="retailPrice" min="4" max="49.99" step="0.25" value="16.99">
+            <span class="range-val" id="retailPriceVal">$16.99</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: Production Costs ── -->
+    <div class="tab-pane" id="tab-costs">
+      <div class="panel-section">
+        <div class="section-label">Pre-Publication Costs</div>
+        <div class="field-hint" style="padding:0 0 0.75rem;font-size:0.8rem;color:#666;">
+          One-time costs you need to recover. These are spread across your estimated total sales.
+        </div>
+        <table class="cost-table" id="costsTable">
+          <thead>
+            <tr>
+              <th>Cost Item</th>
+              <th style="width:100px">Amount ($)</th>
+              <th style="width:36px"></th>
+            </tr>
+          </thead>
+          <tbody id="costsBody">
+          </tbody>
+        </table>
+        <button class="add-cost-btn" id="addCostBtn">+ Add Cost Item</button>
+
+        <div style="margin-top:1.25rem;">
+          <div class="field">
+            <label>Expected Lifetime Units Sold</label>
+            <div class="field-hint">Used to amortize pre-pub costs per unit</div>
+            <input type="number" id="lifetimeSales" value="500" min="1" max="500000">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: Sales Channels ── -->
+    <div class="tab-pane" id="tab-channels">
+      <div class="panel-section">
+        <div class="section-label">Active Sales Channels</div>
+        <div class="field-hint" style="padding:0 0 0.75rem;font-size:0.8rem;color:#666;">
+          Select the channels you'll sell through. Royalties & fees are calculated per channel.
+        </div>
+        <div class="channel-grid" id="channelGrid">
+          <!-- JS populated -->
+        </div>
+      </div>
+      <div class="panel-section" id="channelOverrides">
+        <div class="section-label">Channel Overrides</div>
+        <div class="field-hint" style="padding:0 0 0.75rem;font-size:0.8rem;color:#666;">
+          Adjust default royalty rates if you have special agreements.
+        </div>
+        <table class="cost-table" id="overridesTable">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th style="width:110px"><span data-tip="% of cover price you keep">Royalty %</span></th>
+              <th style="width:100px"><span data-tip="Per-unit distribution fee (USD)">Fee/Unit</span></th>
+            </tr>
+          </thead>
+          <tbody id="overridesBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: Targets ── -->
+    <div class="tab-pane" id="tab-target">
+      <div class="panel-section">
+        <div class="section-label">Revenue Targets</div>
+        <div class="input-row">
+          <div class="field">
+            <label>Income Goal ($)</label>
+            <div class="field-hint">After costs &amp; fees, what do you want to earn?</div>
+            <input type="number" id="incomeGoal" value="5000" min="0">
+          </div>
+          <div class="field">
+            <label>Timeframe</label>
+            <select id="timeframe">
+              <option value="12">12 months</option>
+              <option value="24">24 months</option>
+              <option value="36">36 months</option>
+              <option value="60">5 years</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="field">
+            <label>Primary Channel</label>
+            <div class="field-hint">Channel used for target calculations</div>
+            <select id="primaryChannel">
+              <!-- JS populated -->
+            </select>
+          </div>
+          <div class="field">
+            <label>Bulk Discount (%)</label>
+            <div class="field-hint">If selling direct/events</div>
+            <input type="number" id="bulkDiscount" value="40" min="0" max="80">
+          </div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="section-label">Offset / Grant Income</div>
+        <div class="field">
+          <label>Grant / Advance / Other Income ($)</label>
+          <div class="field-hint">Pre-received money that offsets your costs</div>
+          <input type="number" id="offsetIncome" value="0" min="0">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ RIGHT: Book Cover + Results ═══ -->
+  <div class="results-panel">
+
+    <!-- Signature: Live Penguin Book Cover -->
+    <div class="book-preview-wrap">
+      <div class="penguin-book">
+        <div class="book-band-top">
+          <div class="book-logo">PrintRun</div>
+          <div class="book-oval">
+            <div class="book-oval-inner" id="bookGenreOval">Memoir</div>
+          </div>
+        </div>
+        <div class="book-mid">
+          <div class="book-title" id="bookTitlePreview">My Book Title</div>
+          <div class="book-author" id="bookAuthorPreview">Author Name</div>
+          <div class="book-pages-badge" id="bookPagesBadge">240 pp</div>
+        </div>
+        <div class="book-band-bot" id="bookPriceBadge">$16.99</div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-content">
+
+      <div class="results-header">Break-Even Analysis</div>
+
+      <div id="resultsOutput">
+        <div class="empty-state">
+          <h3>Configure your book</h3>
+          <p>Fill in the details on the left and results will appear here.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>PrintRun &mdash; Indie Publishing Break-Even Calculator &mdash; by App Factory</footer>
+  </div>
+
+</div>
+
+<script>
+// ─── Channel Definitions ───────────────────────────────────────────────
+const CHANNELS = {
+  ingram: {
+    name: 'IngramSpark',
+    badge: 'IS',
+    cls: 'cb-is',
+    defaultRoyalty: 45,   // % of cover price
+    setupFee: 0,
+    channelFee: 0,
+    notes: 'Wholesale 45–55%; most distributors take 55% discount, leaving 45%',
+    supportsEbook: true
+  },
+  kdp: {
+    name: 'Amazon KDP',
+    badge: 'AZ',
+    cls: 'cb-az',
+    defaultRoyalty: 60,
+    setupFee: 0,
+    channelFee: 0,
+    notes: '60% royalty on paperback (excl. printing cost); eBook 70% for $2.99–$9.99',
+    supportsEbook: true
+  },
+  direct: {
+    name: 'Direct (Events)',
+    badge: 'DI',
+    cls: 'cb-di',
+    defaultRoyalty: 100,
+    setupFee: 0,
+    channelFee: 0,
+    notes: 'You keep 100% minus printing cost — but count your print cost separately'
+  },
+  gumroad: {
+    name: 'Gumroad',
+    badge: 'GF',
+    cls: 'cb-gf',
+    defaultRoyalty: 91,
+    setupFee: 0,
+    channelFee: 0.30,
+    notes: 'eBook: 10% + $0.30/sale fee'
+  },
+  permafree: {
+    name: 'Draft2Digital',
+    badge: 'D2',
+    cls: 'cb-pe',
+    defaultRoyalty: 60,
+    setupFee: 0,
+    channelFee: 0,
+    notes: 'eBook aggregator — 60% net royalty via their 15% cut of retailer royalty'
+  },
+  bookshop: {
+    name: 'Bookshop.org',
+    badge: 'BS',
+    cls: 'cb-ks',
+    defaultRoyalty: 30,
+    setupFee: 0,
+    channelFee: 0,
+    notes: '30% royalty after 30% Bookshop margin and IngramSpark print cost'
+  }
+};
+
+// ─── Default Pre-Pub Costs ────────────────────────────────────────────
+let costs = [
+  { name: 'Developmental Editor', amount: 0 },
+  { name: 'Copy Editor', amount: 0 },
+  { name: 'Cover Design', amount: 0 },
+  { name: 'Interior Formatting', amount: 0 },
+  { name: 'ISBN Registration', amount: 125 },
+  { name: 'Ingram Setup Fee', amount: 49 },
+  { name: 'Marketing / ARC Copies', amount: 0 },
+];
+
+let activeChannels = new Set(['ingram', 'kdp', 'direct']);
+let channelOverrides = {};
+
+// ─── Print cost per unit (IngramSpark-style: base + per-page) ─────────
+function calcPrintCost(pages, interior, size, binding) {
+  if (binding === 'ebook') return 0;
+  // IngramSpark approximate per-unit cost
+  const bw  = { pocket: 0.0085, trade: 0.0085, large: 0.013 };
+  const col = { pocket: 0.07,   trade: 0.07,   large: 0.12 };
+  const ppRate = interior === 'color' ? col[size] : bw[size];
+  const base = binding === 'hardcover' ? 6.30 : 1.65;
+  return +(base + pages * ppRate).toFixed(2);
+}
+
+// ─── Royalty per unit for a channel ──────────────────────────────────
+function calcRoyaltyPerUnit(channel, price, pages, interior, size, binding) {
+  const def = CHANNELS[channel];
+  if (!def) return 0;
+  const pct   = (channelOverrides[channel]?.royalty ?? def.defaultRoyalty) / 100;
+  const fee   = channelOverrides[channel]?.fee ?? def.channelFee;
+  const print = (channel === 'kdp' || channel === 'ingram' || channel === 'bookshop')
+    ? calcPrintCost(pages, interior, size, binding) : 0;
+  return Math.max(0, price * pct - fee - print);
+}
+
+// ─── Break-Even units for a channel ──────────────────────────────────
+function breakEvenUnits(royaltyPerUnit, totalFixedCosts, offsetIncome) {
+  const netFixed = Math.max(0, totalFixedCosts - offsetIncome);
+  if (royaltyPerUnit <= 0) return Infinity;
+  return Math.ceil(netFixed / royaltyPerUnit);
+}
+
+// ─── Render functions ─────────────────────────────────────────────────
+function getInputs() {
+  return {
+    title:       document.getElementById('bookTitle').value || 'My Book',
+    author:      document.getElementById('authorName').value || 'Author',
+    genre:       document.getElementById('genre').value,
+    pages:       +document.getElementById('pageCount').value || 240,
+    size:        document.getElementById('trimSize').value,
+    interior:    document.getElementById('interior').value,
+    binding:     document.getElementById('binding').value,
+    printRun:    +document.getElementById('printRun').value || 0,
+    price:       +document.getElementById('retailPrice').value || 14.99,
+    lifetimeSales: +document.getElementById('lifetimeSales').value || 500,
+    incomeGoal:  +document.getElementById('incomeGoal').value || 5000,
+    timeframe:   +document.getElementById('timeframe').value || 12,
+    primaryChannel: document.getElementById('primaryChannel').value,
+    bulkDiscount: +document.getElementById('bulkDiscount').value || 40,
+    offsetIncome: +document.getElementById('offsetIncome').value || 0,
+  };
+}
+
+function totalFixedCosts() {
+  return costs.reduce((s, c) => s + (+c.amount || 0), 0);
+}
+
+function renderResults() {
+  const inp = getInputs();
+  const totalCosts = totalFixedCosts();
+  const amortizedCostPerUnit = totalCosts > 0 ? totalCosts / inp.lifetimeSales : 0;
+
+  if (activeChannels.size === 0) {
+    document.getElementById('resultsOutput').innerHTML = `
+      <div class="empty-state">
+        <h3>No channels selected</h3>
+        <p>Enable at least one sales channel in the Channels tab.</p>
+      </div>`;
+    return;
+  }
+
+  const channels = Array.from(activeChannels);
+  const rows = channels.map(ch => {
+    const def = CHANNELS[ch];
+    const royalty = calcRoyaltyPerUnit(ch, inp.price, inp.pages, inp.interior, inp.size, inp.binding);
+    const printCost = (ch === 'kdp' || ch === 'ingram' || ch === 'bookshop')
+      ? calcPrintCost(inp.pages, inp.interior, inp.size, inp.binding) : 0;
+    const grossPct = channelOverrides[ch]?.royalty ?? def.defaultRoyalty;
+    const fee = channelOverrides[ch]?.fee ?? def.channelFee;
+    const beUnits = breakEvenUnits(royalty, totalCosts, inp.offsetIncome);
+    const netPerUnit = royalty - amortizedCostPerUnit;
+
+    return { ch, def, royalty, printCost, grossPct, fee, beUnits, netPerUnit };
+  });
+
+  // Primary channel stats
+  const primary = rows.find(r => r.ch === inp.primaryChannel) || rows[0];
+  const monthlyUnitsNeeded = primary
+    ? Math.ceil((inp.incomeGoal / primary.royalty) / inp.timeframe) : '—';
+
+  // Units to hit income goal (via primary channel)
+  const unitsForGoal = primary
+    ? Math.ceil((inp.incomeGoal + totalCosts - inp.offsetIncome) / primary.royalty) : '—';
+
+  // Render summary cards
+  const priceFormatted = `$${inp.price.toFixed(2)}`;
+  const costTotal = `$${totalCosts.toFixed(2)}`;
+
+  // Profitability bar (based on primary channel)
+  const margin = primary ? Math.min(100, Math.max(0, (primary.royalty / inp.price) * 100)) : 0;
+  const barColor = margin > 50 ? 'var(--penguin-green)'
+                : margin > 25 ? 'var(--penguin-amber)' : 'var(--penguin-red)';
+
+  // Price viability insight
+  let insight = '';
+  if (primary) {
+    if (primary.royalty < 2.00) {
+      insight = `⚠ Your royalty on <strong>${CHANNELS[inp.primaryChannel]?.name || inp.primaryChannel}</strong> is <strong>$${primary.royalty.toFixed(2)}</strong>/unit — very thin. Consider raising the cover price or trimming production costs.`;
+    } else if (primary.beUnits !== Infinity && primary.beUnits < 100) {
+      insight = `✓ You break even after just <strong>${primary.beUnits} units</strong> on ${CHANNELS[inp.primaryChannel]?.name || inp.primaryChannel}. Low risk — even a small launch covers your investment.`;
+    } else if (primary.beUnits > 2000) {
+      insight = `⚠ Break-even requires <strong>${primary.beUnits.toLocaleString()} units</strong> — a significant sales target. Consider reducing pre-publication costs or raising the price.`;
+    } else {
+      insight = `Your cover price of <strong>${priceFormatted}</strong> yields <strong>$${primary.royalty.toFixed(2)}</strong>/unit on ${CHANNELS[inp.primaryChannel]?.name || inp.primaryChannel}. Break-even: <strong>${primary.beUnits.toLocaleString()} units</strong>.`;
+    }
+  }
+
+  document.getElementById('resultsOutput').innerHTML = `
+
+    <div class="summary-row">
+      <div class="summary-card highlight">
+        <div class="sc-label">Print Cost / Unit</div>
+        <div class="sc-value orange">$${calcPrintCost(inp.pages, inp.interior, inp.size, inp.binding).toFixed(2)}</div>
+        <div class="sc-sub">${inp.binding === 'ebook' ? 'eBook — no print cost' : inp.interior + ' · ' + inp.pages + 'pp'}</div>
+      </div>
+      <div class="summary-card">
+        <div class="sc-label">Total Pre-Pub Costs</div>
+        <div class="sc-value">${costTotal}</div>
+        <div class="sc-sub">$${(amortizedCostPerUnit).toFixed(2)}/unit over ${inp.lifetimeSales.toLocaleString()} sales</div>
+      </div>
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-card ${primary && primary.royalty > 3 ? 'green-card' : 'red-card'}">
+        <div class="sc-label">Break-Even (${CHANNELS[inp.primaryChannel]?.name || '—'})</div>
+        <div class="sc-value ${primary && primary.beUnits < 1000 ? 'green' : 'red'}">${primary ? (primary.beUnits === Infinity ? 'Unprofitable' : primary.beUnits.toLocaleString() + ' units') : '—'}</div>
+        <div class="sc-sub">after pre-pub costs</div>
+      </div>
+      <div class="summary-card">
+        <div class="sc-label">Units → $${inp.incomeGoal.toLocaleString()} goal</div>
+        <div class="sc-value">${typeof unitsForGoal === 'number' ? unitsForGoal.toLocaleString() : unitsForGoal}</div>
+        <div class="sc-sub">${typeof monthlyUnitsNeeded === 'number' ? monthlyUnitsNeeded + '/mo for ' + inp.timeframe + ' months' : ''}</div>
+      </div>
+    </div>
+
+    <div class="insight-box">${insight}</div>
+
+    <div class="profit-bar-section">
+      <div class="pbar-label">Margin at cover price (${priceFormatted})</div>
+      <div class="profit-bar-wrap">
+        <div class="profit-bar-fill" style="width:${margin.toFixed(1)}%;background:${barColor}"></div>
+        <div class="pbar-val">${margin.toFixed(0)}%</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="results-header" style="margin-bottom:0.5rem">Per-Channel Breakdown</div>
+      <table class="channel-breakdown">
+        <thead>
+          <tr>
+            <th>Channel</th>
+            <th class="right">Print Cost</th>
+            <th class="right">Royalty/Unit</th>
+            <th class="right">Break-Even</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>
+                <span class="channel-badge ${r.def.cls}">${r.def.badge}</span>
+                ${r.def.name}
+              </td>
+              <td class="right">$${r.printCost.toFixed(2)}</td>
+              <td class="right">
+                <span class="be-price">$${r.royalty.toFixed(2)}</span>
+                <br><small style="color:#999">${r.grossPct}% − fees</small>
+              </td>
+              <td class="right">
+                ${r.beUnits === Infinity ? '<span class="profit-negative">∞</span>' :
+                  `<span class="${r.beUnits < 500 ? 'profit-positive' : r.beUnits < 2000 ? '' : 'profit-negative'}">${r.beUnits.toLocaleString()}</span>`}
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <div class="results-header" style="margin-bottom:0.5rem">Direct Sales Analysis</div>
+      <div style="font-size:0.82rem;color:var(--penguin-gray);line-height:1.6">
+        Selling at events/direct at a
+        <strong>${inp.bulkDiscount}% author discount</strong>
+        (price: <strong>$${(inp.price * (1 - inp.bulkDiscount / 100)).toFixed(2)}</strong>)?<br>
+        Your profit after print cost:
+        <strong class="${(inp.price * (1 - inp.bulkDiscount/100) - calcPrintCost(inp.pages, inp.interior, inp.size, inp.binding)) > 0 ? 'profit-positive' : 'profit-negative'}">
+          $${(inp.price * (1 - inp.bulkDiscount / 100) - calcPrintCost(inp.pages, inp.interior, inp.size, inp.binding)).toFixed(2)}/unit
+        </strong>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Book Cover Preview ───────────────────────────────────────────────
+function updateBookPreview() {
+  const title  = document.getElementById('bookTitle').value || 'My Book';
+  const author = document.getElementById('authorName').value || 'Author';
+  const genre  = document.getElementById('genre').value;
+  const pages  = document.getElementById('pageCount').value;
+  const price  = (+document.getElementById('retailPrice').value || 14.99).toFixed(2);
+
+  document.getElementById('bookTitlePreview').textContent = title;
+  document.getElementById('bookAuthorPreview').textContent = author;
+  document.getElementById('bookGenreOval').textContent = genre;
+  document.getElementById('bookPagesBadge').textContent = `${pages} pp`;
+  document.getElementById('bookPriceBadge').textContent = `$${price}`;
+  document.getElementById('retailPriceVal').textContent = `$${price}`;
+}
+
+// ─── Build cost rows ──────────────────────────────────────────────────
+function renderCosts() {
+  const tbody = document.getElementById('costsBody');
+  tbody.innerHTML = costs.map((c, i) => `
+    <tr>
+      <td class="label">
+        <input type="text" value="${c.name}" style="border:none;background:transparent;font-family:var(--font-body);font-size:0.85rem;color:var(--penguin-gray);width:100%;padding:0;outline:none;"
+          onchange="costs[${i}].name=this.value">
+      </td>
+      <td>
+        <input type="number" value="${c.amount}" min="0" step="50"
+          onchange="costs[${i}].amount=+this.value; renderResults()">
+      </td>
+      <td>
+        <button class="remove-btn" onclick="costs.splice(${i},1);renderCosts();renderResults()">✕</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function addCost() {
+  costs.push({ name: 'New Cost Item', amount: 0 });
+  renderCosts();
+}
+
+// ─── Build channel checkboxes ─────────────────────────────────────────
+function renderChannelGrid() {
+  const grid = document.getElementById('channelGrid');
+  grid.innerHTML = Object.entries(CHANNELS).map(([id, ch]) => `
+    <label class="channel-item">
+      <input type="checkbox" ${activeChannels.has(id) ? 'checked' : ''}
+        onchange="toggleChannel('${id}', this.checked)">
+      <span class="channel-badge ${ch.cls}" style="font-size:0.6rem;padding:1px 5px">${ch.badge}</span>
+      <span>${ch.name}</span>
+    </label>
+  `).join('');
+}
+
+function renderOverrides() {
+  const tbody = document.getElementById('overridesBody');
+  const active = Array.from(activeChannels);
+  tbody.innerHTML = active.map(id => {
+    const def = CHANNELS[id];
+    const ov  = channelOverrides[id] || {};
+    return `
+      <tr>
+        <td class="label">
+          <span class="channel-badge ${def.cls}" style="font-size:0.6rem;padding:1px 5px">${def.badge}</span>
+          ${def.name}
+        </td>
+        <td>
+          <input type="number" value="${ov.royalty ?? def.defaultRoyalty}" min="0" max="100" step="1"
+            onchange="setOverride('${id}','royalty',+this.value)">
+        </td>
+        <td>
+          <input type="number" value="${ov.fee ?? def.channelFee}" min="0" step="0.01"
+            onchange="setOverride('${id}','fee',+this.value)">
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderPrimaryChannelSelect() {
+  const sel = document.getElementById('primaryChannel');
+  const active = Array.from(activeChannels);
+  const prev = sel.value;
+  sel.innerHTML = active.map(id =>
+    `<option value="${id}" ${id === prev ? 'selected' : ''}>${CHANNELS[id].name}</option>`
+  ).join('');
+  if (!active.includes(prev) && active.length > 0) sel.value = active[0];
+}
+
+function toggleChannel(id, on) {
+  on ? activeChannels.add(id) : activeChannels.delete(id);
+  renderOverrides();
+  renderPrimaryChannelSelect();
+  renderResults();
+}
+
+function setOverride(id, field, val) {
+  if (!channelOverrides[id]) channelOverrides[id] = {};
+  channelOverrides[id][field] = val;
+  renderResults();
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────
+document.querySelectorAll('.form-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.form-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ─── Wire up all inputs ───────────────────────────────────────────────
+const allInputs = [
+  'bookTitle','authorName','genre','pageCount','trimSize','interior',
+  'binding','printRun','retailPrice','lifetimeSales','incomeGoal',
+  'timeframe','primaryChannel','bulkDiscount','offsetIncome'
+];
+allInputs.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', () => { updateBookPreview(); renderResults(); });
+    el.addEventListener('change', () => { updateBookPreview(); renderResults(); });
+  }
+});
+
+document.getElementById('addCostBtn').addEventListener('click', addCost);
+
+// ─── Init ─────────────────────────────────────────────────────────────
+renderCosts();
+renderChannelGrid();
+renderOverrides();
+renderPrimaryChannelSelect();
+updateBookPreview();
+renderResults();
+</script>
+</body>
+</html>

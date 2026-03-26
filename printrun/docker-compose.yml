@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  printrun:
+    build: .
+    container_name: printrun
+    ports:
+      - "3240:80"
+    restart: unless-stopped
+    networks:
+      printrun-net:
+        ipv4_address: 10.200.240.2
+
+networks:
+  printrun-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.200.240.0/28

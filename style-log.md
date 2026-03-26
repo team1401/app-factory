@@ -125,6 +125,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## PrintRun — 2026-03-25
+- Style: "Penguin Modern Classics Grid" — inspired by Edward Young's original 1935 Penguin Books cover design. Three-band horizontal layout (orange/white/orange), Barlow Condensed bold condensed type as Gill Sans stand-in, thick black rule lines, utilitarian information-dense layout with zero decoration.
+- Palette: Penguin Orange (#E8560A), Penguin Black (#111111), Penguin White (#FAFAF8), Penguin Cream (#F5F2EC), Penguin Gray (#4A4A48), Green (#1A7A4A), Red (#C42020), Amber (#B87818)
+- Signature: Live Penguin-style book cover preview (three-band design with oval genre badge, title in bold condensed uppercase, author name, page count badge, price in bottom band) that updates in real time as user types title/author and adjusts specs. The deliberate contrast of applying a 1935 British literary design language to indie publishing math is the entire visual identity.
+
 ## TrueHour — 2026-03-24
 - Style: "HP Financial Calculator" — skeuomorphic vintage financial calculator hardware (HP-12C/HP-12CP era). Dark charcoal chassis, amber LED display glow, orange accent keys, gunmetal gray secondary keys.
 - Palette: Chassis near-black (#2E2D2C), LED amber (#FF8C00), display bg (#1A1200), orange keys (#E55A00), tape paper (#FEFCF8)
