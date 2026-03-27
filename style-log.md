@@ -125,6 +125,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## Preflight — 2026-03-26
+- Style: "Film Noir Dispatch" — 1940s hard-boiled detective noir aesthetic applied to email marketing. Dark near-black office atmosphere with bright aged-paper inbox preview cards as "evidence photographs." Venetian blind shadow effect on header via repeating-linear-gradient. Signal red accent. Spy/dispatch nomenclature throughout ("Field Report," "Flagged Operatives," "Engagement Probability," "Case Files").
+- Palette: Near-black (#0C0C0A) background, Primary surface (#161614), Bone white (#F4F0E8) text, Signal red (#C8201A) accent, Aged paper (#F0EAD8) inbox cards, Steel gray (#8A8880) secondary, Amber (#C8901A) caution, Green (#3A7A52) success
+- Signature: Bright aged-paper inbox preview cards floating against the dark background like illuminated evidence photographs — each shows a real email client simulation (Gmail Mobile/Desktop, Apple Mail) with accurate character truncation limits, "TRUNCATED" red badges, and corner-fold CSS decorations. The contrast between the dark "night office" and the bright paper "evidence" is the identity. Venetian blind repeating-gradient on the header. Playfair Display italic + DM Mono + Inter typography trio.
+
 ## PrintRun — 2026-03-25
 - Style: "Penguin Modern Classics Grid" — inspired by Edward Young's original 1935 Penguin Books cover design. Three-band horizontal layout (orange/white/orange), Barlow Condensed bold condensed type as Gill Sans stand-in, thick black rule lines, utilitarian information-dense layout with zero decoration.
 - Palette: Penguin Orange (#E8560A), Penguin Black (#111111), Penguin White (#FAFAF8), Penguin Cream (#F5F2EC), Penguin Gray (#4A4A48), Green (#1A7A4A), Red (#C42020), Amber (#B87818)
