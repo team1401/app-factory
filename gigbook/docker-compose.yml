@@ -1,0 +1,8 @@
+services:
+  gigbook:
+    build: .
+    container_name: gigbook
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - NGINX_PORT=3241

@@ -125,6 +125,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## GigBook — 2026-03-27
+- Style: "1970s Concert Handbill" — Bill Graham Presents / Fillmore West poster aesthetic. Warm near-black background (#0A0804), concert gold primary (#E8B840), Fillmore orange secondary (#E85820), electric blue (#3060D0). Zero cool grays, zero gradients — purely warm and flat.
+- Palette: Near-black (#0A0804) bg, Gold (#E8B840) primary, Orange (#E85820) secondary, Blue (#3060D0) tertiary, Green (#30A060) paid, Red (#C82020) canceled, Cream (#F4E8C0) text
+- Signature: Each gig card is a mini concert poster — venue name in giant Anton all-caps, 4px color accent bar at card top coded by pay status (green=paid, orange=owed, blue=free/traded, red=canceled), status badge styled as concert copy. Anton + Bebas Neue + IM Fell English + Special Elite type quartet.
+
 ## Preflight — 2026-03-26
 - Style: "Film Noir Dispatch" — 1940s hard-boiled detective noir aesthetic applied to email marketing. Dark near-black office atmosphere with bright aged-paper inbox preview cards as "evidence photographs." Venetian blind shadow effect on header via repeating-linear-gradient. Signal red accent. Spy/dispatch nomenclature throughout ("Field Report," "Flagged Operatives," "Engagement Probability," "Case Files").
 - Palette: Near-black (#0C0C0A) background, Primary surface (#161614), Bone white (#F4F0E8) text, Signal red (#C8201A) accent, Aged paper (#F0EAD8) inbox cards, Steel gray (#8A8880) secondary, Amber (#C8901A) caution, Green (#3A7A52) success
