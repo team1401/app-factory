@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReefLog — Reef Tank Chemistry Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <style>
+    /* =====================================================
+       REEFLOG — DE STIJL DATA DESIGN SYSTEM
+       Mondrian grid aesthetics applied to reef chemistry.
+       Thick black borders, primary color anchors,
+       white fields, large typographic data numbers.
+    ===================================================== */
+
+    :root {
+      --black: #0D0D0D;
+      --white: #FAFAF8;
+      --red: #CC1A1A;
+      --blue: #1A3ACC;
+      --yellow: #E8C620;
+      --surface: #FFFFFF;
+      --border: 3px solid #0D0D0D;
+      --border-thick: 5px solid #0D0D0D;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-ui: 'Space Grotesk', sans-serif;
+      --font-data: 'Space Mono', monospace;
+
+      /* Parameter status colors */
+      --ok: #1A7A3A;
+      --low: #E8C620;
+      --high: #E8501A;
+      --critical: #CC1A1A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      background: var(--white);
+      color: var(--black);
+      min-height: 100vh;
+    }
+
+    /* =====================================================
+       MONDRIAN HEADER — THICK BLACK GRID LOGO AREA
+    ===================================================== */
+    .site-header {
+      background: var(--black);
+      border-bottom: var(--border-thick);
+      display: flex;
+      align-items: stretch;
+      height: 72px;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-right: var(--border-thick);
+      gap: 12px;
+      background: var(--black);
+      text-decoration: none;
+    }
+    .logo-mondrian {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      grid-template-columns: 14px 4px 22px;
+      grid-template-rows: 22px 4px 14px;
+      border: 2px solid var(--white);
+      gap: 0;
+    }
+    .logo-mondrian .m-red { background: var(--red); grid-column: 1; grid-row: 1; }
+    .logo-mondrian .m-line-v { background: var(--white); grid-column: 2; grid-row: 1 / span 3; }
+    .logo-mondrian .m-blue { background: var(--blue); grid-column: 3; grid-row: 1; }
+    .logo-mondrian .m-line-h { background: var(--white); grid-column: 1; grid-row: 2; }
+    .logo-mondrian .m-line-hb { background: var(--white); grid-column: 3; grid-row: 2; }
+    .logo-mondrian .m-yellow { background: var(--yellow); grid-column: 1; grid-row: 3; }
+    .logo-mondrian .m-white { background: var(--white); grid-column: 3; grid-row: 3; opacity: 0.1; }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 32px;
+      color: var(--white);
+      letter-spacing: 2px;
+    }
+
+    .header-tank-select {
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-right: var(--border);
+      gap: 12px;
+      flex: 1;
+    }
+    .header-tank-select label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #888;
+    }
+    .tank-selector {
+      font-family: var(--font-ui);
+      font-size: 15px;
+      font-weight: 600;
+      background: var(--surface);
+      border: var(--border);
+      padding: 6px 12px;
+      cursor: pointer;
+      appearance: none;
+      color: var(--black);
+      min-width: 200px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .header-btn {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: var(--white);
+      color: var(--black);
+      border: none;
+      border-left: var(--border);
+      border-right: none;
+      padding: 0 24px;
+      height: 100%;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .header-btn:hover { background: var(--yellow); }
+    .header-btn.primary {
+      background: var(--blue);
+      color: var(--white);
+    }
+    .header-btn.primary:hover { background: #2040DD; }
+    .header-btn.red-btn {
+      background: var(--red);
+      color: var(--white);
+    }
+    .header-btn.red-btn:hover { background: #BB1010; }
+
+    /* =====================================================
+       LAYOUT — THREE-COLUMN MONDRIAN GRID
+    ===================================================== */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 300px;
+      grid-template-rows: auto;
+      min-height: calc(100vh - 72px);
+      border-bottom: var(--border);
+    }
+
+    /* =====================================================
+       LEFT PANEL — TANKS LIST + STATS
+    ===================================================== */
+    .left-panel {
+      border-right: var(--border-thick);
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+    .panel-add-btn {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .panel-add-btn:hover { background: var(--blue); }
+
+    .tanks-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .tank-item {
+      padding: 14px 20px;
+      border-bottom: var(--border);
+      cursor: pointer;
+      transition: background 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .tank-item:hover { background: #F0F0EE; }
+    .tank-item.active { background: var(--black); color: var(--white); }
+    .tank-item.active .tank-item-sub { color: #AAA; }
+    .tank-color-dot {
+      width: 12px;
+      height: 12px;
+      border: 2px solid currentColor;
+      flex-shrink: 0;
+    }
+    .tank-item-info { flex: 1; }
+    .tank-item-name { font-weight: 700; font-size: 14px; }
+    .tank-item-sub { font-size: 11px; color: #666; margin-top: 2px; font-family: var(--font-data); }
+
+    .tank-health-badge {
+      font-family: var(--font-data);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border: 2px solid currentColor;
+      flex-shrink: 0;
+    }
+    .badge-ok { color: var(--ok); }
+    .badge-warn { color: #C07A00; }
+    .badge-critical { color: var(--critical); }
+
+    /* Quick stats under tanks list */
+    .panel-stats {
+      border-top: var(--border-thick);
+    }
+    .stat-row {
+      display: flex;
+      border-bottom: var(--border);
+    }
+    .stat-cell {
+      flex: 1;
+      padding: 14px 16px;
+      border-right: var(--border);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 28px;
+      line-height: 1;
+    }
+    .stat-number.red { color: var(--red); }
+    .stat-number.blue { color: var(--blue); }
+    .stat-number.yellow { color: #C09010; }
+
+    /* =====================================================
+       CENTER PANEL — PARAMETER GRID (MONDRIAN)
+    ===================================================== */
+    .center-panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tank-masthead {
+      padding: 20px 28px;
+      border-bottom: var(--border-thick);
+      display: flex;
+      align-items: flex-end;
+      gap: 24px;
+    }
+    .tank-name-display {
+      font-family: var(--font-display);
+      font-size: 52px;
+      line-height: 1;
+      letter-spacing: 2px;
+    }
+    .tank-meta {
+      flex: 1;
+      padding-bottom: 4px;
+    }
+    .tank-meta-row {
+      font-size: 12px;
+      font-family: var(--font-data);
+      color: #666;
+      margin-bottom: 3px;
+    }
+    .tank-meta-row span { font-weight: 700; color: var(--black); }
+    .last-test-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      font-family: var(--font-data);
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--yellow);
+      border: var(--border);
+      margin-left: 12px;
+    }
+
+    /* =====================================================
+       MONDRIAN PARAMETER GRID
+       Big number cells with color-coded status bars
+    ===================================================== */
+    .param-grid-section {
+      padding: 20px 28px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .section-label {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-color-bar {
+      height: 4px;
+      width: 40px;
+      background: currentColor;
+    }
+    .section-blue { color: var(--blue); }
+    .section-red { color: var(--red); }
+    .section-yellow { color: #A07A00; }
+
+    .param-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0;
+      border: var(--border-thick);
+      margin-bottom: 28px;
+    }
+
+    .param-cell {
+      border: var(--border);
+      padding: 16px 16px 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.1s;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+    }
+    .param-cell:hover { background: #F5F5F3; }
+    .param-cell.status-ok { border-bottom: 5px solid var(--ok); }
+    .param-cell.status-low { border-bottom: 5px solid var(--yellow); }
+    .param-cell.status-high { border-bottom: 5px solid var(--high); }
+    .param-cell.status-critical { border-bottom: 5px solid var(--critical); }
+    .param-cell.status-unknown { border-bottom: 5px solid #CCC; }
+
+    .param-name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .param-value {
+      font-family: var(--font-display);
+      font-size: 42px;
+      line-height: 1;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .param-value.no-data {
+      font-family: var(--font-data);
+      font-size: 14px;
+      color: #AAA;
+      font-weight: 400;
+    }
+    .param-unit {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      padding-bottom: 4px;
+      align-self: flex-end;
+    }
+    .param-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    .param-range {
+      font-family: var(--font-data);
+      font-size: 10px;
+      color: #AAA;
+    }
+    .param-age {
+      font-family: var(--font-data);
+      font-size: 10px;
+      color: #AAA;
+    }
+    .param-trend {
+      font-size: 14px;
+    }
+
+    /* Status accent tiles — Mondrian color blocks */
+    .param-cell.accent-blue { background: #F0F3FF; }
+    .param-cell.accent-red { background: #FFF0F0; }
+    .param-cell.accent-yellow { background: #FFFBE0; }
+
+    /* =====================================================
+       LOG ENTRY BUTTON
+    ===================================================== */
+    .log-entry-bar {
+      padding: 16px 28px;
+      border-top: var(--border-thick);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .log-now-btn {
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 1px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 14px 32px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .log-now-btn:hover { background: var(--blue); }
+    .quick-param-hint {
+      font-size: 12px;
+      color: #888;
+      font-family: var(--font-data);
+    }
+
+    /* =====================================================
+       RIGHT PANEL — HISTORY FEED
+    ===================================================== */
+    .right-panel {
+      border-left: var(--border-thick);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history-header {
+      padding: 16px 20px;
+      border-bottom: var(--border-thick);
+    }
+    .history-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+    .history-subtitle {
+      font-size: 11px;
+      color: #888;
+      font-family: var(--font-data);
+      margin-top: 2px;
+    }
+
+    .history-feed {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .history-entry {
+      border-bottom: var(--border);
+      padding: 14px 20px;
+    }
+    .history-entry-date {
+      font-family: var(--font-display);
+      font-size: 15px;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .history-entry-ago {
+      font-family: var(--font-data);
+      font-size: 10px;
+      color: #999;
+      font-style: normal;
+    }
+
+    .history-params {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .history-param-item {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .history-param-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: #888;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .history-param-val {
+      font-family: var(--font-data);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .history-param-val.out-of-range { color: var(--critical); }
+    .history-param-val.warning { color: #C07A00; }
+
+    .history-notes {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+      padding-top: 8px;
+      border-top: 1px dashed #DDD;
+    }
+
+    .history-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: #AAA;
+    }
+    .history-empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+    .history-empty-text {
+      font-size: 13px;
+      font-family: var(--font-data);
+    }
+
+    /* =====================================================
+       MODALS — LOG ENTRY + ADD TANK + SETUP
+    ===================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13,13,13,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--white);
+      border: var(--border-thick);
+      width: 660px;
+      max-width: 96vw;
+      max-height: 92vh;
+      overflow-y: auto;
+      transform: translateY(12px);
+      transition: transform 0.15s;
+    }
+    .modal-overlay.open .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      background: var(--black);
+      color: var(--white);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      letter-spacing: 1.5px;
+    }
+    .modal-close {
+      font-family: var(--font-data);
+      font-size: 20px;
+      background: none;
+      border: none;
+      color: var(--white);
+      cursor: pointer;
+      opacity: 0.7;
+    }
+    .modal-close:hover { opacity: 1; }
+
+    .modal-body {
+      padding: 24px 28px;
+    }
+
+    /* Mondrian color section dividers */
+    .modal-section {
+      margin-bottom: 24px;
+    }
+    .modal-section-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      letter-spacing: 1px;
+      padding: 8px 0;
+      border-bottom: var(--border);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-section-bar {
+      width: 24px;
+      height: 3px;
+    }
+    .bar-red { background: var(--red); }
+    .bar-blue { background: var(--blue); }
+    .bar-yellow { background: var(--yellow); }
+
+    .param-entry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .field-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+    }
+    .field-sub {
+      font-size: 10px;
+      color: #AAA;
+      font-family: var(--font-data);
+    }
+    .field-input {
+      font-family: var(--font-data);
+      font-size: 15px;
+      font-weight: 700;
+      background: var(--white);
+      border: var(--border);
+      padding: 8px 10px;
+      width: 100%;
+      color: var(--black);
+      transition: border-color 0.1s;
+    }
+    .field-input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 3px 3px 0 rgba(26,58,204,0.15);
+    }
+    .field-input.out-of-range { border-color: var(--red); background: #FFF5F5; }
+    .field-input.warning { border-color: var(--yellow); background: #FFFBE0; }
+
+    .field-range-hint {
+      font-size: 10px;
+      font-family: var(--font-data);
+      color: #AAA;
+    }
+    .range-warn { color: var(--critical); font-weight: 700; }
+    .range-caution { color: #B08000; font-weight: 700; }
+
+    .notes-field {
+      width: 100%;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      border: var(--border);
+      padding: 10px 12px;
+      resize: vertical;
+      min-height: 64px;
+      background: var(--white);
+      color: var(--black);
+    }
+    .notes-field:focus { outline: none; border-color: var(--blue); }
+
+    .modal-footer {
+      padding: 16px 28px;
+      border-top: var(--border-thick);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .btn-save {
+      font-family: var(--font-display);
+      font-size: 18px;
+      letter-spacing: 1px;
+      background: var(--ok);
+      color: var(--white);
+      border: none;
+      padding: 12px 28px;
+      cursor: pointer;
+    }
+    .btn-save:hover { background: #0F6030; }
+    .btn-cancel {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--white);
+      color: var(--black);
+      border: var(--border);
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+    .btn-cancel:hover { background: #EEE; }
+
+    /* =====================================================
+       ADD TANK FORM
+    ===================================================== */
+    .add-tank-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .color-picker-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.1s;
+    }
+    .color-swatch.selected { border-color: var(--black); }
+
+    /* =====================================================
+       TREND CHART — SPARKLINE IN HISTORY
+    ===================================================== */
+    .chart-section {
+      padding: 16px 20px;
+      border-bottom: var(--border-thick);
+    }
+    .chart-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chart-param-select {
+      font-family: var(--font-data);
+      font-size: 11px;
+      background: var(--white);
+      border: var(--border);
+      padding: 3px 8px;
+      cursor: pointer;
+    }
+    .sparkline-container {
+      position: relative;
+      height: 80px;
+    }
+    #sparklineCanvas { width: 100%; height: 80px; }
+
+    /* =====================================================
+       ALERT BANNERS
+    ===================================================== */
+    .alert-banner {
+      padding: 10px 28px;
+      border-bottom: var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .alert-banner.critical { background: var(--red); color: var(--white); }
+    .alert-banner.warning { background: var(--yellow); color: var(--black); }
+    .alert-banner.info { background: var(--blue); color: var(--white); }
+    .alert-icon { font-size: 16px; }
+    .alert-dismiss {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: inherit;
+      opacity: 0.7;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* =====================================================
+       EMPTY STATE
+    ===================================================== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 40px;
+      text-align: center;
+      flex: 1;
+    }
+
+    .empty-mondrian {
+      width: 80px;
+      height: 80px;
+      border: 3px solid var(--black);
+      display: grid;
+      grid-template-columns: 1fr 3px 1fr;
+      grid-template-rows: 1fr 3px 1fr;
+      margin-bottom: 24px;
+    }
+    .em-r { background: var(--red); }
+    .em-b { background: var(--blue); }
+    .em-y { background: var(--yellow); }
+    .em-w { background: var(--white); }
+    .em-lv { background: var(--black); }
+    .em-lh { background: var(--black); }
+
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+    .empty-sub {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 24px;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+    .empty-cta {
+      font-family: var(--font-display);
+      font-size: 18px;
+      letter-spacing: 1px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 14px 32px;
+      cursor: pointer;
+    }
+    .empty-cta:hover { background: var(--blue); }
+
+    /* =====================================================
+       TOAST NOTIFICATION
+    ===================================================== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-data);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 14px 20px;
+      border-left: 5px solid var(--ok);
+      transform: translateY(60px);
+      opacity: 0;
+      transition: all 0.2s;
+      z-index: 200;
+      max-width: 320px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: var(--critical); }
+    .toast.warning { border-left-color: var(--yellow); }
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+    @media (max-width: 900px) {
+      .app-layout {
+        grid-template-columns: 1fr;
+      }
+      .left-panel, .right-panel {
+        border-right: none;
+        border-left: none;
+        border-bottom: var(--border-thick);
+      }
+      .right-panel { display: none; }
+      .param-entry-grid { grid-template-columns: 1fr 1fr; }
+      .tank-name-display { font-size: 36px; }
+    }
+    @media (max-width: 600px) {
+      .param-entry-grid { grid-template-columns: 1fr; }
+      .logo-text { font-size: 24px; }
+      .header-tank-select { display: none; }
+    }
+
+    /* =====================================================
+       SCROLLBAR STYLING
+    ===================================================== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--white); }
+    ::-webkit-scrollbar-thumb { background: #CCC; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #AAA; }
+
+    /* Utility */
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  </style>
+</head>
+<body>
+
+<!-- SITE HEADER -->
+<header class="site-header" role="banner">
+  <div class="header-logo" aria-label="ReefLog Home">
+    <div class="logo-mondrian" aria-hidden="true">
+      <div class="m-red"></div>
+      <div class="m-line-v"></div>
+      <div class="m-blue"></div>
+      <div class="m-line-h"></div>
+      <div class="m-line-hb"></div>
+      <div class="m-yellow"></div>
+      <div class="m-white"></div>
+    </div>
+    <span class="logo-text">REEFLOG</span>
+  </div>
+  <div class="header-tank-select">
+    <label for="globalTankSelect">ACTIVE TANK</label>
+    <select class="tank-selector" id="globalTankSelect" aria-label="Select active tank">
+      <option value="">— Select a tank —</option>
+    </select>
+  </div>
+  <div class="header-actions">
+    <button class="header-btn primary" onclick="openLogModal()" aria-label="Log water test results">LOG TEST</button>
+    <button class="header-btn" onclick="openAddTankModal()" aria-label="Add a new tank">+ TANK</button>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<main class="app-layout" id="appLayout" role="main">
+
+  <!-- LEFT PANEL — TANKS -->
+  <aside class="left-panel" aria-label="Tank list">
+    <div class="panel-header">
+      <span class="panel-title">TANKS</span>
+      <button class="panel-add-btn" onclick="openAddTankModal()">+ ADD</button>
+    </div>
+    <div class="tanks-list" id="tanksList" role="list" aria-label="Your tanks"></div>
+    <div class="panel-stats">
+      <div class="stat-row">
+        <div class="stat-cell">
+          <div class="stat-label">TANKS</div>
+          <div class="stat-number blue" id="statTanks">0</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">TESTS</div>
+          <div class="stat-number" id="statTests">0</div>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-cell">
+          <div class="stat-label">ALERTS</div>
+          <div class="stat-number red" id="statAlerts">0</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">STREAK</div>
+          <div class="stat-number yellow" id="statStreak">0</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CENTER PANEL — PARAMETERS -->
+  <section class="center-panel" aria-label="Parameter grid" id="centerPanel">
+    <!-- Alerts area -->
+    <div id="alertsArea"></div>
+
+    <!-- Tank masthead -->
+    <div class="tank-masthead" id="tankMasthead" style="display:none">
+      <div class="tank-name-display" id="tankNameDisplay"></div>
+      <div class="tank-meta" id="tankMetaArea"></div>
+    </div>
+
+    <!-- Parameter sections -->
+    <div class="param-grid-section" id="paramGridSection" style="display:none">
+      <!-- Major Parameters -->
+      <div class="section-label section-blue">
+        <span class="section-color-bar" style="background:var(--blue)"></span>
+        MAJOR PARAMETERS
+      </div>
+      <div class="param-grid" id="majorParamGrid"></div>
+
+      <!-- Minor Parameters -->
+      <div class="section-label section-red">
+        <span class="section-color-bar" style="background:var(--red)"></span>
+        NUTRIENTS &amp; TRACE
+      </div>
+      <div class="param-grid" id="minorParamGrid"></div>
+
+      <!-- Physical Parameters -->
+      <div class="section-label section-yellow">
+        <span class="section-color-bar" style="background:#A07A00"></span>
+        PHYSICAL
+      </div>
+      <div class="param-grid" id="physicalParamGrid"></div>
+    </div>
+
+    <!-- Log entry button -->
+    <div class="log-entry-bar" id="logEntryBar" style="display:none">
+      <button class="log-now-btn" onclick="openLogModal()">LOG TEST RESULTS</button>
+      <span class="quick-param-hint" id="lastTestHint"></span>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-mondrian" aria-hidden="true">
+        <div class="em-r"></div>
+        <div class="em-lv"></div>
+        <div class="em-b"></div>
+        <div class="em-lh" style="grid-column:1/-1"></div>
+        <div class="em-y"></div>
+        <div class="em-lv"></div>
+        <div class="em-w"></div>
+      </div>
+      <div class="empty-title">NO TANK SELECTED</div>
+      <div class="empty-sub">Add your first reef tank to start tracking chemistry and keeping your coral alive.</div>
+      <button class="empty-cta" onclick="openAddTankModal()">+ ADD FIRST TANK</button>
+    </div>
+  </section>
+
+  <!-- RIGHT PANEL — HISTORY -->
+  <aside class="right-panel" aria-label="Test history">
+    <div class="chart-section">
+      <div class="chart-title">
+        TREND
+        <select class="chart-param-select" id="chartParamSelect" onchange="renderSparkline()"></select>
+      </div>
+      <div class="sparkline-container">
+        <canvas id="sparklineCanvas" aria-label="Parameter trend chart"></canvas>
+      </div>
+    </div>
+    <div class="history-header">
+      <div class="history-title">TEST LOG</div>
+      <div class="history-subtitle" id="historySubtitle">— no tests logged —</div>
+    </div>
+    <div class="history-feed" id="historyFeed" role="list" aria-label="Test history feed"></div>
+  </aside>
+</main>
+
+<!-- MODAL: LOG TEST -->
+<div class="modal-overlay" id="logModal" role="dialog" aria-modal="true" aria-labelledby="logModalTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="logModalTitle">LOG WATER TEST</span>
+      <button class="modal-close" onclick="closeModal('logModal')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-title">
+          <span class="modal-section-bar bar-blue"></span>
+          MAJOR PARAMETERS
+        </div>
+        <div class="param-entry-grid">
+          <div class="field-group">
+            <label class="field-label" for="inp_alk">Alkalinity (dKH)</label>
+            <div class="field-sub">Target: 8–12 dKH</div>
+            <input class="field-input" type="number" id="inp_alk" placeholder="8–12" step="0.1" min="0" max="30" aria-label="Alkalinity in dKH">
+            <span class="field-range-hint" id="hint_alk"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp_calcium">Calcium (ppm)</label>
+            <div class="field-sub">Target: 380–450 ppm</div>
+            <input class="field-input" type="number" id="inp_calcium" placeholder="380–450" step="1" min="0" max="600" aria-label="Calcium in ppm">
+            <span class="field-range-hint" id="hint_calcium"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp_magnesium">Magnesium (ppm)</label>
+            <div class="field-sub">Target: 1250–1350 ppm</div>
+            <input class="field-input" type="number" id="inp_magnesium" placeholder="1250–1350" step="1" min="0" max="2000" aria-label="Magnesium in ppm">
+            <span class="field-range-hint" id="hint_magnesium"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">
+          <span class="modal-section-bar bar-red"></span>
+          NUTRIENTS &amp; TRACE
+        </div>
+        <div class="param-entry-grid">
+          <div class="field-group">
+            <label class="field-label" for="inp_nitrate">Nitrate (ppm)</label>
+            <div class="field-sub">SPS: &lt;5 / LPS: &lt;20 ppm</div>
+            <input class="field-input" type="number" id="inp_nitrate" placeholder="0–20" step="0.1" min="0" max="500" aria-label="Nitrate in ppm">
+            <span class="field-range-hint" id="hint_nitrate"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp_phosphate">Phosphate (ppm)</label>
+            <div class="field-sub">Target: 0.02–0.1 ppm</div>
+            <input class="field-input" type="number" id="inp_phosphate" placeholder="0.02–0.1" step="0.01" min="0" max="2" aria-label="Phosphate in ppm">
+            <span class="field-range-hint" id="hint_phosphate"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp_ammonia">Ammonia (ppm)</label>
+            <div class="field-sub">Target: 0 ppm</div>
+            <input class="field-input" type="number" id="inp_ammonia" placeholder="0" step="0.01" min="0" max="10" aria-label="Ammonia in ppm">
+            <span class="field-range-hint" id="hint_ammonia"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp_nitrite">Nitrite (ppm)</label>
+            <div class="field-sub">Target: 0 ppm</div>
+            <input class="field-input" type="number" id="inp_nitrite" placeholder="0" step="0.01" min="0" max="5" aria-label="Nitrite in ppm">
+            <span class="field-range-hint" id="hint_nitrite"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp_iodine">Iodine (ppm)</label>
+            <div class="field-sub">Target: 0.06–0.10 ppm</div>
+            <input class="field-input" type="number" id="inp_iodine" placeholder="0.06–0.10" step="0.005" min="0" max="1" aria-label="Iodine in ppm">
+            <span class="field-range-hint" id="hint_iodine"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">
+          <span class="modal-section-bar bar-yellow"></span>
+          PHYSICAL
+        </div>
+        <div class="param-entry-grid">
+          <div class="field-group">
+            <label class="field-label" for="inp_salinity">Salinity (SG)</label>
+            <div class="field-sub">Target: 1.025–1.026</div>
+            <input class="field-input" type="number" id="inp_salinity" placeholder="1.025" step="0.001" min="1.000" max="1.040" aria-label="Specific gravity / salinity">
+            <span class="field-range-hint" id="hint_salinity"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp_ph">pH</label>
+            <div class="field-sub">Target: 8.1–8.4</div>
+            <input class="field-input" type="number" id="inp_ph" placeholder="8.1–8.4" step="0.01" min="5" max="10" aria-label="pH level">
+            <span class="field-range-hint" id="hint_ph"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp_temp">Temp (°F)</label>
+            <div class="field-sub">Target: 76–80°F</div>
+            <input class="field-input" type="number" id="inp_temp" placeholder="76–80" step="0.1" min="50" max="100" aria-label="Temperature in Fahrenheit">
+            <span class="field-range-hint" id="hint_temp"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">
+          <span class="modal-section-bar bar-blue"></span>
+          NOTES
+        </div>
+        <textarea class="notes-field" id="inp_notes" placeholder="Observations, dosing added, water change %, equipment changes..." rows="3" aria-label="Test notes"></textarea>
+        <div style="margin-top:8px; display:flex; align-items:center; gap:12px; font-size:12px; color:#888;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" id="inp_waterchange" style="width:16px;height:16px;" aria-label="Water change performed today">
+            <span>Water change today</span>
+          </label>
+          <div class="field-group" style="flex-direction:row;align-items:center;gap:8px;margin:0;">
+            <label class="field-label" for="inp_wc_pct" style="white-space:nowrap;">% Volume:</label>
+            <input class="field-input" type="number" id="inp_wc_pct" placeholder="%" step="5" min="0" max="100" style="width:70px;" aria-label="Water change volume percentage">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('logModal')">Cancel</button>
+      <button class="btn-save" onclick="saveLogEntry()">SAVE TEST</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD TANK -->
+<div class="modal-overlay" id="addTankModal" role="dialog" aria-modal="true" aria-labelledby="addTankModalTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="addTankModalTitle">ADD REEF TANK</span>
+      <button class="modal-close" onclick="closeModal('addTankModal')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="add-tank-grid">
+        <div class="field-group">
+          <label class="field-label" for="at_name">Tank Name</label>
+          <input class="field-input" type="text" id="at_name" placeholder="e.g. Main Display, Frag Tank..." maxlength="40" aria-label="Tank name">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="at_volume">Volume (gallons)</label>
+          <input class="field-input" type="number" id="at_volume" placeholder="e.g. 75" min="1" max="5000" step="1" aria-label="Tank volume in gallons">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="at_type">Tank Type</label>
+          <select class="field-input" id="at_type" style="cursor:pointer" aria-label="Tank type">
+            <option value="sps">SPS Dominant (Mixed/SPS)</option>
+            <option value="lps">LPS Dominant</option>
+            <option value="softies">Soft Corals</option>
+            <option value="fowlr">FOWLR (Fish Only)</option>
+            <option value="nano">Nano / Pico Reef</option>
+            <option value="frag">Frag Tank</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="at_established">Date Established</label>
+          <input class="field-input" type="date" id="at_established" aria-label="Date tank was established">
+        </div>
+        <div class="field-group" style="grid-column:1/-1">
+          <label class="field-label">Display Color</label>
+          <div class="color-picker-row" id="colorPickerRow" role="group" aria-label="Choose tank color">
+            <!-- Color swatches added by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('addTankModal')">Cancel</button>
+      <button class="btn-save" onclick="saveTank()">ADD TANK</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<script>
+/* =====================================================
+   REEFLOG — APPLICATION LOGIC
+   All data stored in localStorage for privacy.
+   No server required. Offline-first.
+===================================================== */
+
+// ---- DATA MODEL ----
+const STORAGE_KEY = 'reeflog_data';
+let appState = {
+  tanks: [],
+  logs: [],           // { id, tankId, timestamp, params: {}, notes, waterChange, wcPct }
+  activeTankId: null
+};
+
+// ---- PARAMETER DEFINITIONS ----
+const PARAMS = {
+  // Major
+  alk:       { name: 'Alkalinity', unit: 'dKH',  min: 8,    max: 12,   critLow: 6,   critHigh: 14,   section: 'major' },
+  calcium:   { name: 'Calcium',    unit: 'ppm',  min: 380,  max: 450,  critLow: 350, critHigh: 480,  section: 'major' },
+  magnesium: { name: 'Magnesium',  unit: 'ppm',  min: 1250, max: 1350, critLow: 1150,critHigh: 1450, section: 'major' },
+  // Nutrients & Trace
+  nitrate:   { name: 'Nitrate',    unit: 'ppm',  min: 0,    max: 20,   critLow: null,critHigh: 50,   section: 'minor' },
+  phosphate: { name: 'Phosphate',  unit: 'ppm',  min: 0.02, max: 0.1,  critLow: null,critHigh: 0.3,  section: 'minor' },
+  ammonia:   { name: 'Ammonia',    unit: 'ppm',  min: 0,    max: 0.02, critLow: null,critHigh: 0.1,  section: 'minor' },
+  nitrite:   { name: 'Nitrite',    unit: 'ppm',  min: 0,    max: 0.02, critLow: null,critHigh: 0.1,  section: 'minor' },
+  iodine:    { name: 'Iodine',     unit: 'ppm',  min: 0.06, max: 0.10, critLow: 0,   critHigh: 0.15, section: 'minor' },
+  // Physical
+  salinity:  { name: 'Salinity',   unit: 'SG',   min: 1.025,max: 1.026,critLow: 1.020,critHigh:1.030,section: 'physical' },
+  ph:        { name: 'pH',         unit: '',     min: 8.1,  max: 8.4,  critLow: 7.8, critHigh: 8.5,  section: 'physical' },
+  temp:      { name: 'Temp',       unit: '°F',   min: 76,   max: 80,   critLow: 70,  critHigh: 84,   section: 'physical' },
+};
+
+const TANK_COLORS = [
+  '#1A3ACC', '#CC1A1A', '#E8C620', '#1A7A3A',
+  '#8B1ACC', '#CC6A1A', '#1AAABB', '#666666',
+  '#AA1A6A', '#1A7ACC'
+];
+
+let selectedColor = TANK_COLORS[0];
+
+// ---- PERSISTENCE ----
+function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e) {}
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      appState = { ...appState, ...parsed };
+    }
+  } catch(e) {}
+}
+
+// ---- STATUS HELPERS ----
+function getParamStatus(key, value) {
+  if (value === null || value === undefined || value === '') return 'unknown';
+  const p = PARAMS[key];
+  if (!p) return 'unknown';
+  const v = parseFloat(value);
+  if (p.critHigh !== null && v > p.critHigh) return 'critical';
+  if (p.critLow !== null && v < p.critLow) return 'critical';
+  if (v > p.max) return 'high';
+  if (v < p.min) return 'low';
+  return 'ok';
+}
+
+function getTankHealth(tankId) {
+  const logs = appState.logs.filter(l => l.tankId === tankId);
+  if (!logs.length) return 'unknown';
+  const latest = logs.sort((a,b) => b.timestamp - a.timestamp)[0];
+  let alerts = 0, criticals = 0;
+  for (const [key, val] of Object.entries(latest.params)) {
+    if (val === '' || val === null) continue;
+    const s = getParamStatus(key, val);
+    if (s === 'critical') criticals++;
+    else if (s === 'high' || s === 'low') alerts++;
+  }
+  if (criticals > 0) return 'critical';
+  if (alerts > 1) return 'warn';
+  return 'ok';
+}
+
+function getAlertCount() {
+  let count = 0;
+  for (const tank of appState.tanks) {
+    const h = getTankHealth(tank.id);
+    if (h === 'critical' || h === 'warn') count++;
+  }
+  return count;
+}
+
+function getTestStreak() {
+  if (!appState.activeTankId) return 0;
+  const logs = appState.logs
+    .filter(l => l.tankId === appState.activeTankId)
+    .sort((a,b) => b.timestamp - a.timestamp);
+  if (!logs.length) return 0;
+  let streak = 0;
+  let prevDay = null;
+  for (const log of logs) {
+    const d = new Date(log.timestamp);
+    const dayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    if (!prevDay) { streak = 1; prevDay = d; continue; }
+    const diffMs = prevDay - d;
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays <= 8) { streak++; prevDay = d; }
+    else break;
+  }
+  return streak;
+}
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  const hrs = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 2) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  if (hrs < 24) return `${hrs}h ago`;
+  if (days === 1) return 'yesterday';
+  return `${days}d ago`;
+}
+
+function formatDate(ts) {
+  return new Date(ts).toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+  });
+}
+
+function getLatestLog(tankId) {
+  const logs = appState.logs.filter(l => l.tankId === tankId);
+  if (!logs.length) return null;
+  return logs.sort((a,b) => b.timestamp - a.timestamp)[0];
+}
+
+// ---- RENDER TANKS LIST ----
+function renderTanksList() {
+  const list = document.getElementById('tanksList');
+  const sel = document.getElementById('globalTankSelect');
+
+  // Clear
+  list.innerHTML = '';
+  while (sel.options.length > 1) sel.remove(1);
+
+  if (!appState.tanks.length) {
+    list.innerHTML = `<div style="padding:24px 20px;text-align:center;color:#AAA;font-size:13px;font-family:var(--font-data)">No tanks yet. Add your first reef tank.</div>`;
+    return;
+  }
+
+  for (const tank of appState.tanks) {
+    const health = getTankHealth(tank.id);
+    const healthClass = health === 'critical' ? 'badge-critical' : health === 'warn' ? 'badge-warn' : 'badge-ok';
+    const healthText = health === 'critical' ? 'CRIT' : health === 'warn' ? 'WARN' : 'OK';
+    const latest = getLatestLog(tank.id);
+    const subText = latest ? timeAgo(latest.timestamp) : 'no tests';
+
+    const item = document.createElement('div');
+    item.className = 'tank-item' + (tank.id === appState.activeTankId ? ' active' : '');
+    item.setAttribute('role', 'listitem');
+    item.setAttribute('aria-label', `${tank.name}, health: ${health}`);
+    item.onclick = () => selectTank(tank.id);
+    item.innerHTML = `
+      <div class="tank-color-dot" style="background:${tank.color};border-color:${tank.color}" aria-hidden="true"></div>
+      <div class="tank-item-info">
+        <div class="tank-item-name">${escHtml(tank.name)}</div>
+        <div class="tank-item-sub">${tank.volume ? tank.volume + ' gal · ' : ''}${subText}</div>
+      </div>
+      <span class="tank-health-badge ${healthClass}" aria-label="Health: ${health}">${healthText}</span>
+    `;
+    list.appendChild(item);
+
+    const opt = document.createElement('option');
+    opt.value = tank.id;
+    opt.textContent = tank.name;
+    if (tank.id === appState.activeTankId) opt.selected = true;
+    sel.appendChild(opt);
+  }
+
+  document.getElementById('statTanks').textContent = appState.tanks.length;
+  document.getElementById('statTests').textContent = appState.logs.length;
+  document.getElementById('statAlerts').textContent = getAlertCount();
+  document.getElementById('statStreak').textContent = getTestStreak();
+}
+
+// ---- RENDER CENTER PANEL ----
+function renderCenter() {
+  const tank = appState.tanks.find(t => t.id === appState.activeTankId);
+  const emptyState = document.getElementById('emptyState');
+  const masthead = document.getElementById('tankMasthead');
+  const paramSection = document.getElementById('paramGridSection');
+  const logBar = document.getElementById('logEntryBar');
+  const alertsArea = document.getElementById('alertsArea');
+
+  if (!tank) {
+    emptyState.style.display = '';
+    masthead.style.display = 'none';
+    paramSection.style.display = 'none';
+    logBar.style.display = 'none';
+    alertsArea.innerHTML = '';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  masthead.style.display = '';
+  paramSection.style.display = '';
+  logBar.style.display = '';
+
+  // Masthead
+  const latest = getLatestLog(tank.id);
+  document.getElementById('tankNameDisplay').textContent = tank.name.toUpperCase();
+  document.getElementById('tankMetaArea').innerHTML = `
+    <div class="tank-meta-row">Type: <span>${formatTankType(tank.type)}</span></div>
+    ${tank.volume ? `<div class="tank-meta-row">Volume: <span>${tank.volume} gal</span></div>` : ''}
+    ${tank.established ? `<div class="tank-meta-row">Est: <span>${formatDate(new Date(tank.established).getTime())}</span></div>` : ''}
+    ${latest ? `<div class="tank-meta-row">Last test: <span>${formatDate(latest.timestamp)}</span> <span class="last-test-badge">${timeAgo(latest.timestamp)}</span></div>` : ''}
+  `;
+
+  // Alerts
+  alertsArea.innerHTML = '';
+  if (latest) {
+    const criticals = [];
+    const warnings = [];
+    for (const [key, val] of Object.entries(latest.params)) {
+      if (val === '' || val === null || val === undefined) continue;
+      const s = getParamStatus(key, val);
+      const p = PARAMS[key];
+      if (s === 'critical') criticals.push(`${p.name}: ${val} ${p.unit}`);
+      else if (s === 'high') warnings.push(`${p.name} HIGH: ${val} ${p.unit}`);
+      else if (s === 'low') warnings.push(`${p.name} LOW: ${val} ${p.unit}`);
+    }
+    if (criticals.length) {
+      const b = document.createElement('div');
+      b.className = 'alert-banner critical';
+      b.innerHTML = `<span class="alert-icon">⚠️</span> CRITICAL: ${criticals.join(' · ')} <button class="alert-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss alert">✕</button>`;
+      alertsArea.appendChild(b);
+    }
+    if (warnings.length) {
+      const b = document.createElement('div');
+      b.className = 'alert-banner warning';
+      b.innerHTML = `<span class="alert-icon">⚡</span> ${warnings.join(' · ')} <button class="alert-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss alert">✕</button>`;
+      alertsArea.appendChild(b);
+    }
+  }
+
+  // Log hint
+  document.getElementById('lastTestHint').textContent = latest
+    ? `Last test: ${timeAgo(latest.timestamp)}`
+    : 'No tests logged yet';
+
+  // Render param grids
+  renderParamGrid('majorParamGrid', 'major', latest);
+  renderParamGrid('minorParamGrid', 'minor', latest);
+  renderParamGrid('physicalParamGrid', 'physical', latest);
+}
+
+function renderParamGrid(gridId, section, latest) {
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = '';
+  const params = Object.entries(PARAMS).filter(([,p]) => p.section === section);
+
+  for (const [key, p] of params) {
+    const val = latest?.params?.[key];
+    const status = val !== undefined && val !== '' && val !== null
+      ? getParamStatus(key, val) : 'unknown';
+
+    const prev = getPreviousValue(key);
+    let trend = '';
+    if (prev !== null && val !== undefined && val !== null && val !== '') {
+      const diff = parseFloat(val) - parseFloat(prev);
+      if (Math.abs(diff) < 0.001) trend = '→';
+      else trend = diff > 0 ? '↑' : '↓';
+    }
+
+    const cell = document.createElement('div');
+    cell.className = `param-cell status-${status}`;
+    cell.setAttribute('role', 'button');
+    cell.setAttribute('tabindex', '0');
+    cell.setAttribute('aria-label', `${p.name}: ${val || 'no data'} ${p.unit}, status: ${status}`);
+    cell.onclick = () => openLogModal(key);
+    cell.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') openLogModal(key); };
+
+    const displayVal = val !== undefined && val !== null && val !== ''
+      ? formatParamVal(key, val)
+      : null;
+
+    cell.innerHTML = `
+      <div class="param-name">${p.name}</div>
+      <div class="param-value ${displayVal ? '' : 'no-data'}">
+        ${displayVal ? `${displayVal}<span class="param-unit">${p.unit}</span>` : '— no data —'}
+      </div>
+      <div class="param-footer">
+        <span class="param-range">${p.min}–${p.max} ${p.unit}</span>
+        <span class="param-trend" aria-label="trend ${trend}">${trend}</span>
+        ${latest ? `<span class="param-age" aria-hidden="true">${timeAgo(latest.timestamp)}</span>` : ''}
+      </div>
+    `;
+    grid.appendChild(cell);
+  }
+}
+
+function formatParamVal(key, val) {
+  const v = parseFloat(val);
+  if (key === 'phosphate' || key === 'ammonia' || key === 'nitrite' || key === 'iodine') {
+    return v.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+  }
+  if (key === 'salinity') return v.toFixed(3);
+  if (key === 'ph') return v.toFixed(2);
+  if (key === 'temp') return v.toFixed(1);
+  return Math.round(v);
+}
+
+function getPreviousValue(key) {
+  if (!appState.activeTankId) return null;
+  const logs = appState.logs
+    .filter(l => l.tankId === appState.activeTankId)
+    .sort((a,b) => b.timestamp - a.timestamp);
+  if (logs.length < 2) return null;
+  const val = logs[1].params?.[key];
+  return (val !== undefined && val !== null && val !== '') ? val : null;
+}
+
+function formatTankType(type) {
+  const map = { sps:'SPS/Mixed', lps:'LPS', softies:'Soft Corals', fowlr:'FOWLR', nano:'Nano Reef', frag:'Frag Tank' };
+  return map[type] || type;
+}
+
+// ---- RENDER HISTORY ----
+function renderHistory() {
+  const feed = document.getElementById('historyFeed');
+  const subtitle = document.getElementById('historySubtitle');
+
+  if (!appState.activeTankId) {
+    feed.innerHTML = `<div class="history-empty"><div class="history-empty-icon">📋</div><div class="history-empty-text">Select a tank to view history</div></div>`;
+    subtitle.textContent = '—';
+    return;
+  }
+
+  const logs = appState.logs
+    .filter(l => l.tankId === appState.activeTankId)
+    .sort((a,b) => b.timestamp - a.timestamp);
+
+  if (!logs.length) {
+    feed.innerHTML = `<div class="history-empty"><div class="history-empty-icon">🔬</div><div class="history-empty-text">No tests logged yet.<br>Hit "LOG TEST RESULTS" to start.</div></div>`;
+    subtitle.textContent = '— no tests logged —';
+    return;
+  }
+
+  subtitle.textContent = `${logs.length} test${logs.length !== 1 ? 's' : ''} recorded`;
+  feed.innerHTML = '';
+
+  for (const log of logs.slice(0, 30)) {
+    const entry = document.createElement('div');
+    entry.className = 'history-entry';
+    entry.setAttribute('role', 'listitem');
+
+    const paramItems = Object.entries(log.params)
+      .filter(([,v]) => v !== '' && v !== null && v !== undefined)
+      .map(([key, val]) => {
+        const s = getParamStatus(key, val);
+        const cls = s === 'critical' ? 'out-of-range' : (s === 'high' || s === 'low') ? 'warning' : '';
+        return `<div class="history-param-item">
+          <span class="history-param-name">${PARAMS[key]?.name || key}</span>
+          <span class="history-param-val ${cls}">${formatParamVal(key,val)}${PARAMS[key]?.unit || ''}</span>
+        </div>`;
+      }).join('');
+
+    entry.innerHTML = `
+      <div class="history-entry-date">
+        ${formatDate(log.timestamp)}
+        <span class="history-entry-ago">${timeAgo(log.timestamp)}</span>
+      </div>
+      <div class="history-params">${paramItems || '<span style="color:#AAA;font-size:12px">No parameters logged</span>'}</div>
+      ${log.notes ? `<div class="history-notes">${escHtml(log.notes)}</div>` : ''}
+      ${log.waterChange ? `<div class="history-notes">💧 Water change: ${log.wcPct ? log.wcPct + '%' : ''}</div>` : ''}
+    `;
+    feed.appendChild(entry);
+  }
+}
+
+// ---- SPARKLINE CHART ----
+function populateChartSelect() {
+  const sel = document.getElementById('chartParamSelect');
+  sel.innerHTML = '';
+  for (const [key, p] of Object.entries(PARAMS)) {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = p.name;
+    sel.appendChild(opt);
+  }
+}
+
+function renderSparkline() {
+  const canvas = document.getElementById('sparklineCanvas');
+  const ctx = canvas.getContext('2d');
+  const key = document.getElementById('chartParamSelect').value;
+
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 260;
+  canvas.height = 80 * (window.devicePixelRatio || 1);
+  ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+  const W = canvas.offsetWidth || 260, H = 80;
+  ctx.clearRect(0, 0, W, H);
+
+  if (!appState.activeTankId) return;
+
+  const logs = appState.logs
+    .filter(l => l.tankId === appState.activeTankId && l.params?.[key] !== '' && l.params?.[key] !== null && l.params?.[key] !== undefined)
+    .sort((a,b) => a.timestamp - b.timestamp)
+    .slice(-20);
+
+  if (logs.length < 2) {
+    ctx.fillStyle = '#AAA';
+    ctx.font = '11px Space Mono';
+    ctx.fillText('Not enough data yet', 10, 45);
+    return;
+  }
+
+  const values = logs.map(l => parseFloat(l.params[key]));
+  const p = PARAMS[key];
+
+  // Draw range band
+  const allVals = [...values, p.min, p.max];
+  const minV = Math.min(...allVals) * 0.98;
+  const maxV = Math.max(...allVals) * 1.02;
+  const scaleY = (v) => H - 10 - ((v - minV) / (maxV - minV)) * (H - 20);
+  const scaleX = (i) => 8 + (i / (logs.length - 1)) * (W - 16);
+
+  // Draw target range band
+  ctx.fillStyle = 'rgba(26,122,58,0.1)';
+  ctx.fillRect(0, scaleY(p.max), W, scaleY(p.min) - scaleY(p.max));
+
+  // Draw target lines
+  ctx.strokeStyle = 'rgba(26,122,58,0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(0, scaleY(p.min));
+  ctx.lineTo(W, scaleY(p.min));
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, scaleY(p.max));
+  ctx.lineTo(W, scaleY(p.max));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw line
+  ctx.strokeStyle = '#1A3ACC';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  values.forEach((v, i) => {
+    const x = scaleX(i), y = scaleY(v);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Draw dots
+  values.forEach((v, i) => {
+    const s = getParamStatus(key, v);
+    ctx.fillStyle = s === 'critical' ? '#CC1A1A' : s === 'high' || s === 'low' ? '#E8C620' : '#1A3ACC';
+    ctx.beginPath();
+    ctx.arc(scaleX(i), scaleY(v), 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Latest value label
+  const lastV = values[values.length - 1];
+  ctx.fillStyle = '#0D0D0D';
+  ctx.font = 'bold 11px Space Mono';
+  ctx.fillText(formatParamVal(key, lastV) + ' ' + (p.unit || ''), W - 60, 14);
+}
+
+// ---- SELECT TANK ----
+function selectTank(id) {
+  appState.activeTankId = id;
+  saveData();
+  renderTanksList();
+  renderCenter();
+  renderHistory();
+  renderSparkline();
+}
+
+// ---- OPEN LOG MODAL ----
+function openLogModal(focusKey) {
+  if (!appState.activeTankId) {
+    showToast('Select or add a tank first', 'error');
+    return;
+  }
+  // Pre-fill with latest values
+  const latest = getLatestLog(appState.activeTankId);
+  for (const key of Object.keys(PARAMS)) {
+    const inp = document.getElementById(`inp_${key}`);
+    if (inp) inp.value = '';
+    const hint = document.getElementById(`hint_${key}`);
+    if (hint) hint.textContent = '';
+  }
+  document.getElementById('inp_notes').value = '';
+  document.getElementById('inp_waterchange').checked = false;
+  document.getElementById('inp_wc_pct').value = '';
+
+  // Set up live validation
+  for (const key of Object.keys(PARAMS)) {
+    const inp = document.getElementById(`inp_${key}`);
+    if (inp) {
+      inp.oninput = () => validateInput(key);
+    }
+  }
+
+  openModal('logModal');
+
+  if (focusKey) {
+    setTimeout(() => {
+      const el = document.getElementById(`inp_${focusKey}`);
+      if (el) { el.focus(); el.select(); }
+    }, 200);
+  }
+}
+
+function validateInput(key) {
+  const inp = document.getElementById(`inp_${key}`);
+  const hint = document.getElementById(`hint_${key}`);
+  if (!inp || !hint) return;
+  const val = inp.value;
+  if (val === '' || val === null) {
+    inp.classList.remove('out-of-range', 'warning');
+    hint.textContent = '';
+    hint.className = 'field-range-hint';
+    return;
+  }
+  const s = getParamStatus(key, val);
+  const p = PARAMS[key];
+  inp.classList.remove('out-of-range', 'warning');
+  if (s === 'critical') {
+    inp.classList.add('out-of-range');
+    hint.textContent = `⚠ CRITICAL — out of safe range`;
+    hint.className = 'field-range-hint range-warn';
+  } else if (s === 'high') {
+    inp.classList.add('warning');
+    hint.textContent = `↑ Above target (max ${p.max} ${p.unit})`;
+    hint.className = 'field-range-hint range-caution';
+  } else if (s === 'low') {
+    inp.classList.add('warning');
+    hint.textContent = `↓ Below target (min ${p.min} ${p.unit})`;
+    hint.className = 'field-range-hint range-caution';
+  } else {
+    hint.textContent = '✓ In range';
+    hint.className = 'field-range-hint';
+    hint.style.color = '#1A7A3A';
+  }
+}
+
+// ---- SAVE LOG ENTRY ----
+function saveLogEntry() {
+  const params = {};
+  let hasAny = false;
+
+  for (const key of Object.keys(PARAMS)) {
+    const inp = document.getElementById(`inp_${key}`);
+    const val = inp ? inp.value.trim() : '';
+    params[key] = val === '' ? null : parseFloat(val);
+    if (val !== '') hasAny = true;
+  }
+
+  if (!hasAny) {
+    showToast('Enter at least one parameter value', 'error');
+    return;
+  }
+
+  const log = {
+    id: Date.now().toString(),
+    tankId: appState.activeTankId,
+    timestamp: Date.now(),
+    params,
+    notes: document.getElementById('inp_notes').value.trim(),
+    waterChange: document.getElementById('inp_waterchange').checked,
+    wcPct: document.getElementById('inp_wc_pct').value || null
+  };
+
+  appState.logs.push(log);
+  saveData();
+  closeModal('logModal');
+  renderTanksList();
+  renderCenter();
+  renderHistory();
+  renderSparkline();
+  showToast('Test results saved ✓');
+}
+
+// ---- ADD TANK ----
+function openAddTankModal() {
+  document.getElementById('at_name').value = '';
+  document.getElementById('at_volume').value = '';
+  document.getElementById('at_type').value = 'sps';
+  document.getElementById('at_established').value = new Date().toISOString().split('T')[0];
+  renderColorPicker();
+  openModal('addTankModal');
+  setTimeout(() => document.getElementById('at_name').focus(), 200);
+}
+
+function renderColorPicker() {
+  const row = document.getElementById('colorPickerRow');
+  row.innerHTML = '';
+  selectedColor = TANK_COLORS[0];
+  TANK_COLORS.forEach((c, i) => {
+    const sw = document.createElement('button');
+    sw.className = 'color-swatch' + (i === 0 ? ' selected' : '');
+    sw.style.background = c;
+    sw.setAttribute('aria-label', `Select color ${c}`);
+    sw.setAttribute('type', 'button');
+    sw.onclick = () => {
+      selectedColor = c;
+      document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('selected'));
+      sw.classList.add('selected');
+    };
+    row.appendChild(sw);
+  });
+}
+
+function saveTank() {
+  const name = document.getElementById('at_name').value.trim();
+  if (!name) {
+    showToast('Please enter a tank name', 'error');
+    document.getElementById('at_name').focus();
+    return;
+  }
+
+  const tank = {
+    id: Date.now().toString(),
+    name,
+    volume: document.getElementById('at_volume').value || null,
+    type: document.getElementById('at_type').value,
+    established: document.getElementById('at_established').value || null,
+    color: selectedColor
+  };
+
+  appState.tanks.push(tank);
+  appState.activeTankId = tank.id;
+  saveData();
+  closeModal('addTankModal');
+  renderTanksList();
+  renderCenter();
+  renderHistory();
+  renderSparkline();
+  showToast(`Tank "${name}" added!`);
+}
+
+// ---- MODAL HELPERS ----
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// ESC key closes modals
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(el => closeModal(el.id));
+  }
+});
+
+// ---- GLOBAL TANK SELECT ----
+document.getElementById('globalTankSelect').addEventListener('change', (e) => {
+  if (e.target.value) selectTank(e.target.value);
+});
+
+// ---- TOAST ----
+function showToast(msg, type = 'ok') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast show ${type === 'error' ? 'error' : type === 'warning' ? 'warning' : ''}`;
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+// ---- UTIL ----
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ---- INIT ----
+function init() {
+  loadData();
+  populateChartSelect();
+  renderTanksList();
+  renderCenter();
+  renderHistory();
+  renderSparkline();
+
+  // Show demo data hint if totally empty
+  if (!appState.tanks.length) {
+    // Seed demo tank for first-run UX
+    const demoTank = {
+      id: 'demo_tank_1',
+      name: 'Main Display',
+      volume: 75,
+      type: 'sps',
+      established: '2024-06-01',
+      color: '#1A3ACC'
+    };
+    appState.tanks.push(demoTank);
+
+    // Demo test entries
+    const demoLogs = [
+      { daysAgo: 7, alk: 9.8, calcium: 420, magnesium: 1300, nitrate: 3, phosphate: 0.04, salinity: 1.025, ph: 8.3, temp: 78 },
+      { daysAgo: 14, alk: 9.2, calcium: 415, magnesium: 1290, nitrate: 5, phosphate: 0.05, salinity: 1.025, ph: 8.25, temp: 78.5 },
+      { daysAgo: 21, alk: 8.8, calcium: 405, magnesium: 1280, nitrate: 8, phosphate: 0.06, salinity: 1.026, ph: 8.2, temp: 77.5 },
+      { daysAgo: 28, alk: 10.1, calcium: 435, magnesium: 1320, nitrate: 2, phosphate: 0.03, salinity: 1.025, ph: 8.35, temp: 78 },
+      { daysAgo: 3, alk: 11.2, calcium: 445, magnesium: 1340, nitrate: 1.5, phosphate: 0.03, salinity: 1.025, ph: 8.38, temp: 77.8, notes: 'Dosed 2-part. All looking great. Montipora showing good growth.' },
+    ];
+    const now = Date.now();
+    demoLogs.forEach((d, i) => {
+      appState.logs.push({
+        id: `demo_log_${i}`,
+        tankId: 'demo_tank_1',
+        timestamp: now - d.daysAgo * 86400000,
+        params: {
+          alk: d.alk, calcium: d.calcium, magnesium: d.magnesium,
+          nitrate: d.nitrate, phosphate: d.phosphate, ammonia: 0, nitrite: 0, iodine: 0.08,
+          salinity: d.salinity, ph: d.ph, temp: d.temp
+        },
+        notes: d.notes || '',
+        waterChange: i === 2,
+        wcPct: i === 2 ? 20 : null
+      });
+    });
+
+    appState.activeTankId = 'demo_tank_1';
+    saveData();
+
+    renderTanksList();
+    renderCenter();
+    renderHistory();
+    renderSparkline();
+  }
+}
+
+// Re-render sparkline on resize
+window.addEventListener('resize', () => { renderSparkline(); });
+
+init();
+</script>
+</body>
+</html>

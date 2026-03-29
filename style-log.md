@@ -125,6 +125,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 ---
 *New entries appended automatically after each build.*
 
+## ReefLog — 2026-03-28
+- Style: "De Stijl Data" — Mondrian geometric grid aesthetic applied to reef aquarium chemistry tracking. Thick 3–5px black borders create a living Mondrian composition, with primary color accents anchoring section headers. Parameter cells are geometric tiles arranged in a rigid rectangular grid.
+- Palette: Mondrian Blue (#1A3ACC), Mondrian Red (#CC1A1A), Mondrian Yellow (#E8C620), White (#FAFAF8), Black (#0D0D0D), Status Green (#1A7A3A)
+- Signature: Parameter tiles as Mondrian rectangular blocks with thick black border grid — each cell's status reflected in its bottom border color (green=OK, yellow=warning, red=critical). Three-panel layout reads as a whole Mondrian composition: left panel (tank list + stats), center (11-parameter data tiles in three color-anchored sections), right (trend sparkline + history feed). Bebas Neue all-caps labels + Space Mono data values throughout.
+
 ## GigBook — 2026-03-27
 - Style: "1970s Concert Handbill" — Bill Graham Presents / Fillmore West poster aesthetic. Warm near-black background (#0A0804), concert gold primary (#E8B840), Fillmore orange secondary (#E85820), electric blue (#3060D0). Zero cool grays, zero gradients — purely warm and flat.
 - Palette: Near-black (#0A0804) bg, Gold (#E8B840) primary, Orange (#E85820) secondary, Blue (#3060D0) tertiary, Green (#30A060) paid, Red (#C82020) canceled, Cream (#F4E8C0) text

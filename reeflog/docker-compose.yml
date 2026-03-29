@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  reeflog:
+    build: .
+    container_name: reeflog
+    ports:
+      - "3160:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
