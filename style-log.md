@@ -122,6 +122,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Cream (#F5F0E8) background, Olivetti black (#1A1410) header/nav, Valentine red (#C8232C) primary/CTAs, Chrome silver (#B8B0A8) borders, Tape white (#FFFDF8) surfaces, Slate (#4A4038) secondary labels
 - Signature: Paper tape output strip — the calendar and week-strip views are rendered inside a "tape" element with sprocket-hole rows at top and bottom (CSS-generated rectangles in the tape header background, matching the look of teletype/calculator paper tape with perforations). Each person's shifts are rendered as color-coded ink blocks on the tape, mimicking the output of an Olivetti printing calculator. Ten distinct typewriter-ink colors (red, blue, green, amber, purple, teal, magenta, olive, indigo, gold).
 
+## SDS Station — 2026-03-29
+- Style: "Industrial Safety Placard" — OSHA/ANSI safety signage aesthetic. Yellow-and-black hazard striping, NFPA 704 diamond iconography, bold condensed Oswald type for labels, IBM Plex Mono for data. Purely functional, zero decoration — every visual element serves a safety-communication purpose.
+- Palette: Safety Yellow (#F5C400), Safety Black (#1A1A1A), Hazard Red (#C41A1A), Caution Orange (#E87A1A), Info Blue (#1A5FA0), Safe Green (#1A7A3A)
+- Signature: Yellow-and-black 45° hazard stripe bar at header top (CSS repeating-linear-gradient), inline NFPA 704 diamond mini-widgets rendered per chemical with color-coded quadrants (blue health, red fire, yellow reactivity, white special), rotated 45° GHS hazard pictogram diamonds in table cells. Kiosk mode strips all controls for shop wall tablet use.
+
 ---
 *New entries appended automatically after each build.*
 

@@ -1,0 +1,7 @@
+services:
+  sds-station:
+    build: .
+    container_name: sds-station
+    ports:
+      - "3170:80"
+    restart: unless-stopped

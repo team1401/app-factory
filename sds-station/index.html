@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDS Station — Chemical Safety Data Sheet Binder</title>
+<meta name="description" content="OSHA-compliant SDS binder and chemical inventory for small workshops, labs, and maker spaces.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --safety-yellow: #F5C400;
+  --safety-black: #1A1A1A;
+  --hazard-red: #C41A1A;
+  --caution-orange: #E87A1A;
+  --info-blue: #1A5FA0;
+  --safe-green: #1A7A3A;
+  --surface: #FAFAF6;
+  --paper: #FFFFFF;
+  --border: #2A2A2A;
+  --text: #1A1A1A;
+  --text-secondary: #5A5A5A;
+  --stripe-yellow: repeating-linear-gradient(
+    -45deg,
+    var(--safety-yellow),
+    var(--safety-yellow) 12px,
+    var(--safety-black) 12px,
+    var(--safety-black) 24px
+  );
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'IBM Plex Sans', Arial, sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HEADER — OSHA safety placard */
+.header {
+  background: var(--safety-black);
+  color: #FFF;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-stripe {
+  height: 8px;
+  background: var(--stripe-yellow);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header h1 .diamond {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  background: var(--safety-yellow);
+  color: var(--safety-black);
+  transform: rotate(45deg);
+  font-size: 1rem;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header h1 .diamond span {
+  transform: rotate(-45deg);
+  font-family: 'Oswald', sans-serif;
+}
+
+.header-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--safety-yellow);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* SEARCH */
+.search-bar {
+  position: relative;
+}
+
+.search-bar input {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  padding: 8px 12px 8px 32px;
+  border: 2px solid var(--safety-yellow);
+  background: var(--safety-black);
+  color: #FFF;
+  width: 260px;
+  outline: none;
+}
+
+.search-bar input::placeholder { color: #888; }
+.search-bar input:focus { border-color: #FFF; }
+
+.search-bar::before {
+  content: '🔍';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+}
+
+/* BUTTONS */
+.btn {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 16px;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-primary {
+  background: var(--safety-yellow);
+  color: var(--safety-black);
+  border-color: var(--safety-black);
+}
+.btn-primary:hover { background: #E0B200; }
+
+.btn-danger {
+  background: var(--hazard-red);
+  color: #FFF;
+  border-color: #8A1010;
+}
+.btn-danger:hover { background: #A01414; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--safety-yellow);
+  border-color: var(--safety-yellow);
+}
+.btn-outline:hover { background: rgba(245,196,0,0.1); }
+
+.btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+
+/* MAIN LAYOUT */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* STATS BAR */
+.stats-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  background: var(--paper);
+  border: 2px solid var(--border);
+  padding: 12px 20px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.stat-box .label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+.stat-box .value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.stat-box.warning .value { color: var(--caution-orange); }
+.stat-box.danger .value { color: var(--hazard-red); }
+
+/* TOOLBAR */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  gap: 4px;
+}
+
+.filter-btn {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border: 2px solid var(--border);
+  background: var(--paper);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-btn.active {
+  background: var(--safety-black);
+  color: #FFF;
+}
+
+.filter-btn:hover:not(.active) { background: #F0F0E8; }
+
+.sort-select {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  padding: 5px 8px;
+  border: 2px solid var(--border);
+  background: var(--paper);
+  margin-left: auto;
+}
+
+/* TABLE */
+.table-wrap {
+  background: var(--paper);
+  border: 2px solid var(--border);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--safety-black);
+  color: #FFF;
+  padding: 10px 12px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+thead th:hover { background: #2A2A2A; }
+
+tbody tr {
+  border-bottom: 1px solid #E0E0D8;
+  transition: background 0.1s;
+}
+
+tbody tr:hover { background: #FAFAE8; }
+
+tbody td {
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.chemical-name {
+  font-weight: 600;
+  color: var(--safety-black);
+}
+
+.cas-number {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* GHS DIAMONDS */
+.ghs-diamonds {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.ghs-diamond {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--hazard-red);
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  background: #FFF;
+}
+
+.ghs-diamond span {
+  transform: rotate(-45deg);
+  line-height: 1;
+}
+
+/* NFPA DIAMOND */
+.nfpa-diamond {
+  width: 44px;
+  height: 44px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.nfpa-diamond .nfpa-q {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.nfpa-q.health { background: #1A5FA0; color: #FFF; top: 0; left: 50%; transform: translateX(-50%) rotate(45deg); }
+.nfpa-q.health span { transform: rotate(-45deg); }
+.nfpa-q.fire { background: #C41A1A; color: #FFF; left: 0; top: 50%; transform: translateY(-50%) rotate(45deg); }
+.nfpa-q.fire span { transform: rotate(-45deg); }
+.nfpa-q.react { background: #F5C400; top: 50%; right: 0; transform: translateY(-50%) rotate(45deg); }
+.nfpa-q.react span { transform: rotate(-45deg); }
+.nfpa-q.special { background: #FFF; border: 1px solid #888; bottom: 0; left: 50%; transform: translateX(-50%) rotate(45deg); }
+.nfpa-q.special span { transform: rotate(-45deg); font-size: 0.5rem; }
+
+/* LOCATION TAG */
+.location-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  background: #F0F0E8;
+  border: 1px solid #CCC;
+}
+
+/* SDS LINK */
+.sds-link {
+  color: var(--info-blue);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+.sds-link:hover { text-decoration: underline; }
+
+/* ACTION BUTTONS IN TABLE */
+.row-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.row-actions button {
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border: 1px solid #CCC;
+  background: var(--paper);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.row-actions button:hover { background: #F0F0E8; }
+.row-actions button.del:hover { background: #FEE; color: var(--hazard-red); }
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state .diamond-large {
+  width: 80px;
+  height: 80px;
+  background: var(--safety-yellow);
+  transform: rotate(45deg);
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state .diamond-large span {
+  transform: rotate(-45deg);
+  font-size: 2rem;
+}
+
+.empty-state h2 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  max-width: 400px;
+  margin: 0 auto 20px;
+  line-height: 1.5;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+
+.modal-overlay.hidden { display: none; }
+
+.modal {
+  background: var(--paper);
+  border: 3px solid var(--safety-black);
+  width: 100%;
+  max-width: 560px;
+  animation: slideIn 0.15s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  background: var(--safety-black);
+  color: #FFF;
+  padding: 12px 16px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header .close-btn {
+  background: none;
+  border: none;
+  color: #FFF;
+  font-size: 1.4rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+}
+
+.form-group label .req { color: var(--hazard-red); }
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.9rem;
+  padding: 8px 10px;
+  border: 2px solid #CCC;
+  background: #FAFAF6;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--safety-yellow);
+}
+
+.form-group .error-msg {
+  color: var(--hazard-red);
+  font-size: 0.75rem;
+  margin-top: 2px;
+  display: none;
+}
+
+.form-group.has-error input,
+.form-group.has-error select {
+  border-color: var(--hazard-red);
+}
+
+.form-group.has-error .error-msg { display: block; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.nfpa-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.nfpa-inputs .form-group { margin-bottom: 0; }
+
+.nfpa-inputs label {
+  font-size: 0.65rem;
+}
+
+.ghs-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ghs-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.ghs-check input[type="checkbox"] {
+  width: auto;
+}
+
+.modal-footer {
+  padding: 12px 16px;
+  border-top: 2px solid #E0E0D8;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* KIOSK MODE */
+body.kiosk-mode .header-actions,
+body.kiosk-mode .toolbar,
+body.kiosk-mode .row-actions,
+body.kiosk-mode .stats-bar { display: none; }
+
+body.kiosk-mode .header h1::after {
+  content: ' — KIOSK';
+  font-size: 0.7em;
+  color: var(--safety-yellow);
+}
+
+body.kiosk-mode .main { padding: 12px; }
+body.kiosk-mode table { font-size: 1.05rem; }
+body.kiosk-mode tbody td { padding: 14px 12px; }
+
+/* PRINT */
+@media print {
+  .header { position: static; }
+  .header-actions, .toolbar, .row-actions { display: none !important; }
+  .table-wrap { border: 1px solid #000; }
+  tbody tr { break-inside: avoid; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header-inner { padding: 10px 12px; }
+  .header h1 { font-size: 1.2rem; }
+  .search-bar input { width: 180px; }
+  .stats-bar { gap: 8px; }
+  .stat-box { min-width: 100px; padding: 8px 12px; }
+  .stat-box .value { font-size: 1.2rem; }
+  .form-row { grid-template-columns: 1fr; }
+  .nfpa-inputs { grid-template-columns: repeat(2, 1fr); }
+  .main { padding: 12px; }
+}
+
+@media (max-width: 480px) {
+  .search-bar input { width: 140px; }
+  .header h1 .diamond { width: 28px; height: 28px; }
+  .stat-box { min-width: 80px; }
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--safe-green);
+  color: #FFF;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
+  padding: 12px 20px;
+  border: 2px solid #0A5020;
+  z-index: 300;
+  animation: toastIn 0.2s ease-out;
+}
+
+.toast.error { background: var(--hazard-red); border-color: #8A1010; }
+
+@keyframes toastIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* AUDIT REMINDER BANNER */
+.audit-banner {
+  background: var(--caution-orange);
+  color: #FFF;
+  text-align: center;
+  padding: 8px 16px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: none;
+}
+
+.audit-banner.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="audit-banner" id="auditBanner">
+  ⚠ Monthly SDS Audit Due — Last audit: <span id="lastAuditDate">Never</span>
+  <button class="btn btn-sm btn-outline" style="margin-left:12px;color:#FFF;border-color:#FFF;" onclick="markAuditComplete()">Mark Complete</button>
+</div>
+
+<header class="header">
+  <div class="header-stripe"></div>
+  <div class="header-inner">
+    <h1>
+      <span class="diamond"><span>⬡</span></span>
+      SDS Station
+    </h1>
+    <span class="header-sub">Chemical Safety Data Sheet Binder</span>
+    <div class="header-actions">
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search chemicals..." aria-label="Search chemicals">
+      </div>
+      <button class="btn btn-primary" onclick="openAddModal()">+ Add Chemical</button>
+      <button class="btn btn-outline" onclick="toggleKiosk()" title="Kiosk Mode">☐ Kiosk</button>
+      <button class="btn btn-outline" onclick="exportCSV()" title="Export Index">↓ Export</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-box">
+      <div class="label">Total Chemicals</div>
+      <div class="value" id="statTotal">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">With SDS Linked</div>
+      <div class="value" id="statLinked">0</div>
+    </div>
+    <div class="stat-box warning">
+      <div class="label">Missing SDS</div>
+      <div class="value" id="statMissing">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Locations</div>
+      <div class="value" id="statLocations">0</div>
+    </div>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <div class="filter-group">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" data-filter="missing" onclick="setFilter('missing',this)">Missing SDS</button>
+      <button class="filter-btn" data-filter="flammable" onclick="setFilter('flammable',this)">Flammable</button>
+      <button class="filter-btn" data-filter="toxic" onclick="setFilter('toxic',this)">Toxic</button>
+      <button class="filter-btn" data-filter="corrosive" onclick="setFilter('corrosive',this)">Corrosive</button>
+    </div>
+    <select class="sort-select" id="sortSelect" onchange="renderTable()" aria-label="Sort by">
+      <option value="name-asc">Name A→Z</option>
+      <option value="name-desc">Name Z→A</option>
+      <option value="date-desc">Newest First</option>
+      <option value="date-asc">Oldest First</option>
+      <option value="location">Location</option>
+    </select>
+  </div>
+
+  <div id="tableContainer"></div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span id="modalTitle">Add Chemical</span>
+      <button class="close-btn" onclick="closeModalDirect()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" id="fg-name">
+        <label>Chemical Name <span class="req">*</span></label>
+        <input type="text" id="f-name" placeholder="e.g. Acetone">
+        <div class="error-msg">Chemical name is required.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" id="fg-cas">
+          <label>CAS Number</label>
+          <input type="text" id="f-cas" placeholder="e.g. 67-64-1">
+          <div class="error-msg">Invalid CAS format (use ##-##-#).</div>
+        </div>
+        <div class="form-group" id="fg-location">
+          <label>Storage Location <span class="req">*</span></label>
+          <input type="text" id="f-location" placeholder="e.g. Cabinet A, Shelf 2">
+          <div class="error-msg">Location is required.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>SDS URL or PDF Link</label>
+        <input type="url" id="f-sdsUrl" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>Manufacturer / Supplier</label>
+        <input type="text" id="f-manufacturer" placeholder="e.g. 3M, Fisher Scientific">
+      </div>
+      <div class="form-group">
+        <label>NFPA 704 Ratings (0–4)</label>
+        <div class="nfpa-inputs">
+          <div class="form-group">
+            <label style="color:var(--info-blue)">Health</label>
+            <input type="number" id="f-nfpa-h" min="0" max="4" value="0">
+          </div>
+          <div class="form-group">
+            <label style="color:var(--hazard-red)">Fire</label>
+            <input type="number" id="f-nfpa-f" min="0" max="4" value="0">
+          </div>
+          <div class="form-group">
+            <label style="color:var(--safety-yellow)">Reactivity</label>
+            <input type="number" id="f-nfpa-r" min="0" max="4" value="0">
+          </div>
+          <div class="form-group">
+            <label>Special</label>
+            <input type="text" id="f-nfpa-s" maxlength="3" placeholder="W, OX">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>GHS Hazard Pictograms</label>
+        <div class="ghs-checkboxes">
+          <label class="ghs-check"><input type="checkbox" value="Flame"> 🔥 Flame</label>
+          <label class="ghs-check"><input type="checkbox" value="Skull"> ☠ Skull</label>
+          <label class="ghs-check"><input type="checkbox" value="Corrosion"> ⚗ Corrosion</label>
+          <label class="ghs-check"><input type="checkbox" value="Exclamation"> ⚠ Exclamation</label>
+          <label class="ghs-check"><input type="checkbox" value="Health"> ⛑ Health Hazard</label>
+          <label class="ghs-check"><input type="checkbox" value="Environment"> 🌿 Environment</label>
+          <label class="ghs-check"><input type="checkbox" value="Oxidizer"> ⊙ Oxidizer</label>
+          <label class="ghs-check"><input type="checkbox" value="Gas"> 💨 Gas Cylinder</label>
+          <label class="ghs-check"><input type="checkbox" value="Explosive"> 💥 Explosive</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="f-notes" rows="2" placeholder="Special handling, PPE, etc."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" style="color:var(--text);border-color:#CCC;" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="saveChemical()">Save Chemical</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DB_KEY = 'sds_station_chemicals';
+const AUDIT_KEY = 'sds_station_audit';
+let chemicals = [];
+let editingId = null;
+let currentFilter = 'all';
+
+// PERSISTENCE
+function load() {
+  try {
+    chemicals = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+  } catch { chemicals = []; }
+}
+
+function save() {
+  localStorage.setItem(DB_KEY, JSON.stringify(chemicals));
+}
+
+// INIT
+function init() {
+  load();
+  renderTable();
+  updateStats();
+  checkAudit();
+  document.getElementById('searchInput').addEventListener('input', renderTable);
+}
+
+// STATS
+function updateStats() {
+  const total = chemicals.length;
+  const linked = chemicals.filter(c => c.sdsUrl).length;
+  const missing = total - linked;
+  const locations = new Set(chemicals.map(c => c.location)).size;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statLinked').textContent = linked;
+  document.getElementById('statMissing').textContent = missing;
+  document.getElementById('statLocations').textContent = locations;
+}
+
+// FILTER + SORT + SEARCH
+function getFilteredChemicals() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let list = chemicals;
+  if (q) {
+    list = list.filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      (c.cas || '').toLowerCase().includes(q) ||
+      (c.location || '').toLowerCase().includes(q) ||
+      (c.manufacturer || '').toLowerCase().includes(q) ||
+      (c.notes || '').toLowerCase().includes(q)
+    );
+  }
+  if (currentFilter === 'missing') list = list.filter(c => !c.sdsUrl);
+  if (currentFilter === 'flammable') list = list.filter(c => c.ghs && c.ghs.includes('Flame'));
+  if (currentFilter === 'toxic') list = list.filter(c => c.ghs && (c.ghs.includes('Skull') || c.ghs.includes('Health')));
+  if (currentFilter === 'corrosive') list = list.filter(c => c.ghs && c.ghs.includes('Corrosion'));
+
+  const sort = document.getElementById('sortSelect').value;
+  list = [...list];
+  if (sort === 'name-asc') list.sort((a,b) => a.name.localeCompare(b.name));
+  if (sort === 'name-desc') list.sort((a,b) => b.name.localeCompare(a.name));
+  if (sort === 'date-desc') list.sort((a,b) => (b.created||0) - (a.created||0));
+  if (sort === 'date-asc') list.sort((a,b) => (a.created||0) - (b.created||0));
+  if (sort === 'location') list.sort((a,b) => (a.location||'').localeCompare(b.location||''));
+  return list;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+// RENDER
+function renderTable() {
+  const list = getFilteredChemicals();
+  const container = document.getElementById('tableContainer');
+
+  if (chemicals.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="diamond-large"><span>⬡</span></div>
+        <h2>No Chemicals in Binder</h2>
+        <p>Add your first chemical to start building your OSHA-compliant SDS binder. Every chemical in your shop needs an accessible Safety Data Sheet.</p>
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add First Chemical</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="diamond-large"><span>?</span></div>
+        <h2>No Matches</h2>
+        <p>No chemicals match your current search or filter. Try adjusting your criteria.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>Chemical</th>
+      <th>CAS #</th>
+      <th>Location</th>
+      <th>NFPA</th>
+      <th>GHS</th>
+      <th>SDS</th>
+      <th>Actions</th>
+    </tr></thead><tbody>`;
+
+  for (const c of list) {
+    const nfpa = renderNFPA(c);
+    const ghs = renderGHS(c);
+    const sds = c.sdsUrl
+      ? `<a href="${escHtml(c.sdsUrl)}" target="_blank" rel="noopener" class="sds-link">View SDS ↗</a>`
+      : `<span style="color:var(--caution-orange);font-weight:600;font-size:0.8rem;">⚠ MISSING</span>`;
+
+    html += `<tr>
+      <td>
+        <div class="chemical-name">${escHtml(c.name)}</div>
+        ${c.manufacturer ? `<div style="font-size:0.75rem;color:var(--text-secondary);">${escHtml(c.manufacturer)}</div>` : ''}
+        ${c.notes ? `<div style="font-size:0.72rem;color:var(--text-secondary);font-style:italic;margin-top:2px;">${escHtml(c.notes)}</div>` : ''}
+      </td>
+      <td><span class="cas-number">${escHtml(c.cas || '—')}</span></td>
+      <td><span class="location-tag">${escHtml(c.location)}</span></td>
+      <td>${nfpa}</td>
+      <td>${ghs}</td>
+      <td>${sds}</td>
+      <td><div class="row-actions">
+        <button onclick="openEditModal('${c.id}')">Edit</button>
+        <button class="del" onclick="deleteChemical('${c.id}')">Del</button>
+      </div></td>
+    </tr>`;
+  }
+
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+function renderNFPA(c) {
+  if (!c.nfpa) return '—';
+  return `<div class="nfpa-diamond">
+    <div class="nfpa-q health"><span>${c.nfpa.h}</span></div>
+    <div class="nfpa-q fire"><span>${c.nfpa.f}</span></div>
+    <div class="nfpa-q react"><span>${c.nfpa.r}</span></div>
+    <div class="nfpa-q special"><span>${escHtml(c.nfpa.s || '')}</span></div>
+  </div>`;
+}
+
+function renderGHS(c) {
+  if (!c.ghs || c.ghs.length === 0) return '—';
+  const icons = {Flame:'🔥',Skull:'☠',Corrosion:'⚗',Exclamation:'⚠',Health:'⛑',Environment:'🌿',Oxidizer:'⊙',Gas:'💨',Explosive:'💥'};
+  return `<div class="ghs-diamonds">${c.ghs.map(g =>
+    `<div class="ghs-diamond" title="${g}"><span>${icons[g]||g}</span></div>`
+  ).join('')}</div>`;
+}
+
+// MODAL
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add Chemical';
+  document.getElementById('saveBtn').textContent = 'Save Chemical';
+  clearForm();
+  showModal();
+}
+
+function openEditModal(id) {
+  const c = chemicals.find(x => x.id === id);
+  if (!c) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Chemical';
+  document.getElementById('saveBtn').textContent = 'Update Chemical';
+  document.getElementById('f-name').value = c.name || '';
+  document.getElementById('f-cas').value = c.cas || '';
+  document.getElementById('f-location').value = c.location || '';
+  document.getElementById('f-sdsUrl').value = c.sdsUrl || '';
+  document.getElementById('f-manufacturer').value = c.manufacturer || '';
+  document.getElementById('f-nfpa-h').value = c.nfpa ? c.nfpa.h : 0;
+  document.getElementById('f-nfpa-f').value = c.nfpa ? c.nfpa.f : 0;
+  document.getElementById('f-nfpa-r').value = c.nfpa ? c.nfpa.r : 0;
+  document.getElementById('f-nfpa-s').value = c.nfpa ? (c.nfpa.s || '') : '';
+  document.getElementById('f-notes').value = c.notes || '';
+  document.querySelectorAll('.ghs-check input').forEach(cb => {
+    cb.checked = c.ghs && c.ghs.includes(cb.value);
+  });
+  showModal();
+}
+
+function showModal() {
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  setTimeout(() => document.getElementById('f-name').focus(), 100);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+  clearFormErrors();
+}
+
+function clearForm() {
+  ['f-name','f-cas','f-location','f-sdsUrl','f-manufacturer','f-nfpa-s','f-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  ['f-nfpa-h','f-nfpa-f','f-nfpa-r'].forEach(id => { document.getElementById(id).value = 0; });
+  document.querySelectorAll('.ghs-check input').forEach(cb => cb.checked = false);
+  clearFormErrors();
+}
+
+function clearFormErrors() {
+  document.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+}
+
+// VALIDATION + SAVE
+function saveChemical() {
+  clearFormErrors();
+  let valid = true;
+  const name = document.getElementById('f-name').value.trim();
+  const location = document.getElementById('f-location').value.trim();
+  const cas = document.getElementById('f-cas').value.trim();
+
+  if (!name) { document.getElementById('fg-name').classList.add('has-error'); valid = false; }
+  if (!location) { document.getElementById('fg-location').classList.add('has-error'); valid = false; }
+  if (cas && !/^\d{2,7}-\d{2}-\d$/.test(cas)) { document.getElementById('fg-cas').classList.add('has-error'); valid = false; }
+  if (!valid) return;
+
+  const ghs = [];
+  document.querySelectorAll('.ghs-check input:checked').forEach(cb => ghs.push(cb.value));
+
+  const data = {
+    id: editingId || crypto.randomUUID(),
+    name,
+    cas,
+    location,
+    sdsUrl: document.getElementById('f-sdsUrl').value.trim(),
+    manufacturer: document.getElementById('f-manufacturer').value.trim(),
+    nfpa: {
+      h: clamp(+document.getElementById('f-nfpa-h').value, 0, 4),
+      f: clamp(+document.getElementById('f-nfpa-f').value, 0, 4),
+      r: clamp(+document.getElementById('f-nfpa-r').value, 0, 4),
+      s: document.getElementById('f-nfpa-s').value.trim()
+    },
+    ghs,
+    notes: document.getElementById('f-notes').value.trim(),
+    created: editingId ? (chemicals.find(c=>c.id===editingId)||{}).created || Date.now() : Date.now(),
+    updated: Date.now()
+  };
+
+  if (editingId) {
+    const idx = chemicals.findIndex(c => c.id === editingId);
+    if (idx !== -1) chemicals[idx] = data;
+  } else {
+    chemicals.push(data);
+  }
+
+  save();
+  renderTable();
+  updateStats();
+  closeModalDirect();
+  toast(editingId ? 'Chemical updated' : 'Chemical added');
+}
+
+function deleteChemical(id) {
+  const c = chemicals.find(x => x.id === id);
+  if (!c || !confirm(`Delete "${c.name}" from the binder?`)) return;
+  chemicals = chemicals.filter(x => x.id !== id);
+  save();
+  renderTable();
+  updateStats();
+  toast('Chemical removed', 'error');
+}
+
+// KIOSK
+function toggleKiosk() {
+  document.body.classList.toggle('kiosk-mode');
+}
+
+// EXPORT CSV
+function exportCSV() {
+  if (chemicals.length === 0) { toast('Nothing to export', 'error'); return; }
+  const rows = [['Name','CAS','Location','Manufacturer','SDS URL','NFPA-H','NFPA-F','NFPA-R','NFPA-S','GHS','Notes']];
+  for (const c of chemicals) {
+    rows.push([
+      c.name, c.cas||'', c.location, c.manufacturer||'', c.sdsUrl||'',
+      c.nfpa?c.nfpa.h:'', c.nfpa?c.nfpa.f:'', c.nfpa?c.nfpa.r:'', c.nfpa?c.nfpa.s:'',
+      (c.ghs||[]).join('; '), c.notes||''
+    ]);
+  }
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `sds-station-export-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exported');
+}
+
+// AUDIT
+function checkAudit() {
+  const last = localStorage.getItem(AUDIT_KEY);
+  const banner = document.getElementById('auditBanner');
+  if (!last) {
+    document.getElementById('lastAuditDate').textContent = 'Never';
+    banner.classList.add('show');
+    return;
+  }
+  const d = new Date(+last);
+  document.getElementById('lastAuditDate').textContent = d.toLocaleDateString();
+  const daysSince = (Date.now() - +last) / 86400000;
+  if (daysSince >= 30) banner.classList.add('show');
+  else banner.classList.remove('show');
+}
+
+function markAuditComplete() {
+  localStorage.setItem(AUDIT_KEY, Date.now());
+  checkAudit();
+  toast('Audit marked complete');
+}
+
+// UTILS
+function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function clamp(v,min,max) { return Math.max(min,Math.min(max,v)); }
+
+function toast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (type === 'error' ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// Keyboard: Escape closes modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModalDirect();
+});
+
+init();
+</script>
+
+</body>
+</html>
