@@ -127,6 +127,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Safety Yellow (#F5C400), Safety Black (#1A1A1A), Hazard Red (#C41A1A), Caution Orange (#E87A1A), Info Blue (#1A5FA0), Safe Green (#1A7A3A)
 - Signature: Yellow-and-black 45° hazard stripe bar at header top (CSS repeating-linear-gradient), inline NFPA 704 diamond mini-widgets rendered per chemical with color-coded quadrants (blue health, red fire, yellow reactivity, white special), rotated 45° GHS hazard pictogram diamonds in table cells. Kiosk mode strips all controls for shop wall tablet use.
 
+## BoxRate — 2026-03-31
+- Style: "Technical Blueprint" — engineering drawing / schematic aesthetic. Light gray background with subtle grid overlay, blue accent color (#2563EB), construction crosshair marks on panel corners, red (#DC2626) dimension annotations on the isometric box view. Precision-focused, zero decoration, information-dense.
+- Palette: Near-white (#FAFAFA) background, Blue (#2563EB) primary accent, Red (#DC2626) dimension/warning, Green (#059669) success, Graphite (#1F2937) text, Gray (#E5E7EB) grid lines, White (#FFFFFF) surfaces
+- Signature: Live isometric (axonometric) 3D box visualization SVG that renders the package with blue translucent faces and red dimension annotation lines with arrow heads — updates in real time as dimensions are typed. Construction crosshair marks (⊕) on all panel corners. Engineering grid background. Barlow Condensed + IBM Plex Mono + Inter typography trio.
+
 ---
 *New entries appended automatically after each build.*
 
