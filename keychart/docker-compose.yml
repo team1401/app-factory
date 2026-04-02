@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  keychart:
+    build: .
+    container_name: keychart
+    restart: unless-stopped
+    ports:
+      - "3191:80"

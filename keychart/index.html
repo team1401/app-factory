@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KeyChart — Chord Chart Transposer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --parchment: #F5F2E6;
+      --navy: #1B3358;
+      --vermilion: #B83020;
+      --sea-green: #2A6B55;
+      --burnt-sienna: #8B4A1A;
+      --grid-line: #D4CDB8;
+      --card: #FDFAF2;
+      --gold: #9B7A20;
+      --light-sea: #C8DDE8;
+      --white: #FFFFFF;
+      --navy-light: #2a4a70;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background-color: var(--parchment);
+      background-image:
+        linear-gradient(rgba(180, 165, 140, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(180, 165, 140, 0.2) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background-color: var(--navy);
+      border-bottom: 3px double var(--gold);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 80px;
+      position: relative;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0; right: 0;
+      border-bottom: 1px solid var(--gold);
+    }
+
+    .chart-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--parchment);
+      letter-spacing: 0.18em;
+      line-height: 1;
+    }
+
+    header .subtitle {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .header-emblem {
+      width: 56px;
+      height: 56px;
+      opacity: 0.65;
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    main {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      grid-template-rows: auto auto;
+      grid-template-areas:
+        "input  compass"
+        "output compass";
+      gap: 1.5rem;
+      padding: 1.5rem 2rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ===== PANELS ===== */
+    .panel {
+      background: var(--card);
+      border: 1.5px solid var(--navy);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ===== INPUT PANEL ===== */
+    .input-panel {
+      grid-area: input;
+    }
+
+    .key-selectors {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .key-selectors > div {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    select {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      background: var(--parchment);
+      color: var(--navy);
+      border: 1px solid var(--navy);
+      padding: 3px 6px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231B3358'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      padding-right: 22px;
+    }
+
+    select:focus { outline: 1.5px solid var(--vermilion); }
+
+    .btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: var(--vermilion);
+      color: var(--white);
+      border: none;
+      padding: 5px 12px;
+      cursor: pointer;
+      border-radius: 0;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #a02818; }
+    .btn:active { transform: translateY(1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--navy);
+      border: 1px solid var(--navy);
+    }
+    .btn-ghost:hover { background: var(--navy); color: var(--white); }
+
+    #chartInput {
+      width: 100%;
+      min-height: 220px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      background: var(--card);
+      color: var(--navy);
+      border: none;
+      border-top: 1px solid var(--grid-line);
+      padding: 14px 16px;
+      resize: vertical;
+      outline: none;
+    }
+
+    #chartInput:focus {
+      background: #FEFCF5;
+    }
+
+    #chartInput::placeholder {
+      color: #AAAAAA;
+      font-style: italic;
+    }
+
+    .examples-bar {
+      background: #EDE9DA;
+      border-top: 1px solid var(--grid-line);
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: #666;
+      flex-wrap: wrap;
+    }
+
+    .examples-bar button {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      background: var(--card);
+      color: var(--navy);
+      border: 1px solid var(--navy);
+      padding: 3px 9px;
+      cursor: pointer;
+      border-radius: 0;
+      transition: all 0.15s;
+    }
+    .examples-bar button:hover { background: var(--navy); color: var(--white); }
+    .examples-bar .clear-btn { border-color: var(--vermilion); color: var(--vermilion); }
+    .examples-bar .clear-btn:hover { background: var(--vermilion); color: var(--white); }
+
+    /* ===== OUTPUT PANEL ===== */
+    .output-panel {
+      grid-area: output;
+    }
+
+    .output-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flat-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .flat-toggle input[type="checkbox"] {
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    #targetKeyDisplay {
+      color: var(--vermilion);
+      font-weight: 700;
+    }
+
+    #chartOutput {
+      width: 100%;
+      min-height: 220px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      background: #FEFCF5;
+      color: var(--navy);
+      border: none;
+      border-top: 1px solid var(--grid-line);
+      padding: 14px 16px;
+      resize: vertical;
+      outline: none;
+    }
+
+    #chartOutput::placeholder {
+      color: #AAAAAA;
+      font-style: italic;
+    }
+
+    /* ===== COMPASS PANEL ===== */
+    .compass-panel {
+      grid-area: compass;
+      grid-row: 1 / 3;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .compass-panel > .panel-header {
+      font-size: 0.72rem;
+    }
+
+    #compassContainer {
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--card);
+      flex-shrink: 0;
+    }
+
+    #compassContainer svg {
+      width: 100%;
+      max-width: 380px;
+      height: auto;
+    }
+
+    .bearing-display {
+      background: var(--navy);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-align: center;
+      padding: 10px;
+      border-top: 1px solid var(--gold);
+    }
+
+    /* ===== CAPO GUIDE ===== */
+    .capo-guide {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #capoSuggestions {
+      padding: 14px 16px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.83rem;
+      color: #777;
+      font-style: italic;
+      background: var(--card);
+      flex: 1;
+    }
+
+    .capo-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--grid-line);
+      font-style: normal;
+    }
+
+    .capo-item:last-child { border-bottom: none; }
+
+    .capo-fret {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--sea-green);
+      min-width: 2.2rem;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .capo-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--navy);
+    }
+
+    .capo-sublabel {
+      font-size: 0.7rem;
+      color: #888;
+      margin-top: 1px;
+    }
+
+    .capo-key {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--gold);
+      background: #F0E8C8;
+      border: 1px solid var(--gold);
+      padding: 3px 8px;
+      letter-spacing: 0.08em;
+    }
+
+    /* ===== SVG COMPASS STYLES ===== */
+    .compass-segment {
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .compass-segment:hover { opacity: 0.82; }
+
+    /* ===== COPY SUCCESS ===== */
+    .copy-success {
+      background: var(--sea-green) !important;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "input"
+          "compass"
+          "output";
+        padding: 1rem;
+        gap: 1rem;
+      }
+
+      .compass-panel {
+        grid-row: auto;
+      }
+
+      header h1 { font-size: 1.7rem; }
+    }
+
+    @media (max-width: 480px) {
+      header { padding: 0 1rem; min-height: 65px; }
+      header h1 { font-size: 1.4rem; }
+      main { padding: 0.75rem; }
+      .panel-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+    }
+
+    /* ===== DECORATIVE ===== */
+    .chart-border {
+      border: 2px solid var(--navy);
+      border-radius: 0;
+    }
+
+    .panel-header .panel-label { flex: 1; }
+
+    /* Double border effect on main panels */
+    .input-panel, .output-panel, .compass-panel {
+      box-shadow: 3px 3px 0 rgba(27, 51, 88, 0.12);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="chart-title-block">
+    <h1>KEYCHART</h1>
+    <p class="subtitle">CHORD CHART TRANSPOSER — ADMIRALTY EDITION</p>
+  </div>
+  <!-- Decorative anchor SVG emblem -->
+  <svg class="header-emblem" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="28" r="26" stroke="#9B7A20" stroke-width="1.5" fill="none"/>
+    <circle cx="28" cy="28" r="22" stroke="#9B7A20" stroke-width="0.5" fill="none"/>
+    <!-- Compass rose minimal -->
+    <line x1="28" y1="4" x2="28" y2="52" stroke="#9B7A20" stroke-width="0.8"/>
+    <line x1="4" y1="28" x2="52" y2="28" stroke="#9B7A20" stroke-width="0.8"/>
+    <line x1="10" y1="10" x2="46" y2="46" stroke="#9B7A20" stroke-width="0.5" opacity="0.6"/>
+    <line x1="46" y1="10" x2="10" y2="46" stroke="#9B7A20" stroke-width="0.5" opacity="0.6"/>
+    <polygon points="28,5 31,20 28,16 25,20" fill="#F5F2E6" stroke="#9B7A20" stroke-width="0.8"/>
+    <polygon points="28,51 31,36 28,40 25,36" fill="#9B7A20" stroke="#9B7A20" stroke-width="0.8"/>
+    <circle cx="28" cy="28" r="3.5" fill="#9B7A20"/>
+    <text x="28" y="8" text-anchor="middle" font-family="Barlow Condensed" font-size="5" fill="#9B7A20" letter-spacing="0.05em">N</text>
+  </svg>
+</header>
+
+<main>
+  <!-- ===== LEFT: INPUT ===== -->
+  <section class="panel input-panel">
+    <div class="panel-header">
+      <span class="panel-label">CHART INPUT</span>
+      <div class="key-selectors">
+        <div>
+          FROM KEY:
+          <select id="sourceKey">
+            <option value="">— AUTO —</option>
+            <option value="C">C</option>
+            <option value="C#">C#</option>
+            <option value="Db">D♭</option>
+            <option value="D">D</option>
+            <option value="D#">D#</option>
+            <option value="Eb">E♭</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="F#">F#</option>
+            <option value="Gb">G♭</option>
+            <option value="G">G</option>
+            <option value="G#">G#</option>
+            <option value="Ab">A♭</option>
+            <option value="A">A</option>
+            <option value="A#">A#</option>
+            <option value="Bb">B♭</option>
+            <option value="B">B</option>
+          </select>
+        </div>
+        <button class="btn" id="autoDetect">⊕ AUTO-DETECT</button>
+      </div>
+    </div>
+    <textarea id="chartInput" placeholder="Paste your chord chart here...&#10;&#10;Example:&#10;[Verse]&#10;G    Em   C    D&#10;Amazing grace, how sweet the sound&#10;G    Em   C    G&#10;That saved a wretch like me"></textarea>
+    <div class="examples-bar">
+      EXAMPLES:
+      <button onclick="loadExample(1)">Hymn</button>
+      <button onclick="loadExample(2)">Jazz</button>
+      <button onclick="loadExample(3)">Pop</button>
+      <button class="clear-btn" onclick="clearChart()">✕ Clear</button>
+    </div>
+  </section>
+
+  <!-- ===== RIGHT: COMPASS ===== -->
+  <aside class="panel compass-panel">
+    <div class="panel-header">CIRCLE OF FIFTHS — SELECT TARGET KEY</div>
+    <div id="compassContainer"></div>
+    <div class="bearing-display">
+      BEARING: <span id="bearingValue">— —</span>
+    </div>
+    <div class="capo-guide panel">
+      <div class="panel-header" style="border-top: 1px solid rgba(255,255,255,0.2);">⚓ CAPO GUIDE</div>
+      <div id="capoSuggestions">Select source and target keys to see capo options</div>
+    </div>
+  </aside>
+
+  <!-- ===== LEFT BOTTOM: OUTPUT ===== -->
+  <section class="panel output-panel">
+    <div class="panel-header">
+      <span>TRANSPOSED CHART — TARGET KEY: <span id="targetKeyDisplay">—</span></span>
+      <div class="output-actions">
+        <label class="flat-toggle">
+          <input type="checkbox" id="useFlatsPref"> USE FLATS
+        </label>
+        <button class="btn" id="copyBtn">⊕ COPY</button>
+      </div>
+    </div>
+    <textarea id="chartOutput" readonly placeholder="Transposed chart will appear here once you select a target key on the compass rose..."></textarea>
+  </section>
+</main>
+
+<script>
+// =====================================================
+// CHORD TRANSPOSITION ENGINE
+// =====================================================
+
+const CHROMATIC_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const CHROMATIC_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const FLAT_KEYS = ['F','Bb','Eb','Ab','Db','Gb'];
+
+const CIRCLE_OF_FIFTHS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
+const RELATIVE_MINORS  = ['Am','Em','Bm','F#m','C#m','G#m','D#m','Bbm','Fm','Cm','Gm','Dm'];
+
+function noteToIndex(note) {
+  let i = CHROMATIC_SHARP.indexOf(note);
+  if (i >= 0) return i;
+  return CHROMATIC_FLAT.indexOf(note);
+}
+
+function indexToNote(idx, useFlats) {
+  const i = ((idx % 12) + 12) % 12;
+  return useFlats ? CHROMATIC_FLAT[i] : CHROMATIC_SHARP[i];
+}
+
+function transposeChord(chordStr, semitones, useFlats) {
+  return chordStr.replace(
+    /(?<![A-Za-z])([A-G][#b]?)((?:maj|min|m(?!aj)|M|dim|aug|sus[24]?|add\d+|\d+|[Mm]7?|b5|\+|ø|°)*(?:\/[A-G][#b]?)?)/g,
+    (match, root, quality) => {
+      const rootIdx = noteToIndex(root);
+      if (rootIdx < 0) return match;
+
+      // Handle slash chord bass note
+      const slashMatch = quality.match(/^(.*?)\/([A-G][#b]?)$/);
+      if (slashMatch) {
+        const qual = slashMatch[1];
+        const bass = slashMatch[2];
+        const bassIdx = noteToIndex(bass);
+        const newRoot = indexToNote(rootIdx + semitones, useFlats);
+        const newBass = bassIdx >= 0 ? indexToNote(bassIdx + semitones, useFlats) : bass;
+        return newRoot + qual + '/' + newBass;
+      }
+      return indexToNote(rootIdx + semitones, useFlats) + quality;
+    }
+  );
+}
+
+function transposeText(text, semitones, useFlats) {
+  if (semitones === 0) return text;
+  return text.split('\n').map(line => transposeChord(line, semitones, useFlats)).join('\n');
+}
+
+function detectKey(text) {
+  const matches = [...text.matchAll(/(?<![A-Za-z])([A-G][#b]?)(?=(?:maj|min|m(?!aj)|M|dim|aug|sus|add|\d|\s|$|[/\[\]]|,|\)))/g)];
+  if (!matches.length) return null;
+  const counts = {};
+  matches.forEach(m => { const n = m[1]; counts[n] = (counts[n]||0)+1; });
+  return Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0];
+}
+
+function capoSuggestions(targetKey) {
+  const targetIdx = noteToIndex(targetKey);
+  if (targetIdx < 0) return [];
+  const results = [];
+  ['C','G','D','A','E','F'].forEach(key => {
+    const playIdx = noteToIndex(key);
+    const capo = ((targetIdx - playIdx) % 12 + 12) % 12;
+    if (capo >= 1 && capo <= 7) results.push({capo, key});
+  });
+  return results.sort((a,b) => a.capo - b.capo).slice(0, 3);
+}
+
+// =====================================================
+// COMPASS ROSE SVG BUILDER
+// =====================================================
+
+function ringSlicePath(cx, cy, innerR, outerR, startAngleDeg, endAngleDeg) {
+  const s0 = (startAngleDeg - 90) * Math.PI / 180;
+  const s1 = (endAngleDeg - 90) * Math.PI / 180;
+  const x1 = cx + outerR * Math.cos(s0);
+  const y1 = cy + outerR * Math.sin(s0);
+  const x2 = cx + outerR * Math.cos(s1);
+  const y2 = cy + outerR * Math.sin(s1);
+  const x3 = cx + innerR * Math.cos(s1);
+  const y3 = cy + innerR * Math.sin(s1);
+  const x4 = cx + innerR * Math.cos(s0);
+  const y4 = cy + innerR * Math.sin(s0);
+  const la = (endAngleDeg - startAngleDeg > 180) ? 1 : 0;
+  return `M ${x1} ${y1} A ${outerR} ${outerR} 0 ${la} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerR} ${innerR} 0 ${la} 0 ${x4} ${y4} Z`;
+}
+
+function polarXY(cx, cy, r, angleDeg) {
+  const a = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+}
+
+let sourceKeyVal = '';
+let targetKeyVal = '';
+let useFlatsPref = false;
+
+function buildCompass() {
+  const cx = 200, cy = 200;
+  const outerDecR = 190;
+  const outerR = 175;
+  const innerR = 80;
+  const minorOuterR = 78;
+  const minorInnerR = 45;
+  const centerR = 42;
+  const labelR = 128;
+  const minorLabelR = 60;
+
+  let svg = `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" id="compassSVG">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="1" dy="1" stdDeviation="2" flood-color="#1B3358" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Outer decorative ring background -->
+  <circle cx="${cx}" cy="${cy}" r="${outerDecR}" fill="#C8DDE8" stroke="#1B3358" stroke-width="1.5"/>
+  <circle cx="${cx}" cy="${cy}" r="${outerR + 2}" fill="#F5F2E6" stroke="#1B3358" stroke-width="1"/>`;
+
+  // Key segments
+  CIRCLE_OF_FIFTHS.forEach((key, i) => {
+    const startAngle = i * 30;
+    const endAngle = (i + 1) * 30;
+    const midAngle = startAngle + 15;
+
+    let fill = '#EDE9DA';
+    let strokeColor = '#1B3358';
+    let strokeW = 1;
+
+    if (key === sourceKeyVal) { fill = '#C4763A'; strokeW = 2; }
+    if (key === targetKeyVal && key !== sourceKeyVal) { fill = '#C84030'; strokeW = 2; }
+    if (key === targetKeyVal && key === sourceKeyVal) { fill = '#9B5030'; strokeW = 2; }
+
+    const path = ringSlicePath(cx, cy, innerR, outerR, startAngle, endAngle);
+
+    svg += `\n  <path d="${path}" fill="${fill}" stroke="${strokeColor}" stroke-width="${strokeW}" 
+    class="compass-segment" onclick="selectTargetKey('${key}')" 
+    data-key="${key}" style="cursor:pointer"/>`;
+
+    // Key label
+    const lp = polarXY(cx, cy, labelR, midAngle);
+    svg += `\n  <text x="${lp.x.toFixed(1)}" y="${lp.y.toFixed(1)}" 
+    text-anchor="middle" dominant-baseline="central"
+    font-family="Cinzel, serif" font-size="14" font-weight="600" 
+    fill="${key === targetKeyVal ? '#FFFFFF' : key === sourceKeyVal ? '#FFFFFF' : '#1B3358'}"
+    style="pointer-events:none">${key}</text>`;
+  });
+
+  // Minor key inner ring
+  CIRCLE_OF_FIFTHS.forEach((key, i) => {
+    const startAngle = i * 30;
+    const endAngle = (i + 1) * 30;
+    const midAngle = startAngle + 15;
+    const minPath = ringSlicePath(cx, cy, minorInnerR, minorOuterR, startAngle, endAngle);
+    const keyIsSource = CIRCLE_OF_FIFTHS[i] === sourceKeyVal;
+    const keyIsTarget = CIRCLE_OF_FIFTHS[i] === targetKeyVal;
+
+    let minFill = 'rgba(200,221,232,0.5)';
+    if (keyIsSource) minFill = 'rgba(196,118,58,0.35)';
+    if (keyIsTarget) minFill = 'rgba(200,64,48,0.35)';
+
+    svg += `\n  <path d="${minPath}" fill="${minFill}" stroke="#1B3358" stroke-width="0.7" style="pointer-events:none"/>`;
+
+    const mp = polarXY(cx, cy, minorLabelR, midAngle);
+    svg += `\n  <text x="${mp.x.toFixed(1)}" y="${mp.y.toFixed(1)}" 
+    text-anchor="middle" dominant-baseline="central"
+    font-family="Barlow Condensed, sans-serif" font-size="8" font-weight="500"
+    fill="${keyIsSource || keyIsTarget ? '#1B3358' : '#6B7A8A'}"
+    style="pointer-events:none">${RELATIVE_MINORS[i]}</text>`;
+  });
+
+  // Rhumb line between source and target
+  if (sourceKeyVal && targetKeyVal && sourceKeyVal !== targetKeyVal) {
+    const srcIdx = CIRCLE_OF_FIFTHS.indexOf(sourceKeyVal);
+    const tgtIdx = CIRCLE_OF_FIFTHS.indexOf(targetKeyVal);
+    if (srcIdx >= 0 && tgtIdx >= 0) {
+      const srcMid = srcIdx * 30 + 15;
+      const tgtMid = tgtIdx * 30 + 15;
+      const sp = polarXY(cx, cy, labelR, srcMid);
+      const tp = polarXY(cx, cy, labelR, tgtMid);
+      svg += `\n  <line x1="${sp.x.toFixed(1)}" y1="${sp.y.toFixed(1)}" 
+      x2="${tp.x.toFixed(1)}" y2="${tp.y.toFixed(1)}" 
+      stroke="#B83020" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.85"
+      style="pointer-events:none"/>`;
+      // Arrow at target
+      svg += `\n  <circle cx="${tp.x.toFixed(1)}" cy="${tp.y.toFixed(1)}" r="4" fill="#B83020" opacity="0.9" style="pointer-events:none"/>`;
+    }
+  }
+
+  // Center circle
+  svg += `\n  <circle cx="${cx}" cy="${cy}" r="${centerR}" fill="#1B3358" stroke="#9B7A20" stroke-width="2"/>`;
+
+  // Bearing text in center
+  const semitones = calcSemitones();
+  const bearingText = (sourceKeyVal && targetKeyVal)
+    ? (semitones === 0 ? '±0' : (semitones > 0 ? '+' + semitones : semitones.toString()))
+    : '—';
+
+  svg += `\n  <text x="${cx}" y="${cy - 7}" text-anchor="middle" dominant-baseline="central"
+  font-family="Barlow Condensed, sans-serif" font-size="7.5" font-weight="600" 
+  fill="#9B7A20" letter-spacing="0.15em" style="pointer-events:none">BEARING</text>`;
+
+  svg += `\n  <text x="${cx}" y="${cy + 8}" text-anchor="middle" dominant-baseline="central"
+  font-family="Cinzel, serif" font-size="15" font-weight="700" 
+  fill="${semitones !== 0 ? '#F5A080' : '#9B7A20'}" style="pointer-events:none">${bearingText}</text>`;
+
+  // Compass point labels on outer ring
+  const compassPoints = [
+    {label: 'N', angle: 0}, {label: 'NE', angle: 45}, {label: 'E', angle: 90},
+    {label: 'SE', angle: 135}, {label: 'S', angle: 180}, {label: 'SW', angle: 225},
+    {label: 'W', angle: 270}, {label: 'NW', angle: 315}
+  ];
+  compassPoints.forEach(({label, angle}) => {
+    const p = polarXY(cx, cy, 183, angle);
+    svg += `\n  <text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" 
+    text-anchor="middle" dominant-baseline="central"
+    font-family="Barlow Condensed, sans-serif" font-size="7.5" font-weight="700"
+    fill="#1B3358" letter-spacing="0.05em" style="pointer-events:none">${label}</text>`;
+  });
+
+  // Tick marks on outer ring
+  for (let i = 0; i < 36; i++) {
+    const angle = i * 10;
+    const isMajor = i % 3 === 0;
+    const r1 = isMajor ? outerR + 2 : outerR + 4;
+    const r2 = outerDecR - 2;
+    const p1 = polarXY(cx, cy, r1, angle);
+    const p2 = polarXY(cx, cy, r2, angle);
+    svg += `\n  <line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" 
+    x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" 
+    stroke="#1B3358" stroke-width="${isMajor ? 1.2 : 0.6}" opacity="${isMajor ? 0.7 : 0.35}"
+    style="pointer-events:none"/>`;
+  }
+
+  svg += '\n</svg>';
+  document.getElementById('compassContainer').innerHTML = svg;
+}
+
+function calcSemitones() {
+  const srcKey = sourceKeyVal || detectKey(document.getElementById('chartInput').value);
+  const tgtKey = targetKeyVal;
+  if (!srcKey || !tgtKey) return 0;
+  const srcIdx = noteToIndex(srcKey);
+  const tgtIdx = noteToIndex(tgtKey);
+  if (srcIdx < 0 || tgtIdx < 0) return 0;
+  let diff = tgtIdx - srcIdx;
+  // Shortest path
+  if (diff > 6) diff -= 12;
+  if (diff < -6) diff += 12;
+  return diff;
+}
+
+// =====================================================
+// UI STATE & INTERACTIONS
+// =====================================================
+
+function selectTargetKey(key) {
+  targetKeyVal = key;
+  updateAll();
+}
+
+function updateAll() {
+  const inputText = document.getElementById('chartInput').value;
+  const srcDropdown = document.getElementById('sourceKey').value;
+
+  // Determine source key
+  let srcKey = srcDropdown;
+  if (!srcKey) {
+    srcKey = detectKey(inputText) || '';
+  }
+  sourceKeyVal = srcKey;
+
+  // Auto-set flats preference based on target key
+  if (targetKeyVal && !document.getElementById('useFlatsPref')._userSet) {
+    const shouldFlat = FLAT_KEYS.includes(targetKeyVal);
+    document.getElementById('useFlatsPref').checked = shouldFlat;
+    useFlatsPref = shouldFlat;
+  } else {
+    useFlatsPref = document.getElementById('useFlatsPref').checked;
+  }
+
+  // Bearing display
+  const semitones = calcSemitones();
+  const bearingEl = document.getElementById('bearingValue');
+  if (srcKey && targetKeyVal) {
+    const sign = semitones > 0 ? '+' : '';
+    bearingEl.textContent = `${sign}${semitones} SEMITONES`;
+    bearingEl.style.color = semitones === 0 ? '#9B7A20' : '#F5A080';
+  } else {
+    bearingEl.textContent = '— —';
+    bearingEl.style.color = '#9B7A20';
+  }
+
+  // Target key display
+  document.getElementById('targetKeyDisplay').textContent = targetKeyVal || '—';
+
+  // Transpose output
+  const outputTA = document.getElementById('chartOutput');
+  if (inputText && srcKey && targetKeyVal) {
+    outputTA.value = transposeText(inputText, semitones, useFlatsPref);
+  } else if (inputText && !targetKeyVal) {
+    outputTA.value = '';
+    outputTA.placeholder = 'Click a key on the compass rose to select target key...';
+  } else {
+    outputTA.value = '';
+    outputTA.placeholder = 'Transposed chart will appear here once you select a target key on the compass rose...';
+  }
+
+  // Capo suggestions
+  updateCapoGuide();
+
+  // Rebuild compass
+  buildCompass();
+}
+
+function updateCapoGuide() {
+  const container = document.getElementById('capoSuggestions');
+  if (!targetKeyVal) {
+    container.innerHTML = '<span style="color:#999;font-style:italic">Select a target key to see capo options</span>';
+    return;
+  }
+  const suggestions = capoSuggestions(targetKeyVal);
+  if (!suggestions.length) {
+    container.innerHTML = `<span style="color:#888;font-style:italic">No capo options (play in ${targetKeyVal})</span>`;
+    return;
+  }
+  const ordinals = ['','1st','2nd','3rd','4th','5th','6th','7th'];
+  container.innerHTML = suggestions.map(({capo, key}) => `
+    <div class="capo-item">
+      <div class="capo-fret">${capo}</div>
+      <div>
+        <div class="capo-label">CAPO ${ordinals[capo] || capo + 'th'} FRET</div>
+        <div class="capo-sublabel">Play chords in ${key} shape</div>
+      </div>
+      <div class="capo-key">${key}</div>
+    </div>
+  `).join('');
+}
+
+function clearChart() {
+  document.getElementById('chartInput').value = '';
+  document.getElementById('chartOutput').value = '';
+  sourceKeyVal = '';
+  document.getElementById('sourceKey').value = '';
+  updateAll();
+}
+
+function doAutoDetect() {
+  const text = document.getElementById('chartInput').value;
+  const detected = detectKey(text);
+  if (detected) {
+    // Find matching option in dropdown
+    const select = document.getElementById('sourceKey');
+    for (let opt of select.options) {
+      if (opt.value === detected) {
+        select.value = detected;
+        break;
+      }
+    }
+    sourceKeyVal = detected;
+    updateAll();
+
+    // Flash feedback
+    const btn = document.getElementById('autoDetect');
+    const orig = btn.textContent;
+    btn.textContent = `✓ KEY: ${detected}`;
+    btn.style.background = '#2A6B55';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+    }, 2000);
+  } else {
+    const btn = document.getElementById('autoDetect');
+    const orig = btn.textContent;
+    btn.textContent = '? NOT FOUND';
+    btn.style.background = '#888';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+    }, 2000);
+  }
+}
+
+// =====================================================
+// EXAMPLE CHARTS
+// =====================================================
+
+const EXAMPLES = {
+  1: {
+    name: 'Hymn (G)',
+    key: 'G',
+    text: `Amazing Grace (Key of G)
+
+[Verse 1]
+G           G7          C         G
+Amazing grace, how sweet the sound
+G              Em        A7     D
+That saved a wretch like me
+G           G7          C         G
+I once was lost, but now am found
+G      D7         G
+Was blind, but now I see
+
+[Chorus]
+G              C         G
+Praise the Lord, praise the Lord
+G              D7       G
+Let the earth hear His voice
+G              C           G
+Praise the Lord, praise the Lord
+G    Em  Am  D7  G
+Let the people rejoice`
+  },
+  2: {
+    name: 'Jazz (C)',
+    key: 'C',
+    text: `Jazz Standard — Autumn Vibes (Key of C)
+
+[Head — A Section]
+Cmaj7    Am7     Dm7    G7
+Fmaj7    Em7     Am7    Dm7   G7
+
+[A Section repeat]
+Cmaj7    Am7     Dm7    G7
+Fmaj7    Bm7b5   E7     Am7
+
+[B Section — Bridge]
+D7sus4   D7      Gm7    C7
+Fmaj7    Fm7     Bb7    Ebmaj7
+
+[Return to A]
+Cmaj7    Am7     Dm7    G7
+Fmaj7    Dm7b5   G7b9   Cmaj7`
+  },
+  3: {
+    name: 'Pop (D)',
+    key: 'D',
+    text: `Pop Song (Key of D)
+
+[Verse]
+D        Bm       G        A
+Every time I look into your eyes
+D        Bm       G        A
+I feel something I can't describe
+
+[Pre-Chorus]
+G        A        Bm       G
+Oh oh oh, it's taking over me
+
+[Chorus]
+D        A        Bm       G
+You're everything I've been waiting for
+D        A        Bm       G
+Couldn't ask for anything more
+D/F#     G        Asus4    A
+And I know, I know, I know
+
+[Bridge]
+Bm       F#m      G        D
+Cadd9    G        Asus4    A`
+  }
+};
+
+function loadExample(num) {
+  const ex = EXAMPLES[num];
+  if (!ex) return;
+  document.getElementById('chartInput').value = ex.text;
+
+  // Set source key
+  const select = document.getElementById('sourceKey');
+  for (let opt of select.options) {
+    if (opt.value === ex.key) { select.value = ex.key; break; }
+  }
+  sourceKeyVal = ex.key;
+
+  // Reset target (user picks on compass)
+  updateAll();
+}
+
+// =====================================================
+// COPY TO CLIPBOARD
+// =====================================================
+
+document.getElementById('copyBtn').addEventListener('click', function() {
+  const text = document.getElementById('chartOutput').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ COPIED';
+    btn.classList.add('copy-success');
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('copy-success');
+    }, 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.getElementById('chartOutput');
+    ta.select();
+    document.execCommand('copy');
+  });
+});
+
+// =====================================================
+// EVENT LISTENERS
+// =====================================================
+
+document.getElementById('chartInput').addEventListener('input', function() {
+  // Auto-detect when text changes, but only if no manual key set
+  if (!document.getElementById('sourceKey').value) {
+    const detected = detectKey(this.value);
+    if (detected) sourceKeyVal = detected;
+  }
+  updateAll();
+});
+
+document.getElementById('sourceKey').addEventListener('change', function() {
+  sourceKeyVal = this.value;
+  updateAll();
+});
+
+document.getElementById('autoDetect').addEventListener('click', doAutoDetect);
+
+document.getElementById('useFlatsPref').addEventListener('change', function() {
+  this._userSet = true;
+  useFlatsPref = this.checked;
+  updateAll();
+});
+
+// =====================================================
+// INIT
+// =====================================================
+
+// Build initial compass
+buildCompass();
+
+// Load hymn example on first load
+loadExample(1);
+</script>
+</body>
+</html>
