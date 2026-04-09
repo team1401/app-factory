@@ -132,6 +132,11 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Palette: Near-white (#FAFAFA) background, Blue (#2563EB) primary accent, Red (#DC2626) dimension/warning, Green (#059669) success, Graphite (#1F2937) text, Gray (#E5E7EB) grid lines, White (#FFFFFF) surfaces
 - Signature: Live isometric (axonometric) 3D box visualization SVG that renders the package with blue translucent faces and red dimension annotation lines with arrow heads — updates in real time as dimensions are typed. Construction crosshair marks (⊕) on all panel corners. Engineering grid background. Barlow Condensed + IBM Plex Mono + Inter typography trio.
 
+## SafeStock — 2026-04-03
+- Style: "Tufte Data Ink" — Edward Tufte information design principles applied to inventory management. Maximum data, minimum ink. Warm cream paper background, serif body text (Source Serif 4), monospace data values (IBM Plex Mono), and a single blue accent color for computed values. Zero decoration, zero gradients — pure information architecture where the data IS the design.
+- Palette: Warm cream (#FEFCF8) background, Near-black (#1A1812) text, Accent blue (#2563EB) reorder points, Danger red (#B91C1C) critical alerts, Success green (#047857) safe status, Warning amber (#D97706) reorder alerts, Annotation tan (#8B7E6A) margin notes
+- Signature: Inline SVG sparkline projections in each table row showing 30-day stock depletion curves with dashed blue reorder-point lines and dotted red safety-stock lines — Tufte's "small multiples" concept applied to inventory projections. Tufte-style margin notes (italic serif, left-border accent) explain the math. Horizontal timeline bars show stock level vs reorder point with color-coded urgency markers.
+
 ---
 *New entries appended automatically after each build.*
 
@@ -234,3 +239,23 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Style: "Admiralty Chart / Nautical Pilot" — British Admiralty navigational chart aesthetic. Warm parchment background (#F5F2E6), navy ink headers (#1B3358), vermilion target key highlights (#B83020), subtle nautical chart grid lines, compass rose as primary functional element.
 - Palette: Chart parchment (#F5F2E6), Navy ink (#1B3358), Vermilion (#B83020), Sea green (#2A6B55), Burnt sienna (#8B4A1A), Annotation gold (#9B7A20)
 - Signature: Interactive SVG compass rose that IS the Circle of Fifths key selector — 12 clickable pie segments arranged in circle-of-fifths order, source key in burnt sienna, target key in vermilion, dashed rhumb line between them through center, semitone count displayed as "BEARING" in center circle. Cinzel serif headers throughout for a classical nautical chart feel.
+
+## StickerTally (SLP) — 2026-04-05
+- Style: "Clinical Clipboard + Highlighter" — warm therapy clipboard paper with ruled lines, die-cut sticker goals, and bold highlighter accents. Friendly, tactile, and touch-first (no dark UI, no glass).
+- Palette: Paper (#FBF7EF), Surface (#FFFDF8), Ink (#171410), Line (#D7CBBD), Highlighter Yellow (#FFE06B), Mint (#98F2C1), Pink (#FF96C8), Sky Blue (#87B9FF)
+- Signature: Goal "stickers" with die-cut shadow + domain-tinted highlighter wash, plus pencil-style tally marks that accumulate as you tap trials. Every panel is a ruled clipboard sheet; controls look like labeled clinic stickers, not a dashboard.
+
+## Redaction Runner — 2026-04-06
+- Style: "Library Card Catalog Privacy Desk" — 1970s index-card catalog + research librarian desk vibe: warm paper stock, tab-notched cards, monospaced labels, zero glass/gradients.
+- Palette: Desk Paper (#F7F1E3), Aged Card (#FBF4E4), Ink (#1B1916), Line (#D7CBB7), Teal Stamp (#1F6F78), Confidential Red (#B5352A), Catalog Gold (#9B7A20)
+- Signature: Tab-notched pattern cards plus an animated CONFIDENTIAL rubber-stamp overlay that slams in when you copy/download the redacted output; preview highlights tinted per redaction kind like color-coded catalog flags.
+
+## Allergen Matrix — 2026-04-07
+- Style: "Retail Shelf Label System" — bright paper surfaces, barcode bands, shelf-tag metaphors, information-dense grid; no gradients/glass.
+- Palette: Background #F6F7F9, Paper #FFFFFF, Ink #0B1220, Primary Cyan #0EA5E9, Secondary Orange #F97316, Accent Lime #A3E635
+- Signature: Barcode header strip + price-tag empty state card (hole punch + dotted rule) and allergen-dot column headers like coded shelf labels.
+
+## ConservaForm — 2026-04-08
+- Style: "Manila Folder Registrar Packet" — museum registrar / archives desk vibe: manila folder background, ruled report sheet, monospaced accession labeling, red rubber-stamp authority.
+- Palette: Manila (#F3EAD4), Report Paper (#FFFDF6), Ink (#1B1916), Registrar Red (#B12A1C), Archive Teal (#1F5D73), Catalog Yellow (#F0C330)
+- Signature: Angled red CONDITION REPORT stamp + 3×3 Object Map locator grid (A1–C3) with live per-zone finding counts, designed to print cleanly to PDF.

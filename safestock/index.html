@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeStock — Inventory Reorder Point Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,300;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FEFCF8;
+  --surface:#FFFFFF;
+  --text:#1A1812;
+  --text-secondary:#6B6557;
+  --accent:#2563EB;
+  --accent-hover:#1D4ED8;
+  --danger:#B91C1C;
+  --warning:#D97706;
+  --success:#047857;
+  --border:#D6D0C4;
+  --border-light:#E8E4DA;
+  --annotation:#8B7E6A;
+  --highlight:#FFFBEB;
+  --serif:'Source Serif 4',Georgia,serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+  --sans:'Inter',-apple-system,sans-serif;
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--serif);
+  line-height:1.6;
+  min-height:100vh;
+}
+/* Tufte-style layout: centered column with sidenotes */
+.page{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem}
+
+/* Header */
+.site-header{
+  border-bottom:1px solid var(--text);
+  padding-bottom:1rem;
+  margin-bottom:2.5rem;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:0.5rem;
+}
+.site-title{
+  font-family:var(--serif);
+  font-size:1.75rem;
+  font-weight:700;
+  letter-spacing:-0.02em;
+  color:var(--text);
+}
+.site-title span{color:var(--accent)}
+.site-subtitle{
+  font-family:var(--sans);
+  font-size:0.8rem;
+  color:var(--text-secondary);
+  font-weight:400;
+}
+
+/* Section headings — Tufte style */
+h2{
+  font-family:var(--serif);
+  font-size:1.35rem;
+  font-weight:600;
+  margin:2.5rem 0 0.75rem;
+  padding-bottom:0.25rem;
+  border-bottom:1px solid var(--border-light);
+}
+h3{
+  font-family:var(--sans);
+  font-size:0.75rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--text-secondary);
+  margin:1.5rem 0 0.5rem;
+}
+
+/* Intro text */
+.intro{
+  font-size:1.05rem;
+  color:var(--text-secondary);
+  max-width:640px;
+  margin-bottom:2rem;
+  line-height:1.7;
+}
+.intro em{font-style:italic;color:var(--text)}
+
+/* SKU Table */
+.sku-table-wrap{
+  overflow-x:auto;
+  margin:1rem 0;
+  border:1px solid var(--border);
+  border-radius:2px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-family:var(--sans);
+  font-size:0.82rem;
+}
+thead{background:var(--text);color:#fff}
+thead th{
+  padding:0.6rem 0.75rem;
+  text-align:left;
+  font-weight:600;
+  font-size:0.7rem;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  white-space:nowrap;
+  position:relative;
+}
+thead th .unit{
+  display:block;
+  font-weight:400;
+  font-size:0.6rem;
+  text-transform:none;
+  letter-spacing:0;
+  opacity:0.7;
+  margin-top:1px;
+}
+tbody tr{border-bottom:1px solid var(--border-light)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--highlight)}
+tbody td{padding:0.4rem 0.75rem;vertical-align:middle}
+tbody td input{
+  font-family:var(--mono);
+  font-size:0.82rem;
+  border:1px solid var(--border);
+  padding:0.3rem 0.4rem;
+  border-radius:2px;
+  width:100%;
+  min-width:60px;
+  background:var(--surface);
+  color:var(--text);
+  transition:border-color 0.15s;
+}
+tbody td input:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px rgba(37,99,235,0.1);
+}
+tbody td input.name-input{
+  font-family:var(--sans);
+  min-width:120px;
+}
+.computed{
+  font-family:var(--mono);
+  font-size:0.82rem;
+  font-weight:500;
+  white-space:nowrap;
+}
+
+/* Status indicators */
+.status-dot{
+  display:inline-block;
+  width:7px;height:7px;
+  border-radius:50%;
+  margin-right:4px;
+  vertical-align:middle;
+}
+.status-safe{background:var(--success)}
+.status-warning{background:var(--warning)}
+.status-danger{background:var(--danger)}
+.status-label{
+  font-family:var(--sans);
+  font-size:0.7rem;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+
+/* Inline sparklines */
+.sparkline-cell{min-width:80px}
+.sparkline{display:block}
+
+/* Action buttons */
+.btn{
+  font-family:var(--sans);
+  font-size:0.75rem;
+  font-weight:600;
+  padding:0.45rem 1rem;
+  border:1px solid var(--text);
+  background:var(--surface);
+  color:var(--text);
+  cursor:pointer;
+  border-radius:2px;
+  transition:all 0.15s;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+.btn:hover{background:var(--text);color:var(--surface)}
+.btn-accent{border-color:var(--accent);color:var(--accent)}
+.btn-accent:hover{background:var(--accent);color:#fff}
+.btn-danger{border-color:var(--danger);color:var(--danger);font-size:0.7rem;padding:0.25rem 0.5rem}
+.btn-danger:hover{background:var(--danger);color:#fff}
+.btn-small{font-size:0.7rem;padding:0.25rem 0.6rem}
+
+.actions-bar{
+  display:flex;
+  gap:0.75rem;
+  align-items:center;
+  flex-wrap:wrap;
+  margin:1.5rem 0 0.75rem;
+}
+
+/* Summary panel */
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:1rem;
+  margin:1rem 0 2rem;
+}
+.summary-card{
+  border:1px solid var(--border);
+  padding:1rem 1.25rem;
+  border-radius:2px;
+  background:var(--surface);
+}
+.summary-card .label{
+  font-family:var(--sans);
+  font-size:0.65rem;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--text-secondary);
+  margin-bottom:0.35rem;
+}
+.summary-card .value{
+  font-family:var(--mono);
+  font-size:1.5rem;
+  font-weight:600;
+  color:var(--text);
+  line-height:1.2;
+}
+.summary-card .annotation{
+  font-family:var(--serif);
+  font-size:0.78rem;
+  font-style:italic;
+  color:var(--annotation);
+  margin-top:0.3rem;
+}
+
+/* Tufte-style margin notes */
+.margin-note{
+  font-family:var(--serif);
+  font-size:0.78rem;
+  font-style:italic;
+  color:var(--annotation);
+  line-height:1.5;
+  margin:0.5rem 0;
+  padding-left:1rem;
+  border-left:2px solid var(--border-light);
+}
+
+/* Empty state */
+.empty-state{
+  text-align:center;
+  padding:4rem 2rem;
+  border:1px dashed var(--border);
+  border-radius:2px;
+  margin:2rem 0;
+}
+.empty-state h3{
+  font-family:var(--serif);
+  font-size:1.1rem;
+  font-weight:400;
+  color:var(--text);
+  text-transform:none;
+  letter-spacing:0;
+  margin-bottom:0.5rem;
+}
+.empty-state p{
+  font-size:0.85rem;
+  color:var(--text-secondary);
+  margin-bottom:1.5rem;
+  max-width:400px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+/* Reorder timeline visualization */
+.timeline-viz{
+  margin:1.5rem 0;
+  padding:1.5rem;
+  border:1px solid var(--border);
+  border-radius:2px;
+  background:var(--surface);
+  overflow-x:auto;
+}
+.timeline-bar{
+  position:relative;
+  height:32px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:2px;
+  margin:0.75rem 0 0.3rem;
+  overflow:hidden;
+}
+.timeline-fill{
+  position:absolute;
+  top:0;left:0;
+  height:100%;
+  transition:width 0.4s ease;
+}
+.timeline-fill.stock{background:rgba(4,120,87,0.15)}
+.timeline-fill.safety{background:repeating-linear-gradient(135deg,transparent,transparent 3px,rgba(185,28,28,0.08) 3px,rgba(185,28,28,0.08) 6px)}
+.timeline-marker{
+  position:absolute;
+  top:-6px;bottom:-6px;
+  width:2px;
+  z-index:2;
+}
+.timeline-marker.reorder{background:var(--accent)}
+.timeline-marker.stockout{background:var(--danger);border:1px dashed var(--danger);background:transparent}
+.timeline-marker-label{
+  position:absolute;
+  top:-22px;
+  font-family:var(--mono);
+  font-size:0.6rem;
+  white-space:nowrap;
+  transform:translateX(-50%);
+  color:var(--text-secondary);
+}
+.sku-timeline-label{
+  font-family:var(--sans);
+  font-size:0.75rem;
+  font-weight:500;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.sku-timeline-label .sku-status{font-family:var(--mono);font-size:0.7rem}
+
+/* Settings */
+.settings-panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:1.25rem;
+  border-radius:2px;
+  margin:1rem 0;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:1rem;
+}
+.setting-group label{
+  display:block;
+  font-family:var(--sans);
+  font-size:0.7rem;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--text-secondary);
+  margin-bottom:0.3rem;
+}
+.setting-group select,
+.setting-group input{
+  font-family:var(--mono);
+  font-size:0.82rem;
+  border:1px solid var(--border);
+  padding:0.35rem 0.5rem;
+  border-radius:2px;
+  background:var(--bg);
+  color:var(--text);
+  width:100%;
+}
+.setting-group select:focus,
+.setting-group input:focus{
+  outline:none;
+  border-color:var(--accent);
+}
+
+/* Footer */
+.site-footer{
+  margin-top:3rem;
+  padding-top:1rem;
+  border-top:1px solid var(--border-light);
+  font-family:var(--serif);
+  font-size:0.78rem;
+  font-style:italic;
+  color:var(--annotation);
+}
+
+/* Delete col */
+.del-col{width:36px;text-align:center}
+
+/* Responsive */
+@media(max-width:640px){
+  .page{padding:1rem}
+  .site-title{font-size:1.4rem}
+  .summary-grid{grid-template-columns:1fr}
+  table{font-size:0.75rem}
+  thead th{padding:0.4rem 0.5rem;font-size:0.62rem}
+  tbody td{padding:0.3rem 0.5rem}
+  tbody td input{font-size:0.75rem;padding:0.25rem 0.3rem}
+  .settings-panel{grid-template-columns:1fr}
+}
+
+/* Print styles — Tufte would approve */
+@media print{
+  .actions-bar,.btn,.del-col,.settings-panel{display:none!important}
+  .page{max-width:100%;padding:0}
+  table{font-size:0.7rem}
+}
+
+/* Loading skeleton */
+.skeleton{
+  background:linear-gradient(90deg,var(--border-light) 25%,var(--bg) 50%,var(--border-light) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite;
+  border-radius:2px;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Tooltip */
+[data-tooltip]{position:relative}
+[data-tooltip]:hover::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:calc(100% + 6px);
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--text);
+  color:var(--surface);
+  font-family:var(--sans);
+  font-size:0.65rem;
+  padding:0.3rem 0.6rem;
+  border-radius:2px;
+  white-space:nowrap;
+  z-index:10;
+  pointer-events:none;
+}
+
+/* Export modal */
+.modal-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(26,24,18,0.5);
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.2s;
+}
+.modal-overlay.active{opacity:1;pointer-events:all}
+.modal{
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:2rem;
+  border-radius:2px;
+  max-width:500px;
+  width:90%;
+  max-height:80vh;
+  overflow-y:auto;
+}
+.modal h3{
+  font-family:var(--serif);
+  font-size:1.1rem;
+  text-transform:none;
+  letter-spacing:0;
+  color:var(--text);
+  margin-bottom:1rem;
+}
+.modal pre{
+  font-family:var(--mono);
+  font-size:0.75rem;
+  background:var(--bg);
+  border:1px solid var(--border-light);
+  padding:1rem;
+  overflow-x:auto;
+  white-space:pre;
+  margin:0.5rem 0 1rem;
+  max-height:50vh;
+}
+.modal-actions{display:flex;gap:0.5rem;justify-content:flex-end}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="site-header">
+    <div>
+      <div class="site-title">Safe<span>Stock</span></div>
+      <div class="site-subtitle">Inventory reorder point calculator for small sellers</div>
+    </div>
+  </header>
+
+  <p class="intro">
+    Know <em>when</em> to reorder, <em>how much</em> to order, and <em>how much safety stock</em> to hold — 
+    without enterprise software. Enter your SKU data; the math runs instantly.
+  </p>
+
+  <h2>Configuration</h2>
+  <div class="settings-panel">
+    <div class="setting-group">
+      <label>Service Level</label>
+      <select id="serviceLevel">
+        <option value="1.28">80% — Budget</option>
+        <option value="1.65" selected>90% — Standard</option>
+        <option value="1.96">95% — Conservative</option>
+        <option value="2.33">99% — Premium</option>
+      </select>
+    </div>
+    <div class="setting-group">
+      <label>Holding Cost %/yr</label>
+      <input type="number" id="holdingCostPct" value="25" min="1" max="100" step="1">
+    </div>
+    <div class="setting-group">
+      <label>Order Cost ($)</label>
+      <input type="number" id="orderCost" value="15" min="0" step="1">
+    </div>
+  </div>
+  <p class="margin-note">
+    Service level: the probability you won't stock out during a lead time cycle. 
+    95% means ~1 stockout per 20 reorder cycles. Holding cost includes storage, insurance, and capital cost.
+  </p>
+
+  <h2>SKU Inventory</h2>
+
+  <div class="actions-bar">
+    <button class="btn btn-accent" onclick="addSKU()">+ Add SKU</button>
+    <button class="btn" onclick="addSampleData()">Load Sample Data</button>
+    <button class="btn" onclick="exportCSV()">Export CSV</button>
+    <button class="btn" onclick="exportJSON()">Export JSON</button>
+  </div>
+
+  <div id="tableContainer">
+    <div class="empty-state" id="emptyState">
+      <h3>No SKUs yet</h3>
+      <p>Add a SKU to calculate reorder points, safety stock, and economic order quantities.</p>
+      <button class="btn btn-accent" onclick="addSampleData()">Load Sample Data</button>
+    </div>
+  </div>
+
+  <div id="summarySection" style="display:none">
+    <h2>Portfolio Summary</h2>
+    <div class="summary-grid" id="summaryGrid"></div>
+
+    <h2>Reorder Timeline</h2>
+    <p class="margin-note">
+      Horizontal bars show current stock level relative to reorder point. 
+      Blue marker = reorder point. Dashed red = safety stock boundary. 
+      Items at or below the reorder point need action now.
+    </p>
+    <div class="timeline-viz" id="timelineViz"></div>
+  </div>
+
+  <footer class="site-footer">
+    SafeStock uses the standard safety stock formula: SS = Z × σ<sub>d</sub> × √L, where Z is the service factor, 
+    σ<sub>d</sub> is daily demand standard deviation, and L is lead time in days. 
+    EOQ uses the Wilson formula: √(2DS/H).
+  </footer>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <h3 id="modalTitle">Export</h3>
+    <pre id="modalContent"></pre>
+    <div class="modal-actions">
+      <button class="btn btn-small" onclick="copyExport()">Copy to Clipboard</button>
+      <button class="btn btn-small" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'safestock_skus';
+const SETTINGS_KEY = 'safestock_settings';
+
+let skus = [];
+let skuIdCounter = 0;
+
+// --- Persistence ---
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(skus));
+    const settings = {
+      serviceLevel: document.getElementById('serviceLevel').value,
+      holdingCostPct: document.getElementById('holdingCostPct').value,
+      orderCost: document.getElementById('orderCost').value
+    };
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) {
+      skus = JSON.parse(data);
+      skuIdCounter = skus.length ? Math.max(...skus.map(s=>s.id)) + 1 : 0;
+    }
+    const settings = localStorage.getItem(SETTINGS_KEY);
+    if (settings) {
+      const s = JSON.parse(settings);
+      if (s.serviceLevel) document.getElementById('serviceLevel').value = s.serviceLevel;
+      if (s.holdingCostPct) document.getElementById('holdingCostPct').value = s.holdingCostPct;
+      if (s.orderCost) document.getElementById('orderCost').value = s.orderCost;
+    }
+  } catch(e) {}
+}
+
+// --- Core Math ---
+function calcSafetyStock(demandStdDev, leadTime, zScore) {
+  return zScore * demandStdDev * Math.sqrt(leadTime);
+}
+
+function calcReorderPoint(avgDailyDemand, leadTime, safetyStock) {
+  return (avgDailyDemand * leadTime) + safetyStock;
+}
+
+function calcEOQ(annualDemand, orderCost, holdingCostPerUnit) {
+  if (holdingCostPerUnit <= 0 || annualDemand <= 0) return 0;
+  return Math.sqrt((2 * annualDemand * orderCost) / holdingCostPerUnit);
+}
+
+function calcDaysUntilReorder(currentStock, avgDailyDemand, reorderPoint) {
+  if (avgDailyDemand <= 0) return Infinity;
+  const unitsAboveROP = currentStock - reorderPoint;
+  if (unitsAboveROP <= 0) return 0;
+  return unitsAboveROP / avgDailyDemand;
+}
+
+function getStatus(currentStock, reorderPoint, safetyStock) {
+  if (currentStock <= safetyStock) return { cls: 'danger', label: 'CRITICAL', color: 'var(--danger)' };
+  if (currentStock <= reorderPoint) return { cls: 'warning', label: 'REORDER', color: 'var(--warning)' };
+  return { cls: 'safe', label: 'OK', color: 'var(--success)' };
+}
+
+// --- Sparkline SVG ---
+function generateSparkline(currentStock, reorderPoint, safetyStock, avgDemand) {
+  const w = 72, h = 20;
+  if (avgDemand <= 0 || currentStock <= 0) {
+    return `<svg width="${w}" height="${h}" class="sparkline"><line x1="0" y1="${h/2}" x2="${w}" y2="${h/2}" stroke="var(--border)" stroke-width="1"/></svg>`;
+  }
+  // Project 30 days of stock depletion
+  const days = 30;
+  const maxStock = Math.max(currentStock, reorderPoint * 1.5);
+  const points = [];
+  for (let d = 0; d <= days; d++) {
+    const stock = Math.max(0, currentStock - (avgDemand * d));
+    const x = (d / days) * w;
+    const y = h - (stock / maxStock) * (h - 2) - 1;
+    points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  const ropY = (h - (reorderPoint / maxStock) * (h - 2) - 1).toFixed(1);
+  const ssY = (h - (safetyStock / maxStock) * (h - 2) - 1).toFixed(1);
+
+  return `<svg width="${w}" height="${h}" class="sparkline">
+    <line x1="0" y1="${ropY}" x2="${w}" y2="${ropY}" stroke="var(--accent)" stroke-width="0.75" stroke-dasharray="2,2" opacity="0.6"/>
+    <line x1="0" y1="${ssY}" x2="${w}" y2="${ssY}" stroke="var(--danger)" stroke-width="0.75" stroke-dasharray="1,2" opacity="0.5"/>
+    <polyline points="${points.join(' ')}" fill="none" stroke="var(--text)" stroke-width="1.25"/>
+  </svg>`;
+}
+
+// --- Rendering ---
+function renderTable() {
+  const container = document.getElementById('tableContainer');
+  const empty = document.getElementById('emptyState');
+  const summary = document.getElementById('summarySection');
+
+  if (skus.length === 0) {
+    container.innerHTML = '';
+    container.appendChild(createEmptyState());
+    summary.style.display = 'none';
+    return;
+  }
+
+  const z = parseFloat(document.getElementById('serviceLevel').value);
+  const holdPct = parseFloat(document.getElementById('holdingCostPct').value) / 100;
+  const ordCost = parseFloat(document.getElementById('orderCost').value);
+
+  let html = `<div class="sku-table-wrap"><table>
+    <thead><tr>
+      <th>SKU Name</th>
+      <th>Current<span class="unit">units</span></th>
+      <th>Avg Daily<span class="unit">units/day</span></th>
+      <th>Demand σ<span class="unit">std dev</span></th>
+      <th>Lead Time<span class="unit">days</span></th>
+      <th>Unit Cost<span class="unit">$</span></th>
+      <th>Safety Stock<span class="unit">units</span></th>
+      <th>Reorder Point<span class="unit">units</span></th>
+      <th>EOQ<span class="unit">units</span></th>
+      <th>Days to ROP<span class="unit">projection</span></th>
+      <th class="sparkline-cell">30-Day<span class="unit">projection</span></th>
+      <th>Status</th>
+      <th class="del-col"></th>
+    </tr></thead><tbody>`;
+
+  let totalValue = 0, totalSafetyValue = 0, criticalCount = 0, reorderCount = 0;
+
+  skus.forEach((sku, idx) => {
+    const ss = calcSafetyStock(sku.demandStdDev, sku.leadTime, z);
+    const rop = calcReorderPoint(sku.avgDemand, sku.leadTime, ss);
+    const annualDemand = sku.avgDemand * 365;
+    const holdCostUnit = sku.unitCost * holdPct;
+    const eoq = calcEOQ(annualDemand, ordCost, holdCostUnit);
+    const daysToROP = calcDaysUntilReorder(sku.currentStock, sku.avgDemand, rop);
+    const status = getStatus(sku.currentStock, rop, ss);
+    const spark = generateSparkline(sku.currentStock, rop, ss, sku.avgDemand);
+
+    totalValue += sku.currentStock * sku.unitCost;
+    totalSafetyValue += ss * sku.unitCost;
+    if (status.cls === 'danger') criticalCount++;
+    if (status.cls === 'warning') reorderCount++;
+
+    html += `<tr>
+      <td><input class="name-input" value="${escHtml(sku.name)}" onchange="updateSKU(${idx},'name',this.value)"></td>
+      <td><input type="number" value="${sku.currentStock}" min="0" onchange="updateSKU(${idx},'currentStock',+this.value)"></td>
+      <td><input type="number" value="${sku.avgDemand}" min="0" step="0.1" onchange="updateSKU(${idx},'avgDemand',+this.value)"></td>
+      <td><input type="number" value="${sku.demandStdDev}" min="0" step="0.1" onchange="updateSKU(${idx},'demandStdDev',+this.value)"></td>
+      <td><input type="number" value="${sku.leadTime}" min="1" step="1" onchange="updateSKU(${idx},'leadTime',+this.value)"></td>
+      <td><input type="number" value="${sku.unitCost}" min="0" step="0.01" onchange="updateSKU(${idx},'unitCost',+this.value)"></td>
+      <td class="computed">${Math.ceil(ss)}</td>
+      <td class="computed" style="color:var(--accent);font-weight:600">${Math.ceil(rop)}</td>
+      <td class="computed">${Math.ceil(eoq)}</td>
+      <td class="computed">${daysToROP === Infinity ? '—' : daysToROP === 0 ? '<span style="color:var(--danger);font-weight:600">NOW</span>' : Math.ceil(daysToROP) + 'd'}</td>
+      <td class="sparkline-cell">${spark}</td>
+      <td><span class="status-dot status-${status.cls}"></span><span class="status-label" style="color:${status.color}">${status.label}</span></td>
+      <td class="del-col"><button class="btn-danger" onclick="deleteSKU(${idx})" data-tooltip="Remove SKU">×</button></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+
+  // Summary
+  summary.style.display = 'block';
+  const summaryGrid = document.getElementById('summaryGrid');
+  summaryGrid.innerHTML = `
+    <div class="summary-card">
+      <div class="label">Total Inventory Value</div>
+      <div class="value">$${totalValue.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+      <div class="annotation">${skus.length} SKUs tracked</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Capital in Safety Stock</div>
+      <div class="value">$${totalSafetyValue.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+      <div class="annotation">${totalValue > 0 ? ((totalSafetyValue/totalValue)*100).toFixed(1) : 0}% of inventory value</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Need Attention</div>
+      <div class="value" style="color:${criticalCount > 0 ? 'var(--danger)' : reorderCount > 0 ? 'var(--warning)' : 'var(--success)'}">${criticalCount + reorderCount}</div>
+      <div class="annotation">${criticalCount} critical, ${reorderCount} reorder</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Avg Days to Reorder</div>
+      <div class="value">${calcAvgDaysToReorder(z)}d</div>
+      <div class="annotation">across all SKUs with demand</div>
+    </div>
+  `;
+
+  renderTimeline(z);
+  saveToStorage();
+}
+
+function calcAvgDaysToReorder(z) {
+  const holdPct = parseFloat(document.getElementById('holdingCostPct').value) / 100;
+  let total = 0, count = 0;
+  skus.forEach(sku => {
+    if (sku.avgDemand <= 0) return;
+    const ss = calcSafetyStock(sku.demandStdDev, sku.leadTime, z);
+    const rop = calcReorderPoint(sku.avgDemand, sku.leadTime, ss);
+    const d = calcDaysUntilReorder(sku.currentStock, sku.avgDemand, rop);
+    if (d !== Infinity) { total += d; count++; }
+  });
+  return count > 0 ? Math.ceil(total / count) : '—';
+}
+
+function renderTimeline(z) {
+  const viz = document.getElementById('timelineViz');
+  if (skus.length === 0) { viz.innerHTML = ''; return; }
+
+  let html = '';
+  // Sort by urgency
+  const sorted = skus.map((sku, idx) => {
+    const ss = calcSafetyStock(sku.demandStdDev, sku.leadTime, z);
+    const rop = calcReorderPoint(sku.avgDemand, sku.leadTime, ss);
+    const d = calcDaysUntilReorder(sku.currentStock, sku.avgDemand, rop);
+    const status = getStatus(sku.currentStock, rop, ss);
+    return { ...sku, ss, rop, daysToROP: d, status, idx };
+  }).sort((a, b) => a.daysToROP - b.daysToROP);
+
+  sorted.forEach(item => {
+    const maxDisplay = Math.max(item.currentStock, item.rop * 1.5, 1);
+    const stockPct = Math.min((item.currentStock / maxDisplay) * 100, 100);
+    const ropPct = Math.min((item.rop / maxDisplay) * 100, 100);
+    const ssPct = Math.min((item.ss / maxDisplay) * 100, 100);
+
+    html += `<div class="sku-timeline-label">
+      <span>${escHtml(item.name)}</span>
+      <span class="sku-status" style="color:${item.status.color}">
+        <span class="status-dot status-${item.status.cls}"></span>
+        ${item.daysToROP === 0 ? 'REORDER NOW' : item.daysToROP === Infinity ? 'No demand' : Math.ceil(item.daysToROP) + 'd to ROP'}
+      </span>
+    </div>
+    <div class="timeline-bar">
+      <div class="timeline-fill stock" style="width:${stockPct}%"></div>
+      <div class="timeline-fill safety" style="width:${ssPct}%"></div>
+      <div class="timeline-marker reorder" style="left:${ropPct}%">
+        <span class="timeline-marker-label">ROP ${Math.ceil(item.rop)}</span>
+      </div>
+    </div>`;
+  });
+
+  viz.innerHTML = html;
+}
+
+// --- CRUD ---
+function addSKU() {
+  skus.push({
+    id: skuIdCounter++,
+    name: `SKU-${String(skus.length + 1).padStart(3, '0')}`,
+    currentStock: 0,
+    avgDemand: 0,
+    demandStdDev: 0,
+    leadTime: 7,
+    unitCost: 0
+  });
+  renderTable();
+  // Focus the new name input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.name-input');
+    if (inputs.length) inputs[inputs.length - 1].select();
+  }, 50);
+}
+
+function updateSKU(idx, field, value) {
+  if (idx >= 0 && idx < skus.length) {
+    skus[idx][field] = value;
+    renderTable();
+  }
+}
+
+function deleteSKU(idx) {
+  skus.splice(idx, 1);
+  renderTable();
+}
+
+function addSampleData() {
+  skus = [
+    { id: skuIdCounter++, name: 'Ceramic Mug — White', currentStock: 142, avgDemand: 8.5, demandStdDev: 3.2, leadTime: 14, unitCost: 4.50 },
+    { id: skuIdCounter++, name: 'Canvas Tote — Natural', currentStock: 28, avgDemand: 5.0, demandStdDev: 2.1, leadTime: 21, unitCost: 6.00 },
+    { id: skuIdCounter++, name: 'Sticker Pack (50ct)', currentStock: 890, avgDemand: 42.0, demandStdDev: 15.0, leadTime: 7, unitCost: 0.85 },
+    { id: skuIdCounter++, name: 'Enamel Pin — Logo', currentStock: 15, avgDemand: 3.8, demandStdDev: 1.9, leadTime: 30, unitCost: 2.20 },
+    { id: skuIdCounter++, name: 'T-Shirt — Black M', currentStock: 67, avgDemand: 4.2, demandStdDev: 2.0, leadTime: 18, unitCost: 8.50 },
+    { id: skuIdCounter++, name: 'Notebook — Kraft', currentStock: 205, avgDemand: 6.0, demandStdDev: 2.5, leadTime: 10, unitCost: 3.20 },
+  ];
+  renderTable();
+}
+
+// --- Export ---
+function exportCSV() {
+  const z = parseFloat(document.getElementById('serviceLevel').value);
+  const holdPct = parseFloat(document.getElementById('holdingCostPct').value) / 100;
+  const ordCost = parseFloat(document.getElementById('orderCost').value);
+
+  let csv = 'SKU Name,Current Stock,Avg Daily Demand,Demand Std Dev,Lead Time (days),Unit Cost,Safety Stock,Reorder Point,EOQ,Days to ROP,Status\n';
+  skus.forEach(sku => {
+    const ss = calcSafetyStock(sku.demandStdDev, sku.leadTime, z);
+    const rop = calcReorderPoint(sku.avgDemand, sku.leadTime, ss);
+    const eoq = calcEOQ(sku.avgDemand * 365, ordCost, sku.unitCost * holdPct);
+    const d = calcDaysUntilReorder(sku.currentStock, sku.avgDemand, rop);
+    const status = getStatus(sku.currentStock, rop, ss);
+    csv += `"${sku.name}",${sku.currentStock},${sku.avgDemand},${sku.demandStdDev},${sku.leadTime},${sku.unitCost},${Math.ceil(ss)},${Math.ceil(rop)},${Math.ceil(eoq)},${d === Infinity ? '' : Math.ceil(d)},${status.label}\n`;
+  });
+  showModal('Export CSV', csv);
+}
+
+function exportJSON() {
+  const z = parseFloat(document.getElementById('serviceLevel').value);
+  const holdPct = parseFloat(document.getElementById('holdingCostPct').value) / 100;
+  const ordCost = parseFloat(document.getElementById('orderCost').value);
+
+  const data = skus.map(sku => {
+    const ss = calcSafetyStock(sku.demandStdDev, sku.leadTime, z);
+    const rop = calcReorderPoint(sku.avgDemand, sku.leadTime, ss);
+    const eoq = calcEOQ(sku.avgDemand * 365, ordCost, sku.unitCost * holdPct);
+    return { ...sku, safetyStock: Math.ceil(ss), reorderPoint: Math.ceil(rop), eoq: Math.ceil(eoq) };
+  });
+  showModal('Export JSON', JSON.stringify(data, null, 2));
+}
+
+function showModal(title, content) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalContent').textContent = content;
+  document.getElementById('exportModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('exportModal').classList.remove('active');
+}
+
+function copyExport() {
+  const text = document.getElementById('modalContent').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.modal-actions .btn:first-child');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy to Clipboard', 1500);
+  });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function createEmptyState() {
+  const div = document.createElement('div');
+  div.className = 'empty-state';
+  div.id = 'emptyState';
+  div.innerHTML = `<h3>No SKUs yet</h3><p>Add a SKU to calculate reorder points, safety stock, and economic order quantities.</p><button class="btn btn-accent" onclick="addSampleData()">Load Sample Data</button>`;
+  return div;
+}
+
+// --- Init ---
+document.getElementById('serviceLevel').addEventListener('change', renderTable);
+document.getElementById('holdingCostPct').addEventListener('input', renderTable);
+document.getElementById('orderCost').addEventListener('input', renderTable);
+document.getElementById('exportModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+loadFromStorage();
+if (skus.length === 0) addSampleData();
+else renderTable();
+</script>
+</body>
+</html>

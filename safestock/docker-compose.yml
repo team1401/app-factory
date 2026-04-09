@@ -1,0 +1,7 @@
+services:
+  safestock:
+    build: .
+    container_name: safestock
+    restart: unless-stopped
+    ports:
+      - "3193:80"

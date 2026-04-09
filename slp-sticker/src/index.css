@@ -1,0 +1,45 @@
+:root{
+  --paper:#fbf7ef;
+  --paper2:#fffdf8;
+  --ink:#171410;
+  --muted:#5b534b;
+  --line:#d7cbbd;
+
+  --hi-yellow:#ffe06b;
+  --hi-mint:#98f2c1;
+  --hi-pink:#ff96c8;
+  --hi-blue:#87b9ff;
+
+  --danger:#b91c1c;
+  --ok:#047857;
+  --warn:#b45309;
+
+  --shadow: 0 14px 30px rgba(26, 16, 8, .12);
+  --radius:18px;
+}
+
+*{ box-sizing:border-box; }
+
+html, body{ height:100%; }
+
+body{
+  margin:0;
+  background: radial-gradient(1200px 700px at 12% 0%, #fff6d9 0%, rgba(255,246,217,0) 55%),
+              radial-gradient(900px 600px at 90% 12%, rgba(152,242,193,.45) 0%, rgba(152,242,193,0) 55%),
+              var(--paper);
+  color:var(--ink);
+  font-family: Newsreader, serif;
+}
+
+a{ color:inherit; }
+
+button, input, select, textarea{
+  font: inherit;
+}
+
+:focus-visible{
+  outline: 3px solid rgba(135,185,255,.9);
+  outline-offset: 3px;
+}
+
+code{ font-family: Recursive, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
