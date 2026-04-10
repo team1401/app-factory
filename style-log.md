@@ -259,3 +259,4 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Style: "Manila Folder Registrar Packet" — museum registrar / archives desk vibe: manila folder background, ruled report sheet, monospaced accession labeling, red rubber-stamp authority.
 - Palette: Manila (#F3EAD4), Report Paper (#FFFDF6), Ink (#1B1916), Registrar Red (#B12A1C), Archive Teal (#1F5D73), Catalog Yellow (#F0C330)
 - Signature: Angled red CONDITION REPORT stamp + 3×3 Object Map locator grid (A1–C3) with live per-zone finding counts, designed to print cleanly to PDF.
+- AuditTrail (2026-04-09): Museum Registrar — Archival, high-contrast, serif typography, with Accession Stamp animations.
