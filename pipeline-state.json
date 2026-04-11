@@ -1,21 +1,17 @@
 {
-  "date": "2026-04-09",
-  "status": "published",
-  "app_name": "AuditTrail",
-  "pain_point": "Maintaining verifiable chain-of-custody and condition reports for high-value art.",
-  "target_user": "Art Conservators & Appraisers",
-  "port": 9698,
-  "container_name": "audit-trail",
-  "visual_style": "Museum Registrar \u2014 Archival, high-contrast, serif typography, with Accession Stamp animations.",
+  "date": "2026-04-10",
+  "status": "brainstorm_complete",
+  "app_name": "SetList Flow",
+  "pain_point": "Managing real-time, synchronized technical cues across a crew.",
+  "target_user": "Stage Managers & Technical Directors",
+  "port": 9699,
+  "container_name": "setlist-flow",
+  "visual_style": "Stage Manager's Clipboard — Rugged, high-visibility, 'Sharpie-on-tape' aesthetic.",
   "tech_stack": "React + TypeScript + Vite, served via nginx in Docker",
   "brainstorm_list": [
     {
-      "name": "AuditTrail",
-      "pain": "Managing and verifying chain-of-custody for high-value physical assets"
-    },
-    {
       "name": "BatchCheck",
-      "pain": "Tracking temperature and humidity exposure for sensitive samples"
+      "pain": "Tracking temperature/humidity for sensitive samples"
     },
     {
       "name": "YieldMap",
@@ -23,16 +19,15 @@
     },
     {
       "name": "SetList Flow",
-      "pain": "Managing complex, real-time cue changes for live performance"
+      "pain": "Managing real-time technical cue synchronization"
     },
     {
       "name": "SpecimenScan",
-      "pain": "Cataloging and identifying geological or mineral samples"
+      "pain": "Cataloging geological/mineral samples in the field"
     },
     {
       "name": "Permitting Pro",
-      "pain": "Managing multi-agency permit workflows for urban events"
+      "pain": "Managing multi-agency permit workflows for events"
     }
-  ],
-  "deployed_url": "http://100.97.65.28:9698"
+  ]
 }
