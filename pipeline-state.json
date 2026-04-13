@@ -1,33 +1,42 @@
 {
-  "date": "2026-04-10",
-  "status": "brainstorm_complete",
-  "app_name": "SetList Flow",
-  "pain_point": "Managing real-time, synchronized technical cues across a crew.",
-  "target_user": "Stage Managers & Technical Directors",
-  "port": 9699,
-  "container_name": "setlist-flow",
-  "visual_style": "Stage Manager's Clipboard — Rugged, high-visibility, 'Sharpie-on-tape' aesthetic.",
+  "date": "2026-04-12",
+  "status": "build_complete",
+  "app_name": "MedHuddle",
+  "pain_point": "Medical residents and fellows rotate across hospitals monthly and must manually reconstruct their case logs, procedure counts, and competency milestones for each rotation — a tedious, error-prone process that often gets neglected until deadline panic",
+  "target_user": "Medical residents and fellows (all specialties) who rotate through multiple clinical sites and must track case logs for ACGME accreditation",
+  "port": 9700,
+  "container_name": "medhuddle",
+  "visual_style": "Medical Chart Clipboard — warm clinical paper stock with ruled lines, stamped patient-chart headers, handwritten-style Caveat labels for personal notes, IBM Plex Mono for data values, crisp teal-and-white clinical accents. Think: a well-organized resident's clipboard, not a hospital EHR.",
   "tech_stack": "React + TypeScript + Vite, served via nginx in Docker",
+  "deployed_url": "http://100.97.65.28:9700",
   "brainstorm_list": [
     {
-      "name": "BatchCheck",
-      "pain": "Tracking temperature/humidity for sensitive samples"
+      "name": "MedHuddle",
+      "pain": "Residents rotating across hospitals must manually reconstruct case logs and procedure counts for ACGME accreditation — tedious, error-prone, deadline-panic-inducing"
     },
     {
-      "name": "YieldMap",
-      "pain": "Correlating soil/nutrient inputs with harvest quality"
+      "name": "PartFix",
+      "pain": "Auto mechanics waste 20+ min per repair job searching cross-reference catalogs and dealer portals to find the right OEM/aftermarket part number for specific VINs"
     },
     {
-      "name": "SetList Flow",
-      "pain": "Managing real-time technical cue synchronization"
+      "name": "TuningFork",
+      "pain": "Music teachers giving private lessons have no lightweight tool to track student progress, repertoire history, and lesson notes across 30-50 weekly students — spreadsheets don't cut it"
     },
     {
-      "name": "SpecimenScan",
-      "pain": "Cataloging geological/mineral samples in the field"
+      "name": "PlotWeed",
+      "pain": "Community garden managers juggle 50-200 plots across multiple seasons with paper maps, WhatsApp groups, and spreadsheets — no simple purpose-built tool exists for plot assignment, waitlists, and seasonal turnover"
     },
     {
-      "name": "Permitting Pro",
-      "pain": "Managing multi-agency permit workflows for events"
+      "name": "RentalWalk",
+      "pain": "Property managers spend hours doing move-in/move-out walkthroughs with paper checklists and phone photos that are impossible to organize — disputes over deposit deductions are constant"
+    },
+    {
+      "name": "FormDrill",
+      "pain": "Fitness coaches running group classes (CrossFit, HIIT, martial arts) have no quick way to log which members attended which class and track progression — attendance + performance in one view doesn't exist affordably"
+    },
+    {
+      "name": "VetDose",
+      "pain": "Veterinary technicians must calculate drug dosages on the fly for varying animal weights/species — mental math errors are dangerous and existing calculators are clunky mobile apps buried in menus"
     }
   ]
 }
