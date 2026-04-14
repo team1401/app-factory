@@ -1,42 +1,21 @@
 {
-  "date": "2026-04-12",
+  "date": "2026-04-13",
   "status": "build_complete",
-  "app_name": "MedHuddle",
-  "pain_point": "Medical residents and fellows rotate across hospitals monthly and must manually reconstruct their case logs, procedure counts, and competency milestones for each rotation — a tedious, error-prone process that often gets neglected until deadline panic",
-  "target_user": "Medical residents and fellows (all specialties) who rotate through multiple clinical sites and must track case logs for ACGME accreditation",
-  "port": 9700,
-  "container_name": "medhuddle",
-  "visual_style": "Medical Chart Clipboard — warm clinical paper stock with ruled lines, stamped patient-chart headers, handwritten-style Caveat labels for personal notes, IBM Plex Mono for data values, crisp teal-and-white clinical accents. Think: a well-organized resident's clipboard, not a hospital EHR.",
+  "app_name": "ToneCheck",
+  "pain_point": "Customer support managers have no quick way to audit whether their team's responses match the intended brand voice tone — they read individual tickets manually and guess",
+  "target_user": "Customer support team leads and QA managers at SaaS companies (50–500 employees)",
+  "port": 9701,
+  "container_name": "tonecheck",
+  "visual_style": "1950s Hi-Fi Stereo Equipment — warm walnut veneer console aesthetic with brushed brass accents, analog VU meter readouts for each tone dimension, rotary knob controls. The deliberate pairing of mid-century audio equipment design with text sentiment analysis is the visual identity.",
   "tech_stack": "React + TypeScript + Vite, served via nginx in Docker",
-  "deployed_url": "http://100.97.65.28:9700",
+  "deployed_url": "http://100.97.65.28:9701",
   "brainstorm_list": [
-    {
-      "name": "MedHuddle",
-      "pain": "Residents rotating across hospitals must manually reconstruct case logs and procedure counts for ACGME accreditation — tedious, error-prone, deadline-panic-inducing"
-    },
-    {
-      "name": "PartFix",
-      "pain": "Auto mechanics waste 20+ min per repair job searching cross-reference catalogs and dealer portals to find the right OEM/aftermarket part number for specific VINs"
-    },
-    {
-      "name": "TuningFork",
-      "pain": "Music teachers giving private lessons have no lightweight tool to track student progress, repertoire history, and lesson notes across 30-50 weekly students — spreadsheets don't cut it"
-    },
-    {
-      "name": "PlotWeed",
-      "pain": "Community garden managers juggle 50-200 plots across multiple seasons with paper maps, WhatsApp groups, and spreadsheets — no simple purpose-built tool exists for plot assignment, waitlists, and seasonal turnover"
-    },
-    {
-      "name": "RentalWalk",
-      "pain": "Property managers spend hours doing move-in/move-out walkthroughs with paper checklists and phone photos that are impossible to organize — disputes over deposit deductions are constant"
-    },
-    {
-      "name": "FormDrill",
-      "pain": "Fitness coaches running group classes (CrossFit, HIIT, martial arts) have no quick way to log which members attended which class and track progression — attendance + performance in one view doesn't exist affordably"
-    },
-    {
-      "name": "VetDose",
-      "pain": "Veterinary technicians must calculate drug dosages on the fly for varying animal weights/species — mental math errors are dangerous and existing calculators are clunky mobile apps buried in menus"
-    }
+    {"name": "ToneCheck", "pain": "Support managers can't quickly audit whether team responses match brand voice — they read tickets manually and guess at consistency"},
+    {"name": "FormDrill", "pain": "Personal trainers waste 10–15 min per client session manually calculating progressive overload percentages and tracking whether volume is actually increasing week over week"},
+    {"name": "RentRoll", "pain": "Small landlord (2–10 units) needs to track which tenant paid what, when, and for which unit — currently scattered across Venmo, Zelle, spreadsheets, and text messages"},
+    {"name": "SubOut", "pain": "Freelance videographers forget which subscriptions (Adobe, music licensing, cloud storage) they've shared with subcontractors and can't easily revoke access when projects end"},
+    {"name": "WrenchLog", "pain": "Home mechanics working on cars/motorcycles have no good way to log what torque spec they used on which bolt, making reassembly after months of project pause error-prone"},
+    {"name": "BatchSnap", "pain": "Etsy/seller photographers shoot hundreds of product photos but waste hours renaming, resizing, and organizing them into listing-ready sets before uploading"},
+    {"name": "SpellGrid", "pain": "D&D/Game Masters prep monster stat blocks and encounter tables by hand each session — copying from PDFs and scribbling HP/AC/initiative onto notepads that get lost"}
   ]
 }
