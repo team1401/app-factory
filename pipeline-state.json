@@ -1,21 +1,20 @@
 {
-  "date": "2026-04-13",
-  "status": "build_complete",
-  "app_name": "ToneCheck",
-  "pain_point": "Customer support managers have no quick way to audit whether their team's responses match the intended brand voice tone — they read individual tickets manually and guess",
-  "target_user": "Customer support team leads and QA managers at SaaS companies (50–500 employees)",
-  "port": 9701,
-  "container_name": "tonecheck",
-  "visual_style": "1950s Hi-Fi Stereo Equipment — warm walnut veneer console aesthetic with brushed brass accents, analog VU meter readouts for each tone dimension, rotary knob controls. The deliberate pairing of mid-century audio equipment design with text sentiment analysis is the visual identity.",
+  "date": "2026-04-14",
+  "status": "published",
+  "app_name": "GrindLog",
+  "pain_point": "Home baristas finally dial in a perfect espresso shot but forget the exact grind size, dose, yield, temp, and timing by the next time they open that bean bag — wasting expensive coffee and restarting the dial-in from scratch",
+  "target_user": "Specialty coffee enthusiasts and home baristas who rotate through multiple single-origin beans weekly and own adjustable grinders",
+  "port": 9702,
+  "container_name": "grindlog",
+  "visual_style": "Craft Coffee Bag Label — kraft paper brown background with rubber-stamped typography, hand-lettered feel, stamp-circle roast badges, tan stitching borders. Warm, tactile, artisanal — like reading the back of a premium coffee bag.",
   "tech_stack": "React + TypeScript + Vite, served via nginx in Docker",
-  "deployed_url": "http://100.97.65.28:9701",
+  "deployed_url": "http://100.97.65.28:9702",
   "brainstorm_list": [
-    {"name": "ToneCheck", "pain": "Support managers can't quickly audit whether team responses match brand voice — they read tickets manually and guess at consistency"},
-    {"name": "FormDrill", "pain": "Personal trainers waste 10–15 min per client session manually calculating progressive overload percentages and tracking whether volume is actually increasing week over week"},
-    {"name": "RentRoll", "pain": "Small landlord (2–10 units) needs to track which tenant paid what, when, and for which unit — currently scattered across Venmo, Zelle, spreadsheets, and text messages"},
-    {"name": "SubOut", "pain": "Freelance videographers forget which subscriptions (Adobe, music licensing, cloud storage) they've shared with subcontractors and can't easily revoke access when projects end"},
-    {"name": "WrenchLog", "pain": "Home mechanics working on cars/motorcycles have no good way to log what torque spec they used on which bolt, making reassembly after months of project pause error-prone"},
-    {"name": "BatchSnap", "pain": "Etsy/seller photographers shoot hundreds of product photos but waste hours renaming, resizing, and organizing them into listing-ready sets before uploading"},
-    {"name": "SpellGrid", "pain": "D&D/Game Masters prep monster stat blocks and encounter tables by hand each session — copying from PDFs and scribbling HP/AC/initiative onto notepads that get lost"}
+    {"name": "GrindLog", "pain": "Home baristas lose dial-in settings between bags and waste coffee re-discovering the perfect shot"},
+    {"name": "FabricStash", "pain": "Quilters buy duplicate fabric at the store because they can't remember their existing stash"},
+    {"name": "DoseLog", "pain": "Patients on complex titration schedules can't track varying daily doses with existing pill reminder apps"},
+    {"name": "HiveMind", "pain": "Beekeepers lose track of which hive got which treatment and when, across multiple hives"},
+    {"name": "FlatFile", "pain": "Opening large CSV/JSON files crashes Excel; non-developers have no easy way to explore big datasets"},
+    {"name": "RepBook", "pain": "Powerlifters following structured programs track sets in messy spreadsheets; existing apps are bloated social platforms"}
   ]
 }
