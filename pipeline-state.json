@@ -1,20 +1,42 @@
 {
-  "date": "2026-04-14",
+  "date": "2026-04-15",
   "status": "published",
   "app_name": "GrindLog",
-  "pain_point": "Home baristas finally dial in a perfect espresso shot but forget the exact grind size, dose, yield, temp, and timing by the next time they open that bean bag — wasting expensive coffee and restarting the dial-in from scratch",
-  "target_user": "Specialty coffee enthusiasts and home baristas who rotate through multiple single-origin beans weekly and own adjustable grinders",
-  "port": 9702,
+  "pain_point": "Specialty coffee home roasters and pro baristas have no quick way to log, compare, and refine their roast profiles and brew recipes across sessions — they resort to messy spreadsheets or disparate notebooks",
+  "target_user": "Home coffee roasters, specialty baristas, and café quality-control managers",
+  "port": 9703,
   "container_name": "grindlog",
   "visual_style": "Craft Coffee Bag Label — kraft paper brown background with rubber-stamped typography, hand-lettered feel, stamp-circle roast badges, tan stitching borders. Warm, tactile, artisanal — like reading the back of a premium coffee bag.",
   "tech_stack": "React + TypeScript + Vite, served via nginx in Docker",
-  "deployed_url": "http://100.97.65.28:9702",
+  "deployed_url": "http://100.97.65.28:9703",
   "brainstorm_list": [
-    {"name": "GrindLog", "pain": "Home baristas lose dial-in settings between bags and waste coffee re-discovering the perfect shot"},
-    {"name": "FabricStash", "pain": "Quilters buy duplicate fabric at the store because they can't remember their existing stash"},
-    {"name": "DoseLog", "pain": "Patients on complex titration schedules can't track varying daily doses with existing pill reminder apps"},
-    {"name": "HiveMind", "pain": "Beekeepers lose track of which hive got which treatment and when, across multiple hives"},
-    {"name": "FlatFile", "pain": "Opening large CSV/JSON files crashes Excel; non-developers have no easy way to explore big datasets"},
-    {"name": "RepBook", "pain": "Powerlifters following structured programs track sets in messy spreadsheets; existing apps are bloated social platforms"}
+    {
+      "name": "GrindLog",
+      "pain": "Home coffee roasters and baristas can't easily track roast profiles and brew recipes across sessions — they use messy spreadsheets or memory"
+    },
+    {
+      "name": "RepSet",
+      "pain": "Gym-goers following structured programs have no fast, offline-first way to log sets with auto-progression — existing apps are bloated with social features and ads"
+    },
+    {
+      "name": "TuningFork",
+      "pain": "Mechanics and luthiers who do their own string instrument setups have no tool to calculate truss rod adjustments, action heights, and intonation offsets for specific instruments"
+    },
+    {
+      "name": "SeamRipper",
+      "pain": "Garment sewists waste fabric and time miscalculating pattern piece layouts — no fast visual nesting tool for cutting plans"
+    },
+    {
+      "name": "HiveCheck",
+      "pain": "Backyard beekeepers struggle to track hive inspections, treatments, and queen lineage across multiple hives — spreadsheets don't capture the spatial/visual nature of hive data"
+    },
+    {
+      "name": "PinQueue",
+      "pain": "CNC plasma/laser cutter operators manually calculate feed rates, kerf widths, and pierce delays for different materials — errors cost real money in ruined stock"
+    },
+    {
+      "name": "CallSheet",
+      "pain": "Freelance video/film crew members juggle inconsistent call times, locations, and wrap reports across multiple productions — text messages get lost and cause no-shows"
+    }
   ]
 }

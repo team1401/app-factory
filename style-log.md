@@ -261,3 +261,4 @@ Track visual identity of every shipped app to enforce anti-sameness.
 - Signature: Angled red CONDITION REPORT stamp + 3×3 Object Map locator grid (A1–C3) with live per-zone finding counts, designed to print cleanly to PDF.
 - AuditTrail (2026-04-09): Museum Registrar — Archival, high-contrast, serif typography, with Accession Stamp animations.
 - GrindLog (2026-04-14): Craft Coffee Bag Label — kraft paper brown background with rubber-stamped typography, hand-lettered feel, stamp-circle roast badges, tan stitching borders. Warm, tactile, artisanal — like reading the back of a premium coffee bag.
+- GrindLog (2026-04-15): Craft Coffee Bag Label — kraft paper brown background with rubber-stamped typography, hand-lettered feel, stamp-circle roast badges, tan stitching borders. Warm, tactile, artisanal — like reading the back of a premium coffee bag.
