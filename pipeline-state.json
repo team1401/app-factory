@@ -1,42 +1,20 @@
 {
-  "date": "2026-04-15",
-  "status": "published",
-  "app_name": "GrindLog",
-  "pain_point": "Specialty coffee home roasters and pro baristas have no quick way to log, compare, and refine their roast profiles and brew recipes across sessions — they resort to messy spreadsheets or disparate notebooks",
-  "target_user": "Home coffee roasters, specialty baristas, and café quality-control managers",
-  "port": 9703,
-  "container_name": "grindlog",
-  "visual_style": "Craft Coffee Bag Label — kraft paper brown background with rubber-stamped typography, hand-lettered feel, stamp-circle roast badges, tan stitching borders. Warm, tactile, artisanal — like reading the back of a premium coffee bag.",
+  "date": "2026-04-16",
+  "status": "brainstorm_complete",
+  "app_name": "TuneSheet",
+  "pain_point": "Piano technicians log tuning histories, pitch deviations, string conditions, and repair notes in paper notebooks with no fast mobile-friendly way to recall what a specific piano needed last visit",
+  "target_user": "Registered Piano Technicians (RPTs) and independent piano tuners",
+  "port": 9704,
+  "container_name": "tunesheet",
+  "visual_style": "Player Piano Roll — warm cream scroll paper background, perforated edge details, black note-head accents, mechanical precision typography inspired by player piano rolls and vintage musical instrument engineering",
   "tech_stack": "React + TypeScript + Vite, served via nginx in Docker",
-  "deployed_url": "http://100.97.65.28:9703",
   "brainstorm_list": [
-    {
-      "name": "GrindLog",
-      "pain": "Home coffee roasters and baristas can't easily track roast profiles and brew recipes across sessions — they use messy spreadsheets or memory"
-    },
-    {
-      "name": "RepSet",
-      "pain": "Gym-goers following structured programs have no fast, offline-first way to log sets with auto-progression — existing apps are bloated with social features and ads"
-    },
-    {
-      "name": "TuningFork",
-      "pain": "Mechanics and luthiers who do their own string instrument setups have no tool to calculate truss rod adjustments, action heights, and intonation offsets for specific instruments"
-    },
-    {
-      "name": "SeamRipper",
-      "pain": "Garment sewists waste fabric and time miscalculating pattern piece layouts — no fast visual nesting tool for cutting plans"
-    },
-    {
-      "name": "HiveCheck",
-      "pain": "Backyard beekeepers struggle to track hive inspections, treatments, and queen lineage across multiple hives — spreadsheets don't capture the spatial/visual nature of hive data"
-    },
-    {
-      "name": "PinQueue",
-      "pain": "CNC plasma/laser cutter operators manually calculate feed rates, kerf widths, and pierce delays for different materials — errors cost real money in ruined stock"
-    },
-    {
-      "name": "CallSheet",
-      "pain": "Freelance video/film crew members juggle inconsistent call times, locations, and wrap reports across multiple productions — text messages get lost and cause no-shows"
-    }
+    {"name": "TuneSheet", "pain": "Piano techs use paper notebooks for tuning histories with no mobile digital tool"},
+    {"name": "FormDrill", "pain": "Coaches draw drills on whiteboards and can't organize or share drill libraries"},
+    {"name": "BenchMark", "pain": "Strength coaches track multi-athlete progression in broken spreadsheets with no gym-floor UX"},
+    {"name": "TastingNotes", "pain": "Coffee Q-graders use paper SCA cupping sheets with no lightweight professional scoring tool"},
+    {"name": "HerdBook", "pain": "Small livestock farmers track animal health/breeding on paper with no modern affordable tool"},
+    {"name": "SetCall", "pain": "Theater stage managers call 200+ cues from paper prompt books with no digital calling interface"},
+    {"name": "StitchLine", "pain": "Seamstresses track measurements and job progress on paper measuring tapes and sticky notes"}
   ]
 }
