@@ -1,20 +1,21 @@
 {
-  "date": "2026-04-16",
-  "status": "brainstorm_complete",
-  "app_name": "TuneSheet",
-  "pain_point": "Piano technicians log tuning histories, pitch deviations, string conditions, and repair notes in paper notebooks with no fast mobile-friendly way to recall what a specific piano needed last visit",
-  "target_user": "Registered Piano Technicians (RPTs) and independent piano tuners",
+  "date": "2026-04-23",
+  "status": "published",
+  "app_name": "ShiftPulse",
+  "pain_point": "Shift workers need to know exactly what time they're working on any given day across rotating schedules, but existing schedules are just static PDFs or spreadsheets that don't tell you 'what time do I start tomorrow?' at a glance",
+  "target_user": "Healthcare shift workers (RNs, CNAs, techs) on 3x12 or 4x12 rotations, plus first responders on 24/48 rotations",
   "port": 9704,
-  "container_name": "tunesheet",
-  "visual_style": "Player Piano Roll — warm cream scroll paper background, perforated edge details, black note-head accents, mechanical precision typography inspired by player piano rolls and vintage musical instrument engineering",
+  "container_name": "shiftpulse",
+  "visual_style": "Hospital Wall Bulletin — clinical beige background (#F4F2EA), institutional blue header (#2A5C8A), color-coded shift blocks (day=amber #F5C842, evening=indigo #4A6FA5, night=deep purple #5B4D63), analog clock countdown timer showing 'Time until next shift' in real-time, bold sans-serif times, weekly grid with current day highlighted, shift pattern preview text ('Mon/Wed/Fri 7A-7P'), clean institutional grid with blue separator lines, maximum clarity minimum decoration",
   "tech_stack": "React + TypeScript + Vite, served via nginx in Docker",
   "brainstorm_list": [
-    {"name": "TuneSheet", "pain": "Piano techs use paper notebooks for tuning histories with no mobile digital tool"},
-    {"name": "FormDrill", "pain": "Coaches draw drills on whiteboards and can't organize or share drill libraries"},
-    {"name": "BenchMark", "pain": "Strength coaches track multi-athlete progression in broken spreadsheets with no gym-floor UX"},
-    {"name": "TastingNotes", "pain": "Coffee Q-graders use paper SCA cupping sheets with no lightweight professional scoring tool"},
-    {"name": "HerdBook", "pain": "Small livestock farmers track animal health/breeding on paper with no modern affordable tool"},
-    {"name": "SetCall", "pain": "Theater stage managers call 200+ cues from paper prompt books with no digital calling interface"},
-    {"name": "StitchLine", "pain": "Seamstresses track measurements and job progress on paper measuring tapes and sticky notes"}
-  ]
+    {"name": "ShiftPulse", "pain": "Shift workers need to know exactly what time they're working on any given day across rotating schedules"},
+    {"name": "CNAFile", "pain": "Construction estimators waste hours manually calculating material takeoffs from PDF blueprints"},
+    {"name": "MenuPrism", "pain": "Restaurant owners need to calculate actual food cost accounting for shrinkage, waste, portion variance, supplier fluctuations"},
+    {"name": "RackMap Pro", "pain": "Sysadmins lose track of what's in each server rack — rack position, U location, device, IP, service"},
+    {"name": "FormSprint", "pain": "Small businesses waste hours typing client data from paper forms into digital systems"},
+    {"name": "CallSheet", "pain": "Event photographers need to create/share call sheets with timeline, shot list, contacts, logistics — static templates don't auto-update"},
+    {"name": "PalletCalc", "pain": "Warehouse managers waste time manually calculating box-to-pallet packing — maximizing space while respecting weight/stacking constraints"}
+  ],
+  "deployed_url": "http://100.97.65.28:9704"
 }
