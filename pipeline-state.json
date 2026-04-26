@@ -1,21 +1,21 @@
 {
-  "date": "2026-04-23",
+  "date": "2026-04-24",
   "status": "published",
-  "app_name": "ShiftPulse",
-  "pain_point": "Shift workers need to know exactly what time they're working on any given day across rotating schedules, but existing schedules are just static PDFs or spreadsheets that don't tell you 'what time do I start tomorrow?' at a glance",
-  "target_user": "Healthcare shift workers (RNs, CNAs, techs) on 3x12 or 4x12 rotations, plus first responders on 24/48 rotations",
-  "port": 9704,
-  "container_name": "shiftpulse",
-  "visual_style": "Hospital Wall Bulletin — clinical beige background (#F4F2EA), institutional blue header (#2A5C8A), color-coded shift blocks (day=amber #F5C842, evening=indigo #4A6FA5, night=deep purple #5B4D63), analog clock countdown timer showing 'Time until next shift' in real-time, bold sans-serif times, weekly grid with current day highlighted, shift pattern preview text ('Mon/Wed/Fri 7A-7P'), clean institutional grid with blue separator lines, maximum clarity minimum decoration",
+  "app_name": "ShiftSync",
+  "pain_point": "Per-diem nurses and therapists who work at multiple facilities spend hours coordinating shift swaps via texts, emails, and paper notes, often missing coverage rules or credential requirements",
+  "target_user": "Per-diem nurses, travel therapists, locum doctors",
+  "port": 9705,
+  "container_name": "shiftsync",
+  "visual_style": "Clinical Clipboard — medical clipboard paper background with ruled lines, die-cut style headers, bold highlighter-style status colors (green=confirmed, yellow=pending, red=urgent), monospaced times and facility codes, clean institutional feel with warmth",
   "tech_stack": "React + TypeScript + Vite, served via nginx in Docker",
   "brainstorm_list": [
-    {"name": "ShiftPulse", "pain": "Shift workers need to know exactly what time they're working on any given day across rotating schedules"},
-    {"name": "CNAFile", "pain": "Construction estimators waste hours manually calculating material takeoffs from PDF blueprints"},
-    {"name": "MenuPrism", "pain": "Restaurant owners need to calculate actual food cost accounting for shrinkage, waste, portion variance, supplier fluctuations"},
-    {"name": "RackMap Pro", "pain": "Sysadmins lose track of what's in each server rack — rack position, U location, device, IP, service"},
-    {"name": "FormSprint", "pain": "Small businesses waste hours typing client data from paper forms into digital systems"},
-    {"name": "CallSheet", "pain": "Event photographers need to create/share call sheets with timeline, shot list, contacts, logistics — static templates don't auto-update"},
-    {"name": "PalletCalc", "pain": "Warehouse managers waste time manually calculating box-to-pallet packing — maximizing space while respecting weight/stacking constraints"}
+    {"name": "RecipeCard Pro", "pain": "Scaling recipes and food cost calculations is error-prone and time-consuming for professional bakers"},
+    {"name": "ShiftSync", "pain": "Per-diem nurses and therapists waste hours coordinating shift swaps across multiple facilities via scattered communications"},
+    {"name": "MuseumLog", "pain": "Small museum curators track loaned items with paper notebooks, missing provenance and insurance tracking"},
+    {"name": "StageLight", "pain": "Theater lighting designers lose cue notes in text messages, board operators miss last-minute changes"},
+    {"name": "ChemBatch", "pain": "Lab technicians track reagent batches and expiration dates in paper notebooks, leading to errors"},
+    {"name": "PrintProof", "pain": "Small print shops manage client proofs via email/WhatsApp/USB — versions get mixed up, approvals lost"},
+    {"name": "ToolCart", "pain": "Film crew gaffers forget gear on set with no reliable checklist across multiple productions"}
   ],
-  "deployed_url": "http://100.97.65.28:9704"
+  "deployed_url": "http://100.97.65.28:9705"
 }
