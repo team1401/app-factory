@@ -4,7 +4,7 @@
  * NutaMigrate Proxy Server — port 3131
  *
  * Handles:
- *  - Prism Element API (HTTPS, self-signed certs, Basic auth)
+ *  - Prism Element API (HTTPS, verified or pinned certs, Basic auth)
  *  - XenServer XML-RPC (session-based, full XML-RPC serialization)
  *  - SSH source machine scanning (Linux)
  *  - WinRM VirtIO check & deploy (Windows)
@@ -12,8 +12,11 @@
 
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
 const https = require('https');
+const tls = require('tls');
 const crypto = require('crypto');
+const net = require('net');
 const axios = require('axios');
 const { XMLParser } = require('fast-xml-parser');
 const { Client: SSHClient } = require('ssh2');
@@ -21,28 +24,174 @@ const { Client: SSHClient } = require('ssh2');
 const app = express();
 const PORT = 3131;
 
-app.use(cors({ origin: '*' }));
+// ─────────────────────────────────────────────
+// ACCESS CONTROL
+// ─────────────────────────────────────────────
+
+// Per-launch token the UI must send in X-NutaMigrate-Token. Printed at startup.
+const PROXY_TOKEN = process.env.NUTAMIGRATE_PROXY_TOKEN || crypto.randomBytes(24).toString('hex');
+const PROXY_TOKEN_BUF = Buffer.from(PROXY_TOKEN);
+
+// Exact origins allowed to call the proxy from a browser (comma-separated).
+const ALLOWED_ORIGINS = (process.env.NUTAMIGRATE_UI_ORIGINS || 'http://localhost:5173,http://127.0.0.1:5173')
+  .split(',')
+  .map((o) => o.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+// Host header must name this proxy (blocks DNS rebinding).
+const ALLOWED_HOSTS = new Set([`localhost:${PORT}`, `127.0.0.1:${PORT}`]);
+
+function tokenMatches(value) {
+  if (typeof value !== 'string') return false;
+  const buf = Buffer.from(value);
+  return buf.length === PROXY_TOKEN_BUF.length && crypto.timingSafeEqual(buf, PROXY_TOKEN_BUF);
+}
+
+app.use((req, res, next) => {
+  if (!ALLOWED_HOSTS.has(String(req.headers.host || '').toLowerCase())) {
+    return res.status(403).json({ error: 'Forbidden host' });
+  }
+  const origin = req.headers.origin;
+  if (origin !== undefined && !ALLOWED_ORIGINS.includes(origin)) {
+    return res.status(403).json({ error: 'Forbidden origin' });
+  }
+  next();
+});
+
+app.use(cors({
+  origin: ALLOWED_ORIGINS,
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'X-NutaMigrate-Token'],
+}));
+
+app.use((req, res, next) => {
+  if (!tokenMatches(req.get('X-NutaMigrate-Token'))) {
+    return res.status(401).json({ error: 'Missing or invalid proxy token' });
+  }
+  next();
+});
+
 app.use(express.json({ limit: '10mb' }));
+
+// ─────────────────────────────────────────────
+// TARGET VALIDATION
+// ─────────────────────────────────────────────
+
+class InputError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 400;
+  }
+}
+
+// Accepts only scheme://host[:port] (http/https, no credentials, path, query or fragment).
+function parseBaseUrl(value, field) {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  const invalid = () => new InputError(`${field} must be a plain URL like https://host[:port]`);
+  if (!raw || /[?#\\@\s]/.test(raw)) throw invalid();
+  let u;
+  try { u = new URL(raw); } catch { throw invalid(); }
+  if (!['http:', 'https:'].includes(u.protocol) || u.username || u.password ||
+      u.pathname !== '/' || u.search || u.hash || !u.hostname) {
+    throw invalid();
+  }
+  return u.origin;
+}
+
+const HOSTNAME_RE = /^(?=.{1,253}$)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
+
+// Accepts only a bare hostname or IP address.
+function parseHost(value, field = 'host') {
+  const host = typeof value === 'string' ? value.trim() : '';
+  if (net.isIP(host) || HOSTNAME_RE.test(host)) return host;
+  throw new InputError(`${field} must be a hostname or IP address`);
+}
+
+function parsePort(value, fallback, field = 'port') {
+  if (value === undefined || value === null || value === '') return fallback;
+  const port = Number(value);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new InputError(`${field} must be an integer between 1 and 65535`);
+  }
+  return port;
+}
 
 // ─────────────────────────────────────────────
 // HEALTH CHECK
 // ─────────────────────────────────────────────
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', version: '2.0.0', app: 'NutaMigrate Proxy' });
+  res.json({ status: 'ok', version: '2.0.0', app: 'NutaMigrate Proxy', tlsMode });
 });
 
 // ─────────────────────────────────────────────
 // SHARED UTILITIES
 // ─────────────────────────────────────────────
 
-// Axios agent that ignores self-signed TLS certs
-const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+// TLS verification for Prism / XenServer connections.
+//   NUTAMIGRATE_TLS_CA_FILE       PEM file of extra trusted CA / self-signed certs (comma-separated paths allowed)
+//   NUTAMIGRATE_TLS_FINGERPRINTS  comma-separated SHA-256 fingerprints of pinned server certs
+//   NUTAMIGRATE_TLS_INSECURE=1    disable verification entirely (explicit opt-in, not recommended)
+function normalizeFingerprint(fp) {
+  return String(fp).replace(/[\s:]/g, '').toUpperCase();
+}
+
+function loadTlsConfig(env = process.env) {
+  const insecure = env.NUTAMIGRATE_TLS_INSECURE === '1' || env.NUTAMIGRATE_TLS_INSECURE === 'true';
+  const caFiles = (env.NUTAMIGRATE_TLS_CA_FILE || '').split(',').map((f) => f.trim()).filter(Boolean);
+  const extraCAs = caFiles.map((f) => fs.readFileSync(f, 'utf8'));
+  const pins = new Set(
+    (env.NUTAMIGRATE_TLS_FINGERPRINTS || '').split(',').map(normalizeFingerprint).filter(Boolean)
+  );
+  for (const pin of pins) {
+    if (!/^[0-9A-F]{64}$/.test(pin)) throw new Error(`Invalid SHA-256 fingerprint in NUTAMIGRATE_TLS_FINGERPRINTS: ${pin}`);
+  }
+  return { insecure, extraCAs, pins };
+}
+
+// Accepts a server if its chain validates normally, or if its leaf cert matches a pinned fingerprint.
+// The check runs synchronously on 'secureConnect', before any request bytes are flushed to the socket.
+class PinningAgent extends https.Agent {
+  constructor(pins, options) {
+    super({ ...options, rejectUnauthorized: false, maxCachedSessions: 0 });
+    this.pins = pins;
+  }
+
+  createConnection(...args) {
+    const socket = super.createConnection(...args);
+    socket.once('secureConnect', () => {
+      if (socket.authorized) return;
+      const fp = normalizeFingerprint(socket.getPeerCertificate()?.fingerprint256 || '');
+      if (!fp || !this.pins.has(fp)) {
+        socket.destroy(new Error(
+          `TLS certificate not trusted (${socket.authorizationError}); SHA-256 fingerprint ${fp || 'unknown'} is not pinned`
+        ));
+      }
+    });
+    return socket;
+  }
+}
+
+function createHttpsAgent({ insecure, extraCAs, pins }) {
+  if (insecure) {
+    console.warn('⚠️  NUTAMIGRATE_TLS_INSECURE is set: TLS certificate verification is DISABLED for Prism/XenServer.');
+    return new https.Agent({ rejectUnauthorized: false });
+  }
+  // getCACertificates('default') includes NODE_EXTRA_CA_CERTS / --use-system-ca roots (Node >= 22.15)
+  const defaultCAs = typeof tls.getCACertificates === 'function' ? tls.getCACertificates('default') : tls.rootCertificates;
+  const ca = extraCAs.length ? [...defaultCAs, ...extraCAs] : undefined;
+  if (pins.size) return new PinningAgent(pins, { ca });
+  return new https.Agent({ rejectUnauthorized: true, ca });
+}
+
+const tlsConfig = loadTlsConfig();
+const httpsAgent = createHttpsAgent(tlsConfig);
+const tlsMode = tlsConfig.insecure ? 'insecure' : tlsConfig.pins.size ? 'pinned' : tlsConfig.extraCAs.length ? 'custom-ca' : 'system-ca';
 
 function prismAxios(prismUrl, username, password) {
   const auth = Buffer.from(`${username}:${password}`).toString('base64');
   return axios.create({
-    baseURL: prismUrl,
+    baseURL: parseBaseUrl(prismUrl, 'prismUrl'),
     httpsAgent,
     timeout: 30_000,
     headers: {
@@ -68,7 +217,7 @@ app.post('/api/prism/clusters', async (req, res) => {
     const { prismUrl, username, password } = req.body;
     res.json(await prismGet(prismUrl, username, password, 'clusters/'));
   } catch (e) {
-    res.status(500).json({ error: e.response?.data?.message || e.message });
+    res.status(e.status || 500).json({ error: e.response?.data?.message || e.message });
   }
 });
 
@@ -77,7 +226,7 @@ app.post('/api/prism/containers', async (req, res) => {
     const { prismUrl, username, password } = req.body;
     res.json(await prismGet(prismUrl, username, password, 'storage_containers/'));
   } catch (e) {
-    res.status(500).json({ error: e.response?.data?.message || e.message });
+    res.status(e.status || 500).json({ error: e.response?.data?.message || e.message });
   }
 });
 
@@ -86,7 +235,7 @@ app.post('/api/prism/networks', async (req, res) => {
     const { prismUrl, username, password } = req.body;
     res.json(await prismGet(prismUrl, username, password, 'networks/'));
   } catch (e) {
-    res.status(500).json({ error: e.response?.data?.message || e.message });
+    res.status(e.status || 500).json({ error: e.response?.data?.message || e.message });
   }
 });
 
@@ -95,7 +244,7 @@ app.post('/api/prism/images', async (req, res) => {
     const { prismUrl, username, password } = req.body;
     res.json(await prismGet(prismUrl, username, password, 'images/'));
   } catch (e) {
-    res.status(500).json({ error: e.response?.data?.message || e.message });
+    res.status(e.status || 500).json({ error: e.response?.data?.message || e.message });
   }
 });
 
@@ -104,7 +253,7 @@ app.post('/api/prism/vms', async (req, res) => {
     const { prismUrl, username, password } = req.body;
     res.json(await prismGet(prismUrl, username, password, 'vms/'));
   } catch (e) {
-    res.status(500).json({ error: e.response?.data?.message || e.message });
+    res.status(e.status || 500).json({ error: e.response?.data?.message || e.message });
   }
 });
 
@@ -199,7 +348,7 @@ function parseXmlRpcValue(node) {
 
 async function xenCall(host, method, params) {
   const xml = buildXmlRpc(method, params);
-  const url = `${host}/xmlrpc/v2`;
+  const url = `${parseBaseUrl(host, 'host')}/xmlrpc/v2`;
 
   const response = await axios.post(url, xml, {
     httpsAgent,
@@ -257,7 +406,7 @@ app.post('/api/xenserver/connect', async (req, res) => {
       },
     });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -284,7 +433,7 @@ app.post('/api/xenserver/vms', async (req, res) => {
     }
     res.json(vms);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -302,7 +451,7 @@ app.post('/api/xenserver/vdis', async (req, res) => {
     }
     res.json(vdis);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -312,7 +461,7 @@ app.post('/api/xenserver/vbds', async (req, res) => {
     const records = await xenCall(host, 'VBD.get_all_records', [session]);
     res.json(records);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -322,7 +471,7 @@ app.post('/api/xenserver/srs', async (req, res) => {
     const records = await xenCall(host, 'SR.get_all_records', [session]);
     res.json(records);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -332,7 +481,7 @@ app.post('/api/xenserver/networks', async (req, res) => {
     const records = await xenCall(host, 'network.get_all_records', [session]);
     res.json(records);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -342,7 +491,7 @@ app.post('/api/xenserver/hosts', async (req, res) => {
     const records = await xenCall(host, 'host.get_all_records', [session]);
     res.json(records);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -352,7 +501,7 @@ app.post('/api/xenserver/snapshot', async (req, res) => {
     const snapRef = await xenCall(host, 'VM.snapshot', [session, vmRef, snapshotName || `nutamigrate-snap-${Date.now()}`]);
     res.json({ snapRef });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -379,7 +528,7 @@ app.post('/api/xenserver/mount-iso', async (req, res) => {
     }
     res.json({ ok: true, vbdRef: cdVbd });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -388,6 +537,8 @@ app.post('/api/xenserver/mount-iso', async (req, res) => {
 // ─────────────────────────────────────────────
 
 function sshScan(host, username, password, port) {
+  host = parseHost(host);
+  port = parsePort(port, 22);
   return new Promise((resolve, reject) => {
     const conn = new SSHClient();
     const results = {};
@@ -423,7 +574,7 @@ function sshScan(host, username, password, port) {
     });
 
     conn.on('error', reject);
-    conn.connect({ host, port: port || 22, username, password, readyTimeout: 12_000 });
+    conn.connect({ host, port, username, password, readyTimeout: 12_000 });
   });
 }
 
@@ -501,7 +652,7 @@ app.post('/api/scan', async (req, res) => {
       cpu_model: data.cpu_model || '',
     });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -512,7 +663,9 @@ app.post('/api/scan', async (req, res) => {
 // WinRM helper — Basic auth, HTTP (port 5985)
 // Full WinRM is complex; this implements shell-create + exec + receive
 async function winrmRun(host, username, password, command, port = 5985) {
-  const baseUrl = `http://${host}:${port}/wsman`;
+  host = parseHost(host);
+  port = parsePort(port, 5985);
+  const baseUrl = `http://${net.isIPv6(host) ? `[${host}]` : host}:${port}/wsman`;
   const auth = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
   const uuid = () => crypto.randomUUID();
 
@@ -584,7 +737,10 @@ async function winrmRun(host, username, password, command, port = 5985) {
 
 app.post('/api/virtio/check', async (req, res) => {
   try {
-    const { host, username, password, port = 5985, useSSH = false, sshPort = 22 } = req.body;
+    const { username, password, useSSH = false } = req.body;
+    const host = parseHost(req.body.host);
+    const port = parsePort(req.body.port, 5985);
+    const sshPort = parsePort(req.body.sshPort, 22, 'sshPort');
 
     let output = '';
     if (useSSH) {
@@ -617,19 +773,32 @@ app.post('/api/virtio/check', async (req, res) => {
 
     res.json({ hasVirtio, drivers, raw: output.slice(0, 2000) });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
+// Drive-letter (C:\...) or UNC (\\server\share\...) path; no quotes, $, `, ;, &, |, or other shell metacharacters.
+const WINDOWS_ISO_PATH_RE = /^(?:[A-Za-z]:\\|\\\\[A-Za-z0-9._-]+\\)[A-Za-z0-9 _.()\\-]+$/;
+
+// PowerShell single-quoted literal; PowerShell also treats curly single quotes as quote delimiters.
+const psSingleQuote = (s) => `'${s.replace(/['\u2018\u2019\u201A\u201B]/g, "$&$&")}'`;
+
 app.post('/api/virtio/deploy', async (req, res) => {
   try {
-    const { host, username, password, isoPath, port = 5985, useSSH = false, sshPort = 22 } = req.body;
+    const { username, password, isoPath, useSSH = false } = req.body;
+    const host = parseHost(req.body.host);
+    const port = parsePort(req.body.port, 5985);
+    const sshPort = parsePort(req.body.sshPort, 22, 'sshPort');
     if (!isoPath) return res.status(400).json({ error: 'isoPath required' });
 
+    if (typeof isoPath !== 'string' || !WINDOWS_ISO_PATH_RE.test(isoPath)) {
+      return res.status(400).json({ error: 'isoPath must be a plain Windows path (e.g. C:\\VirtIO\\virtio-win.iso or \\\\server\\share\\virtio-win.iso)' });
+    }
+
     // Mount ISO and run silent install
-    const cmd = `powershell -Command "
-$iso = '${isoPath.replace(/'/g, "''")}'
-if (Test-Path $iso) {
+    const script = `
+$iso = ${psSingleQuote(isoPath)}
+if (Test-Path -LiteralPath $iso) {
   $mount = Mount-DiskImage -ImagePath $iso -PassThru
   $drive = ($mount | Get-Volume).DriveLetter
   if ($drive) {
@@ -644,7 +813,8 @@ if (Test-Path $iso) {
   }
 } else {
   Write-Output ('ERROR: ISO not found: ' + $iso)
-}"`;
+}`;
+    const cmd = `powershell -NoProfile -NonInteractive -EncodedCommand ${Buffer.from(script, 'utf16le').toString('base64')}`;
 
     let output = '';
     if (useSSH) {
@@ -669,7 +839,7 @@ if (Test-Path $iso) {
     const success = /successfully/i.test(output);
     res.json({ success, output: output.slice(0, 2000) });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -683,5 +853,9 @@ app.listen(PORT, '127.0.0.1', () => {
   console.log(`   XenServer: POST /api/xenserver/{connect|vms|vdis|srs|networks|snapshot|mount-iso}`);
   console.log(`   Scan:      POST /api/scan`);
   console.log(`   VirtIO:    POST /api/virtio/{check|deploy}`);
+  console.log(`   TLS mode:  ${tlsMode}`);
+  console.log(`\n   Allowed UI origins: ${ALLOWED_ORIGINS.join(', ')}`);
+  console.log(`   Access token:       ${PROXY_TOKEN}`);
+  console.log(`   (enter this token on the NutaMigrate Connections page)`);
   console.log(`\nPress Ctrl+C to stop.\n`);
 });

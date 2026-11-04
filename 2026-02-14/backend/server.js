@@ -6,13 +6,56 @@ const xml2js = require('xml2js');
 const pdfParse = require('pdf-parse');
 const OpenAI = require('openai');
 const Anthropic = require('@anthropic-ai/sdk');
+const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+const MAX_UPLOAD_BYTES = parseInt(process.env.MAX_UPLOAD_BYTES, 10) || 10 * 1024 * 1024;
+const MAX_TEXT_LENGTH = parseInt(process.env.MAX_TEXT_LENGTH, 10) || 50000;
+const SUPPORTED_PROVIDERS = ['openai', 'anthropic'];
+
 const app = express();
-const upload = multer({ storage: multer.memoryStorage() });
+if (process.env.TRUST_PROXY) {
+  app.set('trust proxy', /^\d+$/.test(process.env.TRUST_PROXY) ? parseInt(process.env.TRUST_PROXY, 10) : process.env.TRUST_PROXY);
+}
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_UPLOAD_BYTES, files: 1, fields: 10 }
+});
+
+const explainLimiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX, 10) || 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
+
+// The server's own AI keys may only be used by callers presenting PAPERPLAIN_ACCESS_TOKEN.
+function hasServerKeyAccess(req) {
+  const expected = process.env.PAPERPLAIN_ACCESS_TOKEN;
+  if (!expected) return false;
+  const match = (req.headers.authorization || '').match(/^Bearer\s+(.+)$/i);
+  const provided = match ? match[1].trim() : req.headers['x-access-token'];
+  if (typeof provided !== 'string' || !provided) return false;
+  const a = crypto.createHash('sha256').update(provided).digest();
+  const b = crypto.createHash('sha256').update(expected).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+function handleUpload(req, res, next) {
+  upload.single('pdf')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+      return res.status(status).json({ error: `Upload rejected: ${err.message}` });
+    }
+    next(err);
+  });
+}
 
 // Health endpoint
 app.get('/health', (req, res) => {
@@ -37,7 +80,7 @@ async function fetchArxivPaper(url) {
   
   // Fetch metadata from arXiv API
   const apiUrl = `http://export.arxiv.org/api/query?id_list=${arxivId}`;
-  const response = await axios.get(apiUrl);
+  const response = await axios.get(apiUrl, { maxContentLength: 1024 * 1024, timeout: 15000 });
   
   // Parse XML
   const parser = new xml2js.Parser();
@@ -51,14 +94,19 @@ async function fetchArxivPaper(url) {
   // Try to fetch full PDF text
   try {
     const pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
-    const pdfResponse = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
+    const pdfResponse = await axios.get(pdfUrl, {
+      responseType: 'arraybuffer',
+      maxContentLength: MAX_UPLOAD_BYTES,
+      maxRedirects: 3,
+      timeout: 30000
+    });
     const fullText = await extractPdfText(Buffer.from(pdfResponse.data));
     
     return {
       title,
       authors,
       abstract,
-      fullText: fullText.substring(0, 50000) // Limit to prevent token overflow
+      fullText: fullText.substring(0, MAX_TEXT_LENGTH) // Limit to prevent token overflow
     };
   } catch (err) {
     // If PDF fetch fails, use abstract only
@@ -125,7 +173,7 @@ Respond in JSON format with keys: tldr, keyFindings (array), methodology, implic
 }
 
 // Main explain endpoint
-app.post('/api/explain', upload.single('pdf'), async (req, res) => {
+app.post('/api/explain', explainLimiter, handleUpload, async (req, res) => {
   try {
     let paperText = '';
     let paperTitle = '';
@@ -134,14 +182,24 @@ app.post('/api/explain', upload.single('pdf'), async (req, res) => {
     // Check for BYOK headers
     const provider = req.headers['x-ai-provider'] || 'openai';
     const customApiKey = req.headers['x-ai-api-key'];
-    
-    // Use custom key if provided, otherwise fall back to env
-    const apiKey = customApiKey || 
-      (provider === 'anthropic' ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY);
-    
+
+    if (!SUPPORTED_PROVIDERS.includes(provider)) {
+      return res.status(400).json({ error: `Unsupported provider. Use one of: ${SUPPORTED_PROVIDERS.join(', ')}` });
+    }
+
+    let apiKey = customApiKey;
     if (!apiKey) {
-      return res.status(400).json({ 
-        error: 'No API key provided. Either set environment variables or provide keys via X-AI-API-Key header' 
+      if (!hasServerKeyAccess(req)) {
+        return res.status(401).json({
+          error: 'API key required. Provide your own key via the X-AI-API-Key header.'
+        });
+      }
+      apiKey = provider === 'anthropic' ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY;
+    }
+
+    if (!apiKey) {
+      return res.status(400).json({
+        error: 'No API key provided. Either set environment variables or provide keys via X-AI-API-Key header'
       });
     }
     
@@ -152,9 +210,12 @@ app.post('/api/explain', upload.single('pdf'), async (req, res) => {
       paperTitle = paper.title;
       paperAuthors = paper.authors;
     } else if (req.file) {
-      paperText = await extractPdfText(req.file.buffer);
+      paperText = (await extractPdfText(req.file.buffer)).substring(0, MAX_TEXT_LENGTH);
       paperTitle = 'Uploaded PDF';
     } else if (req.body.text) {
+      if (typeof req.body.text !== 'string' || req.body.text.length > MAX_TEXT_LENGTH) {
+        return res.status(413).json({ error: `Text must be a string of at most ${MAX_TEXT_LENGTH} characters` });
+      }
       paperText = req.body.text;
       paperTitle = 'Raw text';
     } else {

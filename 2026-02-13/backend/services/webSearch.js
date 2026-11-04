@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 async function searchMentions(query, braveApiKey = null) {
-  const apiKey = braveApiKey || process.env.BRAVE_API_KEY || process.env.BRAVE_SEARCH_API_KEY;
+  const apiKey = braveApiKey;
   
   if (!apiKey) {
     console.log('No Brave Search API key provided, returning empty results');

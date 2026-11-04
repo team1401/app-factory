@@ -27,10 +27,16 @@ const AI_PROVIDERS = {
   }
 };
 
-async function analyzeSentiment(text, provider = 'openai', apiKey = null) {
-  // Use BYOK key if provided, otherwise fall back to env
+// Callers resolve credentials (see utils/credentials.js); this service never reads
+// keys from the environment so server keys cannot be spent implicitly.
+async function analyzeSentiment(text, provider = 'openai', apiKey = null, { allowOllamaFallback = false } = {}) {
   const selectedProvider = provider?.toLowerCase() || 'openai';
-  const effectiveApiKey = apiKey || process.env[`${selectedProvider.toUpperCase()}_API_KEY`];
+  if (!AI_PROVIDERS[selectedProvider]) {
+    throw new Error(`Unsupported AI provider: ${selectedProvider}`);
+  }
+  if (selectedProvider !== 'ollama' && !apiKey) {
+    throw new Error(`No API key provided for ${selectedProvider}`);
+  }
 
   const prompt = `Analyze the following text for sentiment about a person or entity. Determine:
 1. Overall sentiment: positive, neutral, negative, or hostile
@@ -51,20 +57,17 @@ Respond in JSON format:
 
   try {
     if (selectedProvider === 'openai') {
-      return await analyzeWithOpenAI(prompt, effectiveApiKey);
+      return await analyzeWithOpenAI(prompt, apiKey);
     } else if (selectedProvider === 'anthropic') {
-      return await analyzeWithAnthropic(prompt, effectiveApiKey);
-    } else if (selectedProvider === 'ollama') {
-      return await analyzeWithOllama(prompt);
+      return await analyzeWithAnthropic(prompt, apiKey);
     } else {
-      // Default fallback
-      return await analyzeWithOpenAI(prompt, effectiveApiKey);
+      return await analyzeWithOllama(prompt);
     }
   } catch (error) {
     console.error(`AI analysis failed with ${selectedProvider}:`, error.message);
     
     // Try fallback to Ollama if primary provider fails
-    if (selectedProvider !== 'ollama') {
+    if (selectedProvider !== 'ollama' && allowOllamaFallback) {
       try {
         console.log('Falling back to Ollama...');
         return await analyzeWithOllama(prompt);
