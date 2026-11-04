@@ -23,6 +23,15 @@ function resolveAiCredentials(req, useServerKeys) {
   let provider = header(req, 'x-ai-provider');
   let apiKey = header(req, 'x-ai-api-key');
 
+  if (provider) {
+    provider = provider.toLowerCase();
+    if (!SUPPORTED_AI_PROVIDERS.includes(provider)) {
+      const error = new Error(`Unsupported AI provider. Use one of: ${SUPPORTED_AI_PROVIDERS.join(', ')}`);
+      error.status = 400;
+      throw error;
+    }
+  }
+
   if (!provider || !apiKey) {
     if (header(req, 'x-openai-key')) {
       provider = 'openai';
@@ -33,12 +42,7 @@ function resolveAiCredentials(req, useServerKeys) {
     }
   }
 
-  provider = (provider || 'openai').toLowerCase();
-  if (!SUPPORTED_AI_PROVIDERS.includes(provider)) {
-    const error = new Error(`Unsupported AI provider. Use one of: ${SUPPORTED_AI_PROVIDERS.join(', ')}`);
-    error.status = 400;
-    throw error;
-  }
+  provider = provider || 'openai';
 
   if (provider === 'ollama') {
     // Ollama runs on the operator's infrastructure, so treat it as a server resource.
