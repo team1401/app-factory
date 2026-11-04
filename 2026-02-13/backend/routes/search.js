@@ -74,7 +74,7 @@ router.post('/', async (req, res, next) => {
       }
     }
 
-    allMentions = allMentions.slice(0, MAX_ANALYZED_MENTIONS);
+    allMentions = interleaveByKind(allMentions).slice(0, MAX_ANALYZED_MENTIONS);
 
     // Analyze mentions with AI
     const analyzedMentions = await Promise.all(
@@ -137,6 +137,25 @@ router.post('/', async (req, res, next) => {
     next(error);
   }
 });
+
+// Round-robin across source/type so the analysis cap keeps a mix of issues, commits and web results.
+function interleaveByKind(mentions) {
+  const groups = new Map();
+  for (const mention of mentions) {
+    const kind = `${mention.source}:${mention.type}`;
+    if (!groups.has(kind)) groups.set(kind, []);
+    groups.get(kind).push(mention);
+  }
+
+  const queues = [...groups.values()];
+  const result = [];
+  for (let i = 0; result.length < mentions.length; i++) {
+    for (const queue of queues) {
+      if (i < queue.length) result.push(queue[i]);
+    }
+  }
+  return result;
+}
 
 function calculateRiskScore(mentions) {
   if (mentions.length === 0) return 0;
