@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const express = require('express');
 const router = express.Router();
 const githubService = require('../services/github');
@@ -43,7 +44,11 @@ router.post('/', async (req, res, next) => {
     searchQuery = searchQuery.trim().substring(0, 200);
     
     const searchedSources = [canSearchGithub && 'github', canSearchWeb && 'web'].filter(Boolean);
-    const cacheKey = `search:${searchQuery}:${searchedSources.join(',')}`;
+    // GitHub results depend on what the token can see, so scope cached results to it.
+    const githubScope = canSearchGithub
+      ? crypto.createHash('sha256').update(credentials.githubToken).digest('hex')
+      : 'none';
+    const cacheKey = `search:${searchQuery}:${searchedSources.join(',')}:${githubScope}`;
 
     // Check cache
     const cached = cache.get(cacheKey);
