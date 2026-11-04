@@ -80,7 +80,7 @@ async function fetchArxivPaper(url) {
   
   // Fetch metadata from arXiv API
   const apiUrl = `http://export.arxiv.org/api/query?id_list=${arxivId}`;
-  const response = await axios.get(apiUrl);
+  const response = await axios.get(apiUrl, { maxContentLength: 1024 * 1024, timeout: 15000 });
   
   // Parse XML
   const parser = new xml2js.Parser();
@@ -94,7 +94,12 @@ async function fetchArxivPaper(url) {
   // Try to fetch full PDF text
   try {
     const pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
-    const pdfResponse = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
+    const pdfResponse = await axios.get(pdfUrl, {
+      responseType: 'arraybuffer',
+      maxContentLength: MAX_UPLOAD_BYTES,
+      maxRedirects: 3,
+      timeout: 30000
+    });
     const fullText = await extractPdfText(Buffer.from(pdfResponse.data));
     
     return {
