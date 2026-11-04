@@ -777,6 +777,12 @@ app.post('/api/virtio/check', async (req, res) => {
   }
 });
 
+// Drive-letter (C:\...) or UNC (\\server\share\...) path; no quotes, $, `, ;, &, |, or other shell metacharacters.
+const WINDOWS_ISO_PATH_RE = /^(?:[A-Za-z]:\\|\\\\[A-Za-z0-9._-]+\\)[A-Za-z0-9 _.()\\-]+$/;
+
+// PowerShell single-quoted literal; PowerShell also treats curly single quotes as quote delimiters.
+const psSingleQuote = (s) => `'${s.replace(/['\u2018\u2019\u201A\u201B]/g, "$&$&")}'`;
+
 app.post('/api/virtio/deploy', async (req, res) => {
   try {
     const { username, password, isoPath, useSSH = false } = req.body;
@@ -785,10 +791,14 @@ app.post('/api/virtio/deploy', async (req, res) => {
     const sshPort = parsePort(req.body.sshPort, 22, 'sshPort');
     if (!isoPath) return res.status(400).json({ error: 'isoPath required' });
 
+    if (typeof isoPath !== 'string' || !WINDOWS_ISO_PATH_RE.test(isoPath)) {
+      return res.status(400).json({ error: 'isoPath must be a plain Windows path (e.g. C:\\VirtIO\\virtio-win.iso or \\\\server\\share\\virtio-win.iso)' });
+    }
+
     // Mount ISO and run silent install
-    const cmd = `powershell -Command "
-$iso = '${isoPath.replace(/'/g, "''")}'
-if (Test-Path $iso) {
+    const script = `
+$iso = ${psSingleQuote(isoPath)}
+if (Test-Path -LiteralPath $iso) {
   $mount = Mount-DiskImage -ImagePath $iso -PassThru
   $drive = ($mount | Get-Volume).DriveLetter
   if ($drive) {
@@ -803,7 +813,8 @@ if (Test-Path $iso) {
   }
 } else {
   Write-Output ('ERROR: ISO not found: ' + $iso)
-}"`;
+}`;
+    const cmd = `powershell -NoProfile -NonInteractive -EncodedCommand ${Buffer.from(script, 'utf16le').toString('base64')}`;
 
     let output = '';
     if (useSSH) {
