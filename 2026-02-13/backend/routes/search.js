@@ -25,6 +25,12 @@ router.post('/', async (req, res, next) => {
     const canSearchGithub = sources.includes('github') && Boolean(credentials.githubToken);
     const canSearchWeb = sources.includes('web') && Boolean(credentials.braveApiKey);
 
+    if (!credentials.ai.available) {
+      return res.status(401).json({
+        error: 'Provide your own AI credentials (X-AI-Provider/X-AI-API-Key, X-OpenAI-Key or X-Anthropic-Key) or a valid X-App-Token'
+      });
+    }
+
     if (!canSearchGithub && !canSearchWeb) {
       return res.status(401).json({
         error: 'Provide your own search credentials (X-GitHub-Token or X-Brave-Key) or a valid X-App-Token'
@@ -37,7 +43,7 @@ router.post('/', async (req, res, next) => {
     searchQuery = searchQuery.trim().substring(0, 200);
     
     const searchedSources = [canSearchGithub && 'github', canSearchWeb && 'web'].filter(Boolean);
-    const cacheKey = `search:${searchQuery}:${searchedSources.join(',')}:${credentials.ai.available ? 'ai' : 'no-ai'}`;
+    const cacheKey = `search:${searchQuery}:${searchedSources.join(',')}`;
 
     // Check cache
     const cached = cache.get(cacheKey);
@@ -73,9 +79,6 @@ router.post('/', async (req, res, next) => {
     // Analyze mentions with AI
     const analyzedMentions = await Promise.all(
       allMentions.map(async (mention) => {
-        if (!credentials.ai.available) {
-          return { ...mention, sentiment: 'unknown', isHostile: false, claims: [], summary: 'Analysis unavailable - no AI credentials' };
-        }
         try {
           const analysis = await aiService.analyzeSentiment(
             mention.content,
