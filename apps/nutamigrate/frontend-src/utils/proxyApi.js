@@ -4,11 +4,25 @@
  */
 
 const PROXY = 'http://localhost:3131';
+const TOKEN_KEY = 'nutamigrate_proxy_token';
+
+/** Access token printed by the proxy at startup; required on every request. */
+export function getProxyToken() {
+  try { return localStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; }
+}
+
+export function setProxyToken(token) {
+  try { localStorage.setItem(TOKEN_KEY, (token || '').trim()); } catch {}
+}
+
+function authHeaders() {
+  return { 'X-NutaMigrate-Token': getProxyToken() };
+}
 
 async function post(path, body) {
   const res = await fetch(`${PROXY}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({ error: res.statusText }));
@@ -18,7 +32,7 @@ async function post(path, body) {
 
 export async function checkProxy() {
   try {
-    const r = await fetch(`${PROXY}/health`, { signal: AbortSignal.timeout(3000) });
+    const r = await fetch(`${PROXY}/health`, { headers: authHeaders(), signal: AbortSignal.timeout(3000) });
     return r.ok;
   } catch {
     return false;

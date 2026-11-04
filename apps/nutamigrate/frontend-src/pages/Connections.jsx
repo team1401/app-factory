@@ -6,11 +6,12 @@ import {
 } from 'lucide-react';
 import { useApp } from '../App';
 import { api } from '../utils/api';
-import { checkProxy, prism as prismApi, xen as xenApi, xenVmToMachine, computeVmDiskGb } from '../utils/proxyApi';
+import { checkProxy, getProxyToken, setProxyToken, prism as prismApi, xen as xenApi, xenVmToMachine, computeVmDiskGb } from '../utils/proxyApi';
 
 // ─── Proxy status banner ─────────────────────────────────────────────────────
 
 function ProxyBanner({ status, onRecheck }) {
+  const [token, setToken] = useState(getProxyToken);
   if (status === 'ok') {
     return (
       <div className="flex items-center gap-2 px-3 py-2 bg-green-900/20 border border-green-800 rounded-lg text-xs text-green-400">
@@ -32,13 +33,19 @@ function ProxyBanner({ status, onRecheck }) {
     <div className="px-4 py-3 bg-yellow-900/20 border border-yellow-800 rounded-lg text-xs space-y-2">
       <div className="flex items-center gap-2 text-yellow-400 font-semibold">
         <AlertTriangle size={13} />
-        Proxy not running — start it on your workstation
+        Proxy not connected — start it on your workstation and enter its access token
       </div>
       <div className="font-mono text-slate-400 space-y-0.5">
         <div>cd /path/to/nutamigrate/proxy</div>
         <div>npm install &amp;&amp; node server.js</div>
       </div>
-      <button onClick={onRecheck} className="btn-secondary text-xs py-1 flex items-center gap-1"><RefreshCw size={11} /> Retry</button>
+      <div className="flex items-center gap-2">
+        <input className="input font-mono text-xs flex-1" type="password" placeholder="Access token printed by the proxy"
+          value={token} onChange={(e) => setToken(e.target.value)} />
+        <button onClick={() => { setProxyToken(token); onRecheck(); }} className="btn-secondary text-xs py-1 flex items-center gap-1">
+          <RefreshCw size={11} /> Save &amp; Retry
+        </button>
+      </div>
     </div>
   );
 }
