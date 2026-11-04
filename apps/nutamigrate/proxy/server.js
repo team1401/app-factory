@@ -87,7 +87,9 @@ function createHttpsAgent({ insecure, extraCAs, pins }) {
     console.warn('⚠️  NUTAMIGRATE_TLS_INSECURE is set: TLS certificate verification is DISABLED for Prism/XenServer.');
     return new https.Agent({ rejectUnauthorized: false });
   }
-  const ca = extraCAs.length ? [...tls.rootCertificates, ...extraCAs] : undefined;
+  // getCACertificates('default') includes NODE_EXTRA_CA_CERTS / --use-system-ca roots (Node >= 22.15)
+  const defaultCAs = typeof tls.getCACertificates === 'function' ? tls.getCACertificates('default') : tls.rootCertificates;
+  const ca = extraCAs.length ? [...defaultCAs, ...extraCAs] : undefined;
   if (pins.size) return new PinningAgent(pins, { ca });
   return new https.Agent({ rejectUnauthorized: true, ca });
 }
