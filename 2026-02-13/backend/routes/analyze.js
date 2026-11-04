@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const aiService = require('../services/ai');
-const axios = require('axios');
+const { safeGet, parseAllowedUrl, UnsafeUrlError } = require('../utils/safeFetch');
 
 router.post('/', async (req, res, next) => {
   try {
@@ -31,8 +31,17 @@ router.post('/', async (req, res, next) => {
 
     // Fetch content from URL if provided
     if (url && !content) {
+      if (typeof url !== 'string') {
+        return res.status(400).json({ error: 'URL must be a public http or https URL' });
+      }
       try {
-        const response = await axios.get(url, {
+        parseAllowedUrl(url);
+      } catch (error) {
+        return res.status(400).json({ error: 'URL must be a public http or https URL' });
+      }
+
+      try {
+        const response = await safeGet(url, {
           timeout: 10000,
           headers: {
             'User-Agent': 'Agent-Rep-Check/1.0'
@@ -40,7 +49,7 @@ router.post('/', async (req, res, next) => {
         });
         
         // Extract text from HTML (basic extraction)
-        textToAnalyze = response.data
+        textToAnalyze = String(response.data || '')
           .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
           .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
           .replace(/<[^>]+>/g, ' ')
@@ -50,10 +59,10 @@ router.post('/', async (req, res, next) => {
         // Limit to first 10000 characters to avoid token limits
         textToAnalyze = textToAnalyze.substring(0, 10000);
       } catch (error) {
-        return res.status(400).json({ 
-          error: 'Failed to fetch content from URL',
-          details: error.message 
-        });
+        if (!(error instanceof UnsafeUrlError)) {
+          console.error('URL fetch failed:', error.code || error.message);
+        }
+        return res.status(400).json({ error: 'Failed to fetch content from URL' });
       }
     }
 
