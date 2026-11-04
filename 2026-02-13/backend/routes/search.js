@@ -4,6 +4,10 @@ const githubService = require('../services/github');
 const webSearchService = require('../services/webSearch');
 const aiService = require('../services/ai');
 const cache = require('../utils/cache');
+const { resolveCredentials } = require('../utils/credentials');
+
+const VALID_SOURCES = ['github', 'web'];
+const MAX_ANALYZED_MENTIONS = parseInt(process.env.MAX_ANALYZED_MENTIONS) || 20;
 
 router.post('/', async (req, res, next) => {
   try {
@@ -13,20 +17,18 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ error: 'Name or username is required' });
     }
 
-    // Extract BYOK credentials from headers
-    // Support both single x-ai-provider/x-ai-api-key headers and individual provider keys
-    let aiProvider = req.headers['x-ai-provider'];
-    let aiApiKey = req.headers['x-ai-api-key'];
-    
-    // If individual keys provided, auto-detect provider
-    if (!aiProvider || !aiApiKey) {
-      if (req.headers['x-openai-key']) {
-        aiProvider = 'openai';
-        aiApiKey = req.headers['x-openai-key'];
-      } else if (req.headers['x-anthropic-key']) {
-        aiProvider = 'anthropic';
-        aiApiKey = req.headers['x-anthropic-key'];
-      }
+    if (!Array.isArray(sources) || !sources.every((source) => VALID_SOURCES.includes(source))) {
+      return res.status(400).json({ error: `sources must be an array of: ${VALID_SOURCES.join(', ')}` });
+    }
+
+    const credentials = resolveCredentials(req);
+    const canSearchGithub = sources.includes('github') && Boolean(credentials.githubToken);
+    const canSearchWeb = sources.includes('web') && Boolean(credentials.braveApiKey);
+
+    if (!canSearchGithub && !canSearchWeb) {
+      return res.status(401).json({
+        error: 'Provide your own search credentials (X-GitHub-Token or X-Brave-Key) or a valid X-App-Token'
+      });
     }
 
     let searchQuery = username || name;
@@ -34,7 +36,8 @@ router.post('/', async (req, res, next) => {
     // Sanitize and limit input length
     searchQuery = searchQuery.trim().substring(0, 200);
     
-    const cacheKey = `search:${searchQuery}:${sources.join(',')}`;
+    const searchedSources = [canSearchGithub && 'github', canSearchWeb && 'web'].filter(Boolean);
+    const cacheKey = `search:${searchQuery}:${searchedSources.join(',')}:${credentials.ai.available ? 'ai' : 'no-ai'}`;
 
     // Check cache
     const cached = cache.get(cacheKey);
@@ -46,9 +49,9 @@ router.post('/', async (req, res, next) => {
     let allMentions = [];
 
     // Search GitHub if requested
-    if (sources.includes('github')) {
+    if (canSearchGithub) {
       try {
-        const githubMentions = await githubService.searchMentions(searchQuery, req.headers['x-github-token']);
+        const githubMentions = await githubService.searchMentions(searchQuery, credentials.githubToken);
         allMentions.push(...githubMentions);
       } catch (error) {
         console.error('GitHub search error:', error.message);
@@ -56,23 +59,29 @@ router.post('/', async (req, res, next) => {
     }
 
     // Search web if requested
-    if (sources.includes('web')) {
+    if (canSearchWeb) {
       try {
-        const webMentions = await webSearchService.searchMentions(searchQuery, req.headers['x-brave-key'] || req.headers['x-brave-api-key']);
+        const webMentions = await webSearchService.searchMentions(searchQuery, credentials.braveApiKey);
         allMentions.push(...webMentions);
       } catch (error) {
         console.error('Web search error:', error.message);
       }
     }
 
+    allMentions = allMentions.slice(0, MAX_ANALYZED_MENTIONS);
+
     // Analyze mentions with AI
     const analyzedMentions = await Promise.all(
       allMentions.map(async (mention) => {
+        if (!credentials.ai.available) {
+          return { ...mention, sentiment: 'unknown', isHostile: false, claims: [], summary: 'Analysis unavailable - no AI credentials' };
+        }
         try {
           const analysis = await aiService.analyzeSentiment(
             mention.content,
-            aiProvider,
-            aiApiKey
+            credentials.ai.provider,
+            credentials.ai.apiKey,
+            { allowOllamaFallback: credentials.useServerKeys }
           );
           return {
             ...mention,

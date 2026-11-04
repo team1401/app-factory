@@ -9,6 +9,7 @@ services:
     environment:
       - PORT=3106
       - NODE_ENV=production
+      - SERVER_KEYS_ACCESS_TOKEN=${SERVER_KEYS_ACCESS_TOKEN:-}
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - BRAVE_API_KEY=${BRAVE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
