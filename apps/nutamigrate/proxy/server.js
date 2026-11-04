@@ -4,7 +4,7 @@
  * NutaMigrate Proxy Server — port 3131
  *
  * Handles:
- *  - Prism Element API (HTTPS, self-signed certs, Basic auth)
+ *  - Prism Element API (HTTPS, verified or pinned certs, Basic auth)
  *  - XenServer XML-RPC (session-based, full XML-RPC serialization)
  *  - SSH source machine scanning (Linux)
  *  - WinRM VirtIO check & deploy (Windows)
@@ -12,7 +12,9 @@
 
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
 const https = require('https');
+const tls = require('tls');
 const crypto = require('crypto');
 const axios = require('axios');
 const { XMLParser } = require('fast-xml-parser');
@@ -29,15 +31,70 @@ app.use(express.json({ limit: '10mb' }));
 // ─────────────────────────────────────────────
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', version: '2.0.0', app: 'NutaMigrate Proxy' });
+  res.json({ status: 'ok', version: '2.0.0', app: 'NutaMigrate Proxy', tlsMode });
 });
 
 // ─────────────────────────────────────────────
 // SHARED UTILITIES
 // ─────────────────────────────────────────────
 
-// Axios agent that ignores self-signed TLS certs
-const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+// TLS verification for Prism / XenServer connections.
+//   NUTAMIGRATE_TLS_CA_FILE       PEM file of extra trusted CA / self-signed certs (comma-separated paths allowed)
+//   NUTAMIGRATE_TLS_FINGERPRINTS  comma-separated SHA-256 fingerprints of pinned server certs
+//   NUTAMIGRATE_TLS_INSECURE=1    disable verification entirely (explicit opt-in, not recommended)
+function normalizeFingerprint(fp) {
+  return String(fp).replace(/[\s:]/g, '').toUpperCase();
+}
+
+function loadTlsConfig(env = process.env) {
+  const insecure = env.NUTAMIGRATE_TLS_INSECURE === '1' || env.NUTAMIGRATE_TLS_INSECURE === 'true';
+  const caFiles = (env.NUTAMIGRATE_TLS_CA_FILE || '').split(',').map((f) => f.trim()).filter(Boolean);
+  const extraCAs = caFiles.map((f) => fs.readFileSync(f, 'utf8'));
+  const pins = new Set(
+    (env.NUTAMIGRATE_TLS_FINGERPRINTS || '').split(',').map(normalizeFingerprint).filter(Boolean)
+  );
+  for (const pin of pins) {
+    if (!/^[0-9A-F]{64}$/.test(pin)) throw new Error(`Invalid SHA-256 fingerprint in NUTAMIGRATE_TLS_FINGERPRINTS: ${pin}`);
+  }
+  return { insecure, extraCAs, pins };
+}
+
+// Accepts a server if its chain validates normally, or if its leaf cert matches a pinned fingerprint.
+// The check runs synchronously on 'secureConnect', before any request bytes are flushed to the socket.
+class PinningAgent extends https.Agent {
+  constructor(pins, options) {
+    super({ ...options, rejectUnauthorized: false, maxCachedSessions: 0 });
+    this.pins = pins;
+  }
+
+  createConnection(...args) {
+    const socket = super.createConnection(...args);
+    socket.once('secureConnect', () => {
+      if (socket.authorized) return;
+      const fp = normalizeFingerprint(socket.getPeerCertificate()?.fingerprint256 || '');
+      if (!fp || !this.pins.has(fp)) {
+        socket.destroy(new Error(
+          `TLS certificate not trusted (${socket.authorizationError}); SHA-256 fingerprint ${fp || 'unknown'} is not pinned`
+        ));
+      }
+    });
+    return socket;
+  }
+}
+
+function createHttpsAgent({ insecure, extraCAs, pins }) {
+  if (insecure) {
+    console.warn('⚠️  NUTAMIGRATE_TLS_INSECURE is set: TLS certificate verification is DISABLED for Prism/XenServer.');
+    return new https.Agent({ rejectUnauthorized: false });
+  }
+  const ca = extraCAs.length ? [...tls.rootCertificates, ...extraCAs] : undefined;
+  if (pins.size) return new PinningAgent(pins, { ca });
+  return new https.Agent({ rejectUnauthorized: true, ca });
+}
+
+const tlsConfig = loadTlsConfig();
+const httpsAgent = createHttpsAgent(tlsConfig);
+const tlsMode = tlsConfig.insecure ? 'insecure' : tlsConfig.pins.size ? 'pinned' : tlsConfig.extraCAs.length ? 'custom-ca' : 'system-ca';
 
 function prismAxios(prismUrl, username, password) {
   const auth = Buffer.from(`${username}:${password}`).toString('base64');
@@ -683,5 +740,6 @@ app.listen(PORT, '127.0.0.1', () => {
   console.log(`   XenServer: POST /api/xenserver/{connect|vms|vdis|srs|networks|snapshot|mount-iso}`);
   console.log(`   Scan:      POST /api/scan`);
   console.log(`   VirtIO:    POST /api/virtio/{check|deploy}`);
+  console.log(`   TLS mode:  ${tlsMode}`);
   console.log(`\nPress Ctrl+C to stop.\n`);
 });

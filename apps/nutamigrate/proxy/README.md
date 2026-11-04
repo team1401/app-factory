@@ -71,6 +71,30 @@ The proxy runs at **http://localhost:3131** and listens only on 127.0.0.1 (local
 ## Security Notes
 
 - ⚠️ Credentials sent in POST bodies are in plain text on localhost — keep proxy local only
-- Self-signed Prism/XenServer certs are accepted (rejectUnauthorized: false)
+- Prism/XenServer TLS certificates are verified (see **TLS Verification** below)
 - Proxy binds to 127.0.0.1 only — never accessible from the network
 - localStorage in the browser stores credentials with an AES-like encode — treat as convenience, not security
+
+## TLS Verification
+
+Prism and XenServer certificates are verified by default against the system CA store. Clusters with self-signed certs must be trusted explicitly via environment variables:
+
+| Variable | Description |
+|----------|-------------|
+| `NUTAMIGRATE_TLS_CA_FILE` | PEM file(s) (comma-separated) of CA or self-signed server certs to trust, in addition to system CAs. Hostname/IP must match the cert. |
+| `NUTAMIGRATE_TLS_FINGERPRINTS` | Comma-separated SHA-256 fingerprints of server certs to pin (`AB:CD:...` or plain hex). A pinned cert is accepted even if self-signed or the hostname doesn't match. |
+| `NUTAMIGRATE_TLS_INSECURE=1` | Disable certificate verification entirely. Only for lab use — credentials can be intercepted by anyone on the network path. |
+
+Get a server's fingerprint:
+
+```bash
+openssl s_client -connect 10.0.0.1:9440 </dev/null 2>/dev/null | openssl x509 -noout -fingerprint -sha256
+```
+
+Then start the proxy:
+
+```bash
+NUTAMIGRATE_TLS_FINGERPRINTS="AB:CD:...:EF" node server.js
+```
+
+The active mode is printed at startup and returned as `tlsMode` from `/health`.
