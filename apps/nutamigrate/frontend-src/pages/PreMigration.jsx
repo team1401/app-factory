@@ -236,7 +236,7 @@ export default function PreMigration() {
       {proxyStatus !== 'ok' && (
         <div className="flex items-center gap-2 px-3 py-2 bg-yellow-900/20 border border-yellow-800 rounded text-xs text-yellow-400">
           <AlertTriangle size={13} />
-          Proxy not running — start proxy/server.js to enable VirtIO operations
+          Proxy not connected — start proxy/server.js and enter its access token on the Connections page to enable VirtIO operations
         </div>
       )}
 

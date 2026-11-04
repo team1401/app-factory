@@ -16,6 +16,15 @@ node server.js
 
 The proxy runs at **http://localhost:3131** and listens only on 127.0.0.1 (local only, never exposed to the network).
 
+On startup it prints a random **access token**. Paste it into the proxy banner on the
+NutaMigrate **Connections** page; the UI sends it in the `X-NutaMigrate-Token` header and
+the proxy rejects requests without it (`401`).
+
+| Env var | Default | Purpose |
+|---------|---------|---------|
+| `NUTAMIGRATE_UI_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated browser origins allowed to call the proxy (CORS + Origin check) |
+| `NUTAMIGRATE_PROXY_TOKEN` | random per launch | Fixed access token instead of a random one |
+
 ## Routes
 
 | Method | Path | Description |
@@ -69,6 +78,9 @@ The proxy runs at **http://localhost:3131** and listens only on 127.0.0.1 (local
 ```
 
 ## Security Notes
+
+- Every request needs the `X-NutaMigrate-Token` header; requests from origins not in `NUTAMIGRATE_UI_ORIGINS`, or with a `Host` other than `localhost:3131`/`127.0.0.1:3131`, get `403`
+- `prismUrl` and XenServer `host` must be plain `http(s)://host[:port]`; SSH/WinRM `host` must be a bare hostname or IP
 
 - ⚠️ Credentials sent in POST bodies are in plain text on localhost — keep proxy local only
 - Self-signed Prism/XenServer certs are accepted (rejectUnauthorized: false)
