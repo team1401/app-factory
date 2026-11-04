@@ -275,7 +275,7 @@ function PrismPanel({ proxyOk }) {
           </div>
           <div className="text-xs text-slate-600 flex items-center gap-1.5">
             <Info size={11} />
-            Credentials stored in localStorage. Self-signed certificates accepted via proxy.
+            Credentials stored in localStorage. Self-signed certs must be trusted in the proxy (NUTAMIGRATE_TLS_CA_FILE / NUTAMIGRATE_TLS_FINGERPRINTS).
           </div>
         </div>
       )}
@@ -586,7 +586,7 @@ function XenPanel({ proxyOk }) {
           </div>
           <div className="text-xs text-slate-600 flex items-center gap-1.5">
             <Info size={11} />
-            Uses XML-RPC API. Self-signed certificates accepted.
+            Uses XML-RPC API. Self-signed certs must be trusted in the proxy (see proxy README).
           </div>
         </div>
       )}
