@@ -5,7 +5,8 @@ export default function Settings({ onClose }) {
   const [settings, setSettings] = useState({
     provider: 'openai',
     openai_api_key: '',
-    anthropic_api_key: ''
+    anthropic_api_key: '',
+    access_token: ''
   });
 
   useEffect(() => {
@@ -94,6 +95,18 @@ export default function Settings({ onClose }) {
               value={settings.anthropic_api_key}
               onChange={(e) => setSettings({ ...settings, anthropic_api_key: e.target.value })}
               placeholder="sk-ant-..."
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+
+          {/* Server access token */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Server Access Token (optional)</label>
+            <input
+              type="password"
+              value={settings.access_token || ''}
+              onChange={(e) => setSettings({ ...settings, access_token: e.target.value })}
+              placeholder="Use the server's API key instead of your own"
               className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>

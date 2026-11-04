@@ -22,9 +22,12 @@ Explain a research paper using AI.
 }
 ```
 
-**Headers (optional BYOK):**
+**Headers:**
 - `X-AI-Provider`: `openai` or `anthropic`
-- `X-AI-API-Key`: Your API key
+- `X-AI-API-Key`: Your API key (required unless you send the access token below)
+- `Authorization: Bearer <PAPERPLAIN_ACCESS_TOKEN>`: use the server's own API keys instead
+
+Requests are rate limited per IP (`RATE_LIMIT_MAX` per `RATE_LIMIT_WINDOW_MS`), PDF uploads are capped at `MAX_UPLOAD_BYTES` (default 10 MB) and `text` at `MAX_TEXT_LENGTH` characters (default 50,000).
 
 **Response:**
 ```json

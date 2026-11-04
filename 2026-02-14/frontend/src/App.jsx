@@ -26,9 +26,11 @@ function App() {
         'Content-Type': 'application/json'
       };
 
+      headers['X-AI-Provider'] = provider;
       if (apiKey) {
-        headers['X-AI-Provider'] = provider;
         headers['X-AI-API-Key'] = apiKey;
+      } else if (settings.access_token) {
+        headers['Authorization'] = `Bearer ${settings.access_token}`;
       }
 
       const response = await fetch('/api/explain', {
