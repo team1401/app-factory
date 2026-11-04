@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 async function searchMentions(query, githubToken = null) {
-  const token = githubToken || process.env.GITHUB_TOKEN;
+  const token = githubToken;
   
   if (!token) {
     console.log('No GitHub token provided, skipping GitHub search');

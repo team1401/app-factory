@@ -77,6 +77,8 @@ See `.env.example` for all available configuration options.
 
 **Key variables:**
 - `PORT` - Server port (default: 3001)
+- `SERVER_KEYS_ACCESS_TOKEN` - Shared secret; server-side keys below are only used for requests sending a matching `X-App-Token` header
+- `MAX_ANALYZED_MENTIONS` - Max mentions sent for AI analysis per search (default: 20)
 - `OPENAI_API_KEY` - OpenAI API key (fallback if BYOK not provided)
 - `ANTHROPIC_API_KEY` - Anthropic API key (fallback)
 - `OLLAMA_BASE_URL` - Ollama endpoint (default: http://localhost:11434)
@@ -85,9 +87,10 @@ See `.env.example` for all available configuration options.
 
 ## BYOK (Bring Your Own Keys)
 
-Users can provide their own API keys via headers, which take priority over environment variables:
+Users can provide their own API keys via headers, which take priority over environment variables. Environment keys (and Ollama) are only used when the request also sends `X-App-Token` matching `SERVER_KEYS_ACCESS_TOKEN`; otherwise requests without the needed keys get `401`.
 
-- `X-AI-Provider`: `openai`, `anthropic`, or `ollama`
+- `X-AI-Provider`: `openai`, `anthropic`, or `ollama` (other values return `400`)
+- `X-App-Token`: Operator access token that allows use of server-side keys
 - `X-AI-API-Key`: Your API key for the selected provider
 - `X-GitHub-Token`: GitHub personal access token
 - `X-Brave-API-Key`: Brave Search API key
@@ -136,8 +139,8 @@ If the selected AI provider fails, the service automatically falls back to Ollam
 
 Priority order:
 1. BYOK provider (from headers)
-2. Environment variable provider
-3. Ollama fallback
+2. Environment variable provider (requires `X-App-Token`)
+3. Ollama fallback (requires `X-App-Token`)
 4. Default neutral response
 
 ## Error Handling

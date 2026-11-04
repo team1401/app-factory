@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const aiService = require('../services/ai');
 const axios = require('axios');
+const { resolveCredentials } = require('../utils/credentials');
 
 router.post('/', async (req, res, next) => {
   try {
@@ -11,20 +12,11 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ error: 'URL or content is required' });
     }
 
-    // Extract BYOK credentials from headers
-    // Support both single x-ai-provider/x-ai-api-key headers and individual provider keys
-    let aiProvider = req.headers['x-ai-provider'];
-    let aiApiKey = req.headers['x-ai-api-key'];
-    
-    // If individual keys provided, auto-detect provider
-    if (!aiProvider || !aiApiKey) {
-      if (req.headers['x-openai-key']) {
-        aiProvider = 'openai';
-        aiApiKey = req.headers['x-openai-key'];
-      } else if (req.headers['x-anthropic-key']) {
-        aiProvider = 'anthropic';
-        aiApiKey = req.headers['x-anthropic-key'];
-      }
+    const { ai, useServerKeys } = resolveCredentials(req);
+    if (!ai.available) {
+      return res.status(401).json({
+        error: 'Provide your own AI credentials (X-AI-Provider/X-AI-API-Key, X-OpenAI-Key or X-Anthropic-Key) or a valid X-App-Token'
+      });
     }
 
     let textToAnalyze = content;
@@ -64,8 +56,9 @@ router.post('/', async (req, res, next) => {
     // Analyze with AI
     const analysis = await aiService.analyzeSentiment(
       textToAnalyze,
-      aiProvider,
-      aiApiKey
+      ai.provider,
+      ai.apiKey,
+      { allowOllamaFallback: useServerKeys }
     );
 
     res.json({
