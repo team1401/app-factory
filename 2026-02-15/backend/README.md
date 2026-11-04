@@ -6,7 +6,7 @@ Production-ready Express backend for AI Persona Focus Group testing.
 
 - ✅ OpenAI + Anthropic SDK integration
 - ✅ Per-request API key handling via headers
-- ✅ Fallback to .env for API keys
+- ✅ Fallback to .env API keys for callers with `SERVER_ACCESS_TOKEN`
 - ✅ CORS, Helmet security, rate limiting
 - ✅ Comprehensive error handling
 - ✅ 30 diverse personas per audience type
@@ -30,7 +30,10 @@ Generate 30 AI personas for the selected audience.
 
 **Headers (optional):**
 - `X-AI-Provider`: `openai` or `anthropic`
-- `X-AI-API-Key`: Your API key (falls back to .env if not provided)
+- `X-AI-API-Key`: Your API key
+- `X-Access-Token`: Required to use the server's .env keys when `X-AI-API-Key` is not provided
+
+Requests with neither a client key nor a valid access token get `401`.
 
 **Request:**
 ```json
@@ -69,6 +72,9 @@ Test content against personas and get virality score.
 **Headers (optional):**
 - `X-AI-Provider`: `openai` or `anthropic`
 - `X-AI-API-Key`: Your API key
+- `X-Access-Token`: Required to use the server's .env keys when `X-AI-API-Key` is not provided
+
+`content` is limited to 2000 characters and `personas` to 1-30 entries; larger requests get `400`.
 
 **Request:**
 ```json
@@ -111,6 +117,7 @@ Create a `.env` file:
 PORT=3100
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
+SERVER_ACCESS_TOKEN=change-me  # required for callers to use the keys above
 NODE_ENV=production
 ```
 
@@ -157,4 +164,4 @@ docker run -p 3100:3100 --env-file .env viralcheck-backend
 - **Persona Templates**: 6 predefined audience types with curated traits and backgrounds
 - **Batch Processing**: Processes 10 personas at a time for efficiency
 - **Dual AI Support**: Seamless switching between OpenAI and Anthropic
-- **Smart Fallback**: Uses .env keys when headers not provided (BYOK friendly)
+- **Server Key Access**: Uses .env keys only for callers sending a valid `X-Access-Token`; otherwise BYOK is required

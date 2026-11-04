@@ -11,13 +11,14 @@ export default function SettingsModal({ onClose }) {
   const [settings, setSettings] = useState({
     provider: 'openai',
     apiKey: '',
+    accessToken: '',
   })
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem('viralcheck-settings')
     if (stored) {
-      setSettings(JSON.parse(stored))
+      setSettings({ provider: 'openai', apiKey: '', accessToken: '', ...JSON.parse(stored) })
     }
   }, [])
 
@@ -31,11 +32,12 @@ export default function SettingsModal({ onClose }) {
   }
 
   const handleClear = () => {
-    setSettings({ provider: 'openai', apiKey: '' })
+    setSettings({ provider: 'openai', apiKey: '', accessToken: '' })
     localStorage.removeItem('viralcheck-settings')
   }
 
   const hasKey = settings.apiKey.length > 0
+  const hasAccessToken = settings.accessToken.length > 0
 
   return (
     <motion.div
@@ -75,10 +77,10 @@ export default function SettingsModal({ onClose }) {
         <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6 flex gap-3">
           <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-300">
-            <p className="font-medium mb-1">Optional: Use your own API keys</p>
+            <p className="font-medium mb-1">An API key or access token is required</p>
             <p className="text-blue-400/80">
-              Keys are stored locally and sent via headers. The backend will use these
-              instead of server keys if provided.
+              Keys are stored locally and sent via headers. To use the server's keys
+              instead, enter the access token provided by the operator.
             </p>
           </div>
         </div>
@@ -139,14 +141,28 @@ export default function SettingsModal({ onClose }) {
           </div>
         </div>
 
+        {/* Access token input */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Server Access Token (optional)
+          </label>
+          <input
+            type="password"
+            value={settings.accessToken}
+            onChange={(e) => setSettings({ ...settings, accessToken: e.target.value })}
+            placeholder="Use the server's API keys"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none input-glow transition-all"
+          />
+        </div>
+
         {/* Status indicator */}
         <div className="mb-6 p-4 bg-white/5 rounded-xl">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-400">Status</span>
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${hasKey ? 'bg-green-500' : 'bg-gray-600'}`}></div>
-              <span className={`text-sm font-medium ${hasKey ? 'text-green-400' : 'text-gray-500'}`}>
-                {hasKey ? 'Key configured' : 'Using server key'}
+              <div className={`w-2 h-2 rounded-full ${hasKey || hasAccessToken ? 'bg-green-500' : 'bg-gray-600'}`}></div>
+              <span className={`text-sm font-medium ${hasKey || hasAccessToken ? 'text-green-400' : 'text-gray-500'}`}>
+                {hasKey ? 'Key configured' : hasAccessToken ? 'Using server key' : 'No key configured'}
               </span>
             </div>
           </div>
