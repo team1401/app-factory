@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const OpenAI = require('openai');
 const Anthropic = require('@anthropic-ai/sdk');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3100;
@@ -22,20 +23,65 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Helper to get AI client based on headers or env
+const MAX_PERSONAS = 30;
+const MAX_CONTENT_LENGTH = 2000;
+const MAX_PERSONA_FIELD_LENGTH = 200;
+const MAX_PERSONA_TRAITS = 10;
+
+class HttpError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}
+
+function hasValidAccessToken(req) {
+  const expected = process.env.SERVER_ACCESS_TOKEN;
+  const provided = req.headers['x-access-token'];
+  if (!expected || typeof provided !== 'string') return false;
+  const a = crypto.createHash('sha256').update(provided).digest();
+  const b = crypto.createHash('sha256').update(expected).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+// Helper to get AI client based on headers or env.
+// Server keys are only used for callers presenting SERVER_ACCESS_TOKEN.
 function getAIClient(req) {
   const provider = req.headers['x-ai-provider'] || 'openai';
   const apiKey = req.headers['x-ai-api-key'];
-  
-  if (provider === 'anthropic') {
-    const key = apiKey || process.env.ANTHROPIC_API_KEY;
-    if (!key) throw new Error('Anthropic API key not provided');
-    return { type: 'anthropic', client: new Anthropic({ apiKey: key }) };
-  } else {
-    const key = apiKey || process.env.OPENAI_API_KEY;
-    if (!key) throw new Error('OpenAI API key not provided');
-    return { type: 'openai', client: new OpenAI({ apiKey: key }) };
+
+  if (provider !== 'openai' && provider !== 'anthropic') {
+    throw new HttpError(400, 'Invalid AI provider');
   }
+
+  let key = typeof apiKey === 'string' && apiKey.trim() ? apiKey.trim() : null;
+  if (!key) {
+    if (!hasValidAccessToken(req)) {
+      throw new HttpError(401, 'An API key or valid access token is required');
+    }
+    key = provider === 'anthropic' ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY;
+    if (!key) throw new HttpError(503, 'Server API key not configured');
+  }
+
+  if (provider === 'anthropic') {
+    return { type: 'anthropic', client: new Anthropic({ apiKey: key }) };
+  }
+  return { type: 'openai', client: new OpenAI({ apiKey: key }) };
+}
+
+function isShortString(value) {
+  return typeof value === 'string' && value.length <= MAX_PERSONA_FIELD_LENGTH;
+}
+
+function isValidPersona(p) {
+  return (
+    p && typeof p === 'object' &&
+    isShortString(p.name) &&
+    isShortString(p.background) &&
+    Array.isArray(p.traits) &&
+    p.traits.length <= MAX_PERSONA_TRAITS &&
+    p.traits.every(isShortString)
+  );
 }
 
 // Persona templates for different audiences
@@ -270,6 +316,9 @@ Return ONLY a JSON array of 30 persona objects. No other text.`;
     
   } catch (error) {
     console.error('Error generating personas:', error);
+    if (error instanceof HttpError) {
+      return res.status(error.status).json({ error: error.message });
+    }
     res.status(500).json({ 
       error: 'Failed to generate personas',
       details: error.message 
@@ -282,8 +331,17 @@ app.post('/api/test-content', async (req, res) => {
   try {
     const { content, personas } = req.body;
     
-    if (!content || !personas || !Array.isArray(personas)) {
+    if (typeof content !== 'string' || !content.trim() || !Array.isArray(personas)) {
       return res.status(400).json({ error: 'Invalid request body' });
+    }
+    if (content.length > MAX_CONTENT_LENGTH) {
+      return res.status(400).json({ error: `Content must be at most ${MAX_CONTENT_LENGTH} characters` });
+    }
+    if (personas.length === 0 || personas.length > MAX_PERSONAS) {
+      return res.status(400).json({ error: `Between 1 and ${MAX_PERSONAS} personas are required` });
+    }
+    if (!personas.every(isValidPersona)) {
+      return res.status(400).json({ error: 'Invalid persona format' });
     }
 
     const { type, client } = getAIClient(req);
@@ -423,6 +481,9 @@ Return ONLY a JSON array of 3 suggestion strings. Each max 20 words.`;
     
   } catch (error) {
     console.error('Error testing content:', error);
+    if (error instanceof HttpError) {
+      return res.status(error.status).json({ error: error.message });
+    }
     res.status(500).json({ 
       error: 'Failed to test content',
       details: error.message 

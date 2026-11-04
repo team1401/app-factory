@@ -9,6 +9,7 @@ services:
       - PORT=3109
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - SERVER_ACCESS_TOKEN=${SERVER_ACCESS_TOKEN:-}
     restart: unless-stopped
     networks:
       - viralcheck-network

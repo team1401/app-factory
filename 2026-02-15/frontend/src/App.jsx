@@ -44,6 +44,9 @@ function App() {
     if (settings.provider && settings.apiKey) {
       headers['X-AI-Provider'] = settings.provider
       headers['X-AI-API-Key'] = settings.apiKey
+    } else if (settings.accessToken) {
+      if (settings.provider) headers['X-AI-Provider'] = settings.provider
+      headers['X-Access-Token'] = settings.accessToken
     }
     
     return headers
@@ -174,6 +177,7 @@ function App() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Enter your headline, tweet, or post title..."
+                maxLength={2000}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none input-glow transition-all resize-none"
                 rows={3}
               />
